@@ -10,7 +10,7 @@ import java.util.Random;
  */
 class TestingGrounds {
 
-    public static void main(String[] args) {
+    public static void main() {
 
         Random randomizer = new Random();
 
@@ -225,8 +225,8 @@ public class Game extends javax.swing.JFrame {
         "<html>Your journey begins in a quiet village in the peaceful grasslands.",
         "<html>Word has spread that the nefarious Demon Lord %s of the Nether Realm has launched an invasion.",
         "<html>Along the way they kidnapped the kingdom's own Princess %s.",
-        "<html>Thus it is now your task to venture across the kingdom and enter the Nether Realm to vanquish the evil army of the Demon Lord",
-        "<html>and to save the princess."};
+        "<html>Thus it is now your task to venture across the kingdom and enter the Nether Realm to vanquish the evil army of the Demon Lord...",
+        "<html>... and save princess."};
 
     String playerName = "";
     Mob player;
@@ -239,6 +239,13 @@ public class Game extends javax.swing.JFrame {
         panel_ClassMenu.setVisible(false);
         panel_Attributes.setVisible(false);
 
+    }
+    
+    private String generateName(String type) {
+        String generatedName = "";
+        
+        
+        return generatedName;
     }
 
     public static void linebreak(int type) {
@@ -264,6 +271,12 @@ public class Game extends javax.swing.JFrame {
         label_Header = new javax.swing.JLabel();
         textField_NameField = new javax.swing.JTextField();
         button_Confirm = new javax.swing.JButton();
+        panel_Game = new javax.swing.JPanel();
+        label_Location = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
         panel_Attributes = new javax.swing.JPanel();
         panel_AttributesActions = new javax.swing.JPanel();
         button_AttributesConfirm = new javax.swing.JButton();
@@ -321,6 +334,36 @@ public class Game extends javax.swing.JFrame {
         });
         panel_Main.add(button_Confirm);
         button_Confirm.setBounds(6, 97, 160, 23);
+
+        panel_Game.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Game.setLayout(null);
+
+        label_Location.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_Location.setText("Location: ");
+        panel_Game.add(label_Location);
+        label_Location.setBounds(10, 10, 500, 40);
+
+        jButton1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jButton1.setText("Inventory");
+        panel_Game.add(jButton1);
+        jButton1.setBounds(360, 250, 150, 40);
+
+        jLabel1.setText("Location");
+        panel_Game.add(jLabel1);
+        jLabel1.setBounds(270, 60, 240, 180);
+
+        jButton2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jButton2.setText("Inventory");
+        panel_Game.add(jButton2);
+        jButton2.setBounds(10, 250, 150, 40);
+
+        jButton3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jButton3.setText("Inventory");
+        panel_Game.add(jButton3);
+        jButton3.setBounds(180, 250, 150, 40);
+
+        panel_Main.add(panel_Game);
+        panel_Game.setBounds(5, 130, 520, 300);
 
         panel_Attributes.setBackground(new java.awt.Color(69, 69, 69));
         panel_Attributes.setLayout(null);
@@ -594,9 +637,11 @@ public class Game extends javax.swing.JFrame {
             }
         }
 
+        // determine the text in the header
         if (dialogueIndex == 3 && textIndex == 2) {
-            
-            label_Header.setText(String.format(loadedDialoge[textIndex],"TEST"));
+            label_Header.setText(String.format(loadedDialoge[textIndex],"DEMON NAME"));
+        } else if (dialogueIndex == 3 && textIndex == 3) {
+            label_Header.setText(String.format(loadedDialoge[textIndex],"PRINCESS NAME"));
         } else {
             label_Header.setText(loadedDialoge[textIndex]);
         }
@@ -691,7 +736,6 @@ public class Game extends javax.swing.JFrame {
         panel_ClassMenu.setVisible(false);
         nextDialogueArray();
     }
-
 
     private void button_HPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_HPActionPerformed
 
@@ -840,6 +884,10 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JButton button_Sanitas;
     private javax.swing.JButton button_Tutela;
     private javax.swing.JButton button_Virtus;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel label_AgilityPoints;
     private javax.swing.JLabel label_AvailablePoints;
     private javax.swing.JLabel label_Celeritas;
@@ -847,6 +895,7 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JLabel label_Header;
     private javax.swing.JLabel label_HealthPoints;
     private javax.swing.JLabel label_Level;
+    private javax.swing.JLabel label_Location;
     private javax.swing.JLabel label_Madeis;
     private javax.swing.JLabel label_MagicPoints;
     private javax.swing.JLabel label_PlayerAffinity;
@@ -859,6 +908,7 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JPanel panel_AttributesActions;
     private javax.swing.JPanel panel_AttributesAddition;
     private javax.swing.JPanel panel_ClassMenu;
+    private javax.swing.JPanel panel_Game;
     private javax.swing.JPanel panel_Main;
     private javax.swing.JTextField textField_NameField;
     // End of variables declaration//GEN-END:variables
