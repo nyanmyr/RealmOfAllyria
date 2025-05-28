@@ -1,0 +1,9 @@
+// <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+// ------------------------------------------------------------------------------------------------------------
+
+version 0.0.3 (prototype)
+progress (5/28/2025)
+• worked on editor folds (organizing the code)
+• finished attributes menu
+• added subattributes
+• finished inventory menu

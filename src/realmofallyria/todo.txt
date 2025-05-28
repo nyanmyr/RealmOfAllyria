@@ -1,0 +1,13 @@
+to do:
+- fill in update log
+- add method on setting location (intro)
+- add prompt for tutorial after dialogue
+- work on xp and level
+- add combat mechanics
+- towns
+- death/ respawn screen
+
+future
+- add save/ load feature
+- hardcore or normal difficulty
+- rework ui
