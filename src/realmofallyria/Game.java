@@ -1,4 +1,3 @@
-
 package realmofallyria;
 
 import java.util.Random;
@@ -393,14 +392,21 @@ public class Game extends javax.swing.JFrame {
         "<html>Word has spread that the nefarious Demon Lord %s of the Nether Realm has launched an invasion.",
         "<html>Along the way they kidnapped the kingdom's own Princess %s.",
         "<html>Thus it is now your task to venture across the kingdom and enter the Nether Realm to vanquish the evil army of the Demon Lord...",
-        "<html>... and save the princess."};
+        "<html>... and save the princess.",
+        "However...",
+        "All adventures begin with humble beginnings...",
+        "I am the Village Elder of the village in which you reside.",
+        "Come talk to me so that you may learn how to fight."};
 
     String playerName = "";
     Mob player;
-    
+
     String currentLocation = "";
 
     boolean introSequenceFinished = false;
+
+    // use int instead?
+    String[] unlockedLocations = new String[10];
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
 
@@ -416,6 +422,8 @@ public class Game extends javax.swing.JFrame {
         panel_Inventory.setVisible(false);
         panel_Travel.setVisible(false);
         button_Return.setVisible(false);
+        panel_Home.setVisible(false);
+        panel_Dialogue.setVisible(false);
 
     }
 
@@ -436,6 +444,11 @@ public class Game extends javax.swing.JFrame {
         label_Header = new javax.swing.JLabel();
         textField_NameField = new javax.swing.JTextField();
         button_DialogueConfirm = new javax.swing.JButton();
+        panel_Dialogue = new javax.swing.JPanel();
+        label_Talker = new javax.swing.JLabel();
+        label_Dialogue = new javax.swing.JLabel();
+        button_Yes = new javax.swing.JButton();
+        button_No = new javax.swing.JButton();
         panel_Game = new javax.swing.JPanel();
         label_GameMP = new javax.swing.JLabel();
         label_GameHP = new javax.swing.JLabel();
@@ -444,10 +457,17 @@ public class Game extends javax.swing.JFrame {
         label_Inventory = new javax.swing.JButton();
         label_Status = new javax.swing.JButton();
         panel_Village = new javax.swing.JPanel();
-        label_VillageElder = new javax.swing.JButton();
-        label_TravellingMerchant = new javax.swing.JButton();
-        label_Home = new javax.swing.JButton();
+        button_VillageElder = new javax.swing.JButton();
+        buttonl_TravellingMerchant = new javax.swing.JButton();
+        button_Home = new javax.swing.JButton();
         panel_Travel = new javax.swing.JPanel();
+        button_Village = new javax.swing.JButton();
+        button_Grasslands = new javax.swing.JButton();
+        label_Wilderness = new javax.swing.JLabel();
+        label_Civilization = new javax.swing.JLabel();
+        panel_Home = new javax.swing.JPanel();
+        button_Rest = new javax.swing.JButton();
+        label_Home = new javax.swing.JLabel();
         panel_Inventory = new javax.swing.JPanel();
         label_Armor = new javax.swing.JLabel();
         label_PDef = new javax.swing.JLabel();
@@ -558,7 +578,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_Main.add(button_Return);
-        button_Return.setBounds(420, 90, 100, 23);
+        button_Return.setBounds(420, 90, 100, 27);
 
         label_Header.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         label_Header.setText("REALM OF ALLYRIA (CLICK TO START)");
@@ -568,7 +588,7 @@ public class Game extends javax.swing.JFrame {
 
         textField_NameField.setText("Adventurer");
         panel_Main.add(textField_NameField);
-        textField_NameField.setBounds(6, 59, 520, 22);
+        textField_NameField.setBounds(6, 59, 520, 26);
 
         button_DialogueConfirm.setText("Confirm");
         button_DialogueConfirm.addActionListener(new java.awt.event.ActionListener() {
@@ -577,7 +597,47 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_Main.add(button_DialogueConfirm);
-        button_DialogueConfirm.setBounds(6, 97, 160, 23);
+        button_DialogueConfirm.setBounds(6, 97, 160, 27);
+
+        panel_Dialogue.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Dialogue.setLayout(null);
+
+        label_Talker.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        label_Talker.setForeground(new java.awt.Color(221, 221, 222));
+        label_Talker.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Talker.setText("Talker");
+        panel_Dialogue.add(label_Talker);
+        label_Talker.setBounds(180, 10, 150, 40);
+
+        label_Dialogue.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_Dialogue.setForeground(new java.awt.Color(221, 221, 222));
+        label_Dialogue.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Dialogue.setText("Talker");
+        panel_Dialogue.add(label_Dialogue);
+        label_Dialogue.setBounds(30, 60, 460, 100);
+
+        button_Yes.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Yes.setText("Yes");
+        button_Yes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_YesActionPerformed(evt);
+            }
+        });
+        panel_Dialogue.add(button_Yes);
+        button_Yes.setBounds(180, 170, 150, 40);
+
+        button_No.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_No.setText("No");
+        button_No.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_NoActionPerformed(evt);
+            }
+        });
+        panel_Dialogue.add(button_No);
+        button_No.setBounds(180, 220, 150, 40);
+
+        panel_Main.add(panel_Dialogue);
+        panel_Dialogue.setBounds(5, 130, 520, 300);
 
         panel_Game.setBackground(new java.awt.Color(69, 69, 69));
         panel_Game.setLayout(null);
@@ -602,6 +662,11 @@ public class Game extends javax.swing.JFrame {
 
         label_Travel.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         label_Travel.setText("Travel");
+        label_Travel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                label_TravelActionPerformed(evt);
+            }
+        });
         panel_Game.add(label_Travel);
         label_Travel.setBounds(10, 250, 150, 40);
 
@@ -628,35 +693,35 @@ public class Game extends javax.swing.JFrame {
         panel_Village.setBackground(new java.awt.Color(63, 63, 63));
         panel_Village.setLayout(null);
 
-        label_VillageElder.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_VillageElder.setText("Village Elder");
-        label_VillageElder.addActionListener(new java.awt.event.ActionListener() {
+        button_VillageElder.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_VillageElder.setText("Village Elder");
+        button_VillageElder.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                label_VillageElderActionPerformed(evt);
+                button_VillageElderActionPerformed(evt);
             }
         });
-        panel_Village.add(label_VillageElder);
-        label_VillageElder.setBounds(10, 90, 220, 30);
+        panel_Village.add(button_VillageElder);
+        button_VillageElder.setBounds(10, 10, 220, 30);
 
-        label_TravellingMerchant.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_TravellingMerchant.setText("Travelling Merchant");
-        label_TravellingMerchant.addActionListener(new java.awt.event.ActionListener() {
+        buttonl_TravellingMerchant.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        buttonl_TravellingMerchant.setText("Travelling Merchant");
+        buttonl_TravellingMerchant.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                label_TravellingMerchantActionPerformed(evt);
+                buttonl_TravellingMerchantActionPerformed(evt);
             }
         });
-        panel_Village.add(label_TravellingMerchant);
-        label_TravellingMerchant.setBounds(10, 50, 220, 30);
+        panel_Village.add(buttonl_TravellingMerchant);
+        buttonl_TravellingMerchant.setBounds(10, 50, 220, 30);
 
-        label_Home.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_Home.setText("Home");
-        label_Home.addActionListener(new java.awt.event.ActionListener() {
+        button_Home.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Home.setText("Home");
+        button_Home.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                label_HomeActionPerformed(evt);
+                button_HomeActionPerformed(evt);
             }
         });
-        panel_Village.add(label_Home);
-        label_Home.setBounds(10, 10, 220, 30);
+        panel_Village.add(button_Home);
+        button_Home.setBounds(10, 90, 220, 30);
 
         panel_Game.add(panel_Village);
         panel_Village.setBounds(270, 10, 240, 230);
@@ -666,8 +731,64 @@ public class Game extends javax.swing.JFrame {
 
         panel_Travel.setBackground(new java.awt.Color(69, 69, 69));
         panel_Travel.setLayout(null);
+
+        button_Village.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Village.setText("Village");
+        button_Village.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_VillageActionPerformed(evt);
+            }
+        });
+        panel_Travel.add(button_Village);
+        button_Village.setBounds(90, 60, 150, 40);
+
+        button_Grasslands.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Grasslands.setText("Grasslands");
+        button_Grasslands.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_GrasslandsActionPerformed(evt);
+            }
+        });
+        panel_Travel.add(button_Grasslands);
+        button_Grasslands.setBounds(280, 60, 150, 40);
+
+        label_Wilderness.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_Wilderness.setForeground(new java.awt.Color(221, 221, 222));
+        label_Wilderness.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Wilderness.setText("Wilderness");
+        panel_Travel.add(label_Wilderness);
+        label_Wilderness.setBounds(280, 10, 150, 40);
+
+        label_Civilization.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_Civilization.setForeground(new java.awt.Color(221, 221, 222));
+        label_Civilization.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Civilization.setText("Civilization");
+        panel_Travel.add(label_Civilization);
+        label_Civilization.setBounds(90, 10, 150, 40);
+
         panel_Main.add(panel_Travel);
         panel_Travel.setBounds(5, 130, 520, 300);
+
+        panel_Home.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Home.setLayout(null);
+
+        button_Rest.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Rest.setText("Rest");
+        button_Rest.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_RestActionPerformed(evt);
+            }
+        });
+        panel_Home.add(button_Rest);
+        button_Rest.setBounds(150, 90, 220, 30);
+
+        label_Home.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Home.setText("Restore HP and MP");
+        panel_Home.add(label_Home);
+        label_Home.setBounds(150, 10, 220, 70);
+
+        panel_Main.add(panel_Home);
+        panel_Home.setBounds(5, 130, 520, 300);
 
         panel_Inventory.setBackground(new java.awt.Color(69, 69, 69));
         panel_Inventory.setLayout(null);
@@ -1247,7 +1368,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_ClassMenu.add(button_Sanitas);
-        button_Sanitas.setBounds(10, 10, 72, 23);
+        button_Sanitas.setBounds(10, 10, 76, 27);
 
         label_Sanitas.setForeground(new java.awt.Color(221, 221, 222));
         label_Sanitas.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -1264,7 +1385,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_ClassMenu.add(button_Celeritas);
-        button_Celeritas.setBounds(110, 10, 76, 23);
+        button_Celeritas.setBounds(110, 10, 76, 27);
 
         label_Celeritas.setForeground(new java.awt.Color(221, 221, 222));
         label_Celeritas.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -1280,7 +1401,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_ClassMenu.add(button_Madeis);
-        button_Madeis.setBounds(220, 10, 72, 23);
+        button_Madeis.setBounds(220, 10, 76, 27);
 
         label_Madeis.setForeground(new java.awt.Color(221, 221, 222));
         label_Madeis.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -1296,7 +1417,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_ClassMenu.add(button_Tutela);
-        button_Tutela.setBounds(330, 10, 72, 23);
+        button_Tutela.setBounds(330, 10, 76, 27);
 
         label_Tutela.setForeground(new java.awt.Color(221, 221, 222));
         label_Tutela.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -1312,7 +1433,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_ClassMenu.add(button_Virtus);
-        button_Virtus.setBounds(430, 10, 72, 23);
+        button_Virtus.setBounds(430, 10, 76, 27);
 
         label_Virtus.setForeground(new java.awt.Color(221, 221, 222));
         label_Virtus.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -1355,7 +1476,7 @@ public class Game extends javax.swing.JFrame {
 
     private void moveDialogue() {
 
-        if (!(dialogueIndex == 5 && textIndex == 5)) {
+        if (!(dialogueIndex == 5 && textIndex == 9)) {
             String[] loadedDialoge = new String[0];
 
             // determine which dialogue array to load
@@ -1415,6 +1536,7 @@ public class Game extends javax.swing.JFrame {
 
             label_Header.setText("REALM OF ALLYRIA (v0.4)");
             travelToLocation("Village");
+            unlockedLocations[0] = "Village";
             introSequenceFinished = true;
 
         }
@@ -1453,6 +1575,8 @@ public class Game extends javax.swing.JFrame {
         panel_Inventory.setVisible(false);
         panel_Attributes.setVisible(false);
         button_Return.setVisible(false);
+        panel_Home.setVisible(false);
+
         panel_Game.setVisible(true);
     }
 
@@ -1806,7 +1930,7 @@ public class Game extends javax.swing.JFrame {
     private void travelToLocation(String locationTravelledTo) {
 
         panel_Village.setVisible(false);
-        
+
         // put the locations here
         switch (locationTravelledTo) {
             case "Village" -> {
@@ -1815,26 +1939,80 @@ public class Game extends javax.swing.JFrame {
         }
 
         currentLocation = locationTravelledTo;
-        
+
         label_Location.setText(String.format("Location: %s", locationTravelledTo));
         openGameScreen();
 
     }
 
-    private void label_HomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_label_HomeActionPerformed
+    private void button_HomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_HomeActionPerformed
 
-    }//GEN-LAST:event_label_HomeActionPerformed
+        panel_Game.setVisible(false);
+        button_Return.setVisible(true);
+        panel_Home.setVisible(true);
 
-    private void label_TravellingMerchantActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_label_TravellingMerchantActionPerformed
+    }//GEN-LAST:event_button_HomeActionPerformed
+
+    private void buttonl_TravellingMerchantActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonl_TravellingMerchantActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_label_TravellingMerchantActionPerformed
+    }//GEN-LAST:event_buttonl_TravellingMerchantActionPerformed
 
-    private void label_VillageElderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_label_VillageElderActionPerformed
+    private void button_VillageElderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_VillageElderActionPerformed
+
+        panel_Dialogue.setVisible(true);
+        label_Talker.setText("Village Elder");
+        label_Dialogue.setText("");
+
+    }//GEN-LAST:event_button_VillageElderActionPerformed
+
+    private void button_RestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_RestActionPerformed
+
+
+    }//GEN-LAST:event_button_RestActionPerformed
+
+    private void label_TravelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_label_TravelActionPerformed
+
+        panel_Game.setVisible(false);
+        button_Return.setVisible(true);
+        panel_Travel.setVisible(true);
+
+        if (unlockedLocations[0] != null) {
+            button_Village.setVisible(true);
+
+        } else {
+            button_Village.setVisible(false);
+
+        }
+
+        if (unlockedLocations[1] != null) {
+            button_Grasslands.setVisible(true);
+
+        } else {
+            button_Grasslands.setVisible(false);
+
+        }
+
+
+    }//GEN-LAST:event_label_TravelActionPerformed
+
+    private void button_VillageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_VillageActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_label_VillageElderActionPerformed
+    }//GEN-LAST:event_button_VillageActionPerformed
+
+    private void button_GrasslandsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_GrasslandsActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_button_GrasslandsActionPerformed
+
+    private void button_YesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_YesActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_button_YesActionPerformed
+
+    private void button_NoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_NoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_button_NoActionPerformed
+
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
-
     public static void main(String args[]) {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -1855,22 +2033,31 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JButton button_CrudeWand;
     private javax.swing.JButton button_DPAddition;
     private javax.swing.JButton button_DialogueConfirm;
+    private javax.swing.JButton button_Grasslands;
     private javax.swing.JButton button_HPAddition;
+    private javax.swing.JButton button_Home;
     private javax.swing.JButton button_IPAddition;
     private javax.swing.JButton button_IronSword;
     private javax.swing.JButton button_Madeis;
+    private javax.swing.JButton button_No;
+    private javax.swing.JButton button_Rest;
     private javax.swing.JButton button_Return;
     private javax.swing.JButton button_SPAddition;
     private javax.swing.JButton button_Sanitas;
     private javax.swing.JButton button_SimpleBow;
     private javax.swing.JButton button_Tutela;
+    private javax.swing.JButton button_Village;
+    private javax.swing.JButton button_VillageElder;
     private javax.swing.JButton button_Virtus;
+    private javax.swing.JButton button_Yes;
+    private javax.swing.JButton buttonl_TravellingMerchant;
     private javax.swing.JLabel label_APAddition;
     private javax.swing.JLabel label_AgilityPoints;
     private javax.swing.JLabel label_Armor;
     private javax.swing.JLabel label_AvailablePoints;
     private javax.swing.JLabel label_CC;
     private javax.swing.JLabel label_Celeritas;
+    private javax.swing.JLabel label_Civilization;
     private javax.swing.JLabel label_CrudeWand;
     private javax.swing.JLabel label_DPAddition;
     private javax.swing.JLabel label_Dash1;
@@ -1889,6 +2076,7 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JLabel label_Dash8;
     private javax.swing.JLabel label_Dash9;
     private javax.swing.JLabel label_DefensePoints;
+    private javax.swing.JLabel label_Dialogue;
     private javax.swing.JLabel label_GameHP;
     private javax.swing.JLabel label_GameMP;
     private javax.swing.JLabel label_GearAP;
@@ -1904,7 +2092,7 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JLabel label_HPAddition;
     private javax.swing.JLabel label_Header;
     private javax.swing.JLabel label_HealthPoints;
-    private javax.swing.JButton label_Home;
+    private javax.swing.JLabel label_Home;
     private javax.swing.JLabel label_IPAddition;
     private javax.swing.JLabel label_IntelligencePoints;
     private javax.swing.JButton label_Inventory;
@@ -1923,6 +2111,7 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JLabel label_SimpleBow;
     private javax.swing.JButton label_Status;
     private javax.swing.JLabel label_StrengthPoints;
+    private javax.swing.JLabel label_Talker;
     private javax.swing.JLabel label_TotalAP;
     private javax.swing.JLabel label_TotalCC;
     private javax.swing.JLabel label_TotalDP;
@@ -1934,11 +2123,10 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JLabel label_TotalPDmg;
     private javax.swing.JLabel label_TotalSP;
     private javax.swing.JButton label_Travel;
-    private javax.swing.JButton label_TravellingMerchant;
     private javax.swing.JLabel label_Tutela;
-    private javax.swing.JButton label_VillageElder;
     private javax.swing.JLabel label_Virtus;
     private javax.swing.JLabel label_Weapon;
+    private javax.swing.JLabel label_Wilderness;
     private javax.swing.JPanel panel_Attributes;
     private javax.swing.JPanel panel_AttributesActions;
     private javax.swing.JPanel panel_AttributesAddition;
@@ -1947,8 +2135,10 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JPanel panel_Dashes;
     private javax.swing.JPanel panel_Dashes1;
     private javax.swing.JPanel panel_Dashes2;
+    private javax.swing.JPanel panel_Dialogue;
     private javax.swing.JPanel panel_Game;
     private javax.swing.JPanel panel_GearAddition;
+    private javax.swing.JPanel panel_Home;
     private javax.swing.JPanel panel_Inventory;
     private javax.swing.JPanel panel_Main;
     private javax.swing.JPanel panel_StartingGear;

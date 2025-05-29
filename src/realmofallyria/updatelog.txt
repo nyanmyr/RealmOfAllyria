@@ -19,3 +19,5 @@ progress (5/28/2025)
 version 0.0.4 (prototype)
 progress (5/29/2025)
 • location travel method
+• worked on dialogue
+• started work on travel
