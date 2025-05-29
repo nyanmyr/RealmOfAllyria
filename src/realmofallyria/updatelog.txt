@@ -2,8 +2,20 @@
 // ------------------------------------------------------------------------------------------------------------
 
 version 0.0.3 (prototype)
+progress (5/26/2025)
+• project started
+
+version 0.0.3 (prototype)
+progress (5/27/2025)
+• intro/ dialogue
+
+version 0.0.3 (prototype)
 progress (5/28/2025)
 • worked on editor folds (organizing the code)
 • finished attributes menu
 • added subattributes
 • finished inventory menu
+
+version 0.0.4 (prototype)
+progress (5/29/2025)
+• location travel method

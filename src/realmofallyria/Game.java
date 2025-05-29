@@ -122,7 +122,7 @@ class Mob {
     int SPGearAddition;
 
     // attributes addition (used in attribute menu)
-    int attributePointsAddition;
+    int usedAttributePoints;
 
     int HPAddition;
     int IPAddition;
@@ -132,6 +132,8 @@ class Mob {
 
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------
+    // <editor-fold desc="subattributes stuff">
     // subattributes
     double physicalDefense;
     double magicalDefense;
@@ -145,9 +147,11 @@ class Mob {
     double pDmgGearAddition;
     double mDmgGearAddition;
     double cCGearAddition;
-    
+
     // created especially for cc because of its scalability
     double addedCC;
+    // </editor-fold>
+    // -----------------------------------------------------------------------------------------------------------
 
     // subattributes additions (from gear)
     String name;
@@ -169,9 +173,6 @@ class Mob {
         defensePoints = 1;
         strengthPoints = 1;
 
-        currentHP = healthPoints;
-        currentMP = intelligencePoints * 5;
-
         switch (typeAffinity) {
             case "Sanitas" -> {
                 healthPoints += 10;
@@ -190,10 +191,13 @@ class Mob {
             }
         }
 
+        currentHP = healthPoints;
+        currentMP = intelligencePoints * 5;
+
     }
 
     public void attributeAddition(String affinityAddition) {
-        attributePointsAddition++;
+        usedAttributePoints++;
 
         switch (affinityAddition) {
             case "Sanitas" -> {
@@ -217,7 +221,7 @@ class Mob {
 
     public void confirmAttributeChanges() {
 
-        attributePointsAddition = 0;
+        usedAttributePoints = 0;
 
         healthPoints += HPAddition;
         intelligencePoints += IPAddition;
@@ -235,14 +239,16 @@ class Mob {
         SPAddition = 0;
 
         setSubAttributes();
-        if (equippedArmor != null && equippedWeapon != null) equipGear(equippedArmor, equippedArmorLVL, equippedWeapon, equippedWeaponLVL);
+        if (equippedArmor != null && equippedWeapon != null) {
+            equipGear(equippedArmor, equippedArmorLVL, equippedWeapon, equippedWeaponLVL);
+        }
 
     }
 
     public void resetAttributeChanges() {
 
-        attributePoints += attributePointsAddition;
-        attributePointsAddition = 0;
+        attributePoints += usedAttributePoints;
+        usedAttributePoints = 0;
 
         HPAddition = 0;
         IPAddition = 0;
@@ -288,7 +294,7 @@ class Mob {
         pDmgGearAddition = 0;
         mDmgGearAddition = 0;
         cCGearAddition = 0;
-        
+
         addedCC = 0;
         // </editor-fold>
         // -----------------------------------------------------------------------------------------------------------
@@ -311,11 +317,11 @@ class Mob {
                 IPGearAddition += weaponLevel * 2;
             }
         }
-        
-        pDefGearAddition += DPGearAddition * 1.5;
-        mDefGearAddition += IPGearAddition * 0.75;
-        pDmgGearAddition += SPGearAddition * 0.75;
-        mDmgGearAddition += IPGearAddition * 0.375;
+
+        pDefGearAddition += DPGearAddition * 0.75;
+        mDefGearAddition += IPGearAddition * 0.375;
+        pDmgGearAddition += SPGearAddition * 1.5;
+        mDmgGearAddition += IPGearAddition * 0.75;
         cCGearAddition += APGearAddition;
 
         physicalDefense += pDefGearAddition;
@@ -338,10 +344,10 @@ class Mob {
 
     public void setSubAttributes() {
 
-        physicalDefense = defensePoints * 1.5;
-        magicalDefense = intelligencePoints * 0.75;
-        physicalDamage = strengthPoints * 0.75;
-        magicalDamage = intelligencePoints * 0.375;
+        physicalDefense = defensePoints * 0.75;
+        magicalDefense = intelligencePoints * 0.375;
+        physicalDamage = strengthPoints * 1.5;
+        magicalDamage = intelligencePoints * 0.75;
         critChance = scaleCritChance(agilityPoints);
 
     }
@@ -391,6 +397,8 @@ public class Game extends javax.swing.JFrame {
 
     String playerName = "";
     Mob player;
+    
+    String currentLocation = "";
 
     boolean introSequenceFinished = false;
     // </editor-fold>
@@ -428,6 +436,18 @@ public class Game extends javax.swing.JFrame {
         label_Header = new javax.swing.JLabel();
         textField_NameField = new javax.swing.JTextField();
         button_DialogueConfirm = new javax.swing.JButton();
+        panel_Game = new javax.swing.JPanel();
+        label_GameMP = new javax.swing.JLabel();
+        label_GameHP = new javax.swing.JLabel();
+        label_Location = new javax.swing.JLabel();
+        label_Travel = new javax.swing.JButton();
+        label_Inventory = new javax.swing.JButton();
+        label_Status = new javax.swing.JButton();
+        panel_Village = new javax.swing.JPanel();
+        label_VillageElder = new javax.swing.JButton();
+        label_TravellingMerchant = new javax.swing.JButton();
+        label_Home = new javax.swing.JButton();
+        panel_Travel = new javax.swing.JPanel();
         panel_Inventory = new javax.swing.JPanel();
         label_Armor = new javax.swing.JLabel();
         label_PDef = new javax.swing.JLabel();
@@ -503,14 +523,6 @@ public class Game extends javax.swing.JFrame {
         button_IPAddition = new javax.swing.JButton();
         button_DPAddition = new javax.swing.JButton();
         button_SPAddition = new javax.swing.JButton();
-        panel_Game = new javax.swing.JPanel();
-        label_GameMP = new javax.swing.JLabel();
-        label_GameHP = new javax.swing.JLabel();
-        label_Location = new javax.swing.JLabel();
-        label_LocationImage = new javax.swing.JLabel();
-        label_Travel = new javax.swing.JButton();
-        label_Inventory = new javax.swing.JButton();
-        label_Status = new javax.swing.JButton();
         panel_StartingGear = new javax.swing.JPanel();
         button_IronSword = new javax.swing.JButton();
         label_IronSword = new javax.swing.JLabel();
@@ -518,7 +530,6 @@ public class Game extends javax.swing.JFrame {
         label_SimpleBow = new javax.swing.JLabel();
         button_CrudeWand = new javax.swing.JButton();
         label_CrudeWand = new javax.swing.JLabel();
-        panel_Travel = new javax.swing.JPanel();
         panel_ClassMenu = new javax.swing.JPanel();
         button_Sanitas = new javax.swing.JButton();
         label_Sanitas = new javax.swing.JLabel();
@@ -567,6 +578,96 @@ public class Game extends javax.swing.JFrame {
         });
         panel_Main.add(button_DialogueConfirm);
         button_DialogueConfirm.setBounds(6, 97, 160, 23);
+
+        panel_Game.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Game.setLayout(null);
+
+        label_GameMP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_GameMP.setForeground(new java.awt.Color(221, 221, 222));
+        label_GameMP.setText("MP:");
+        panel_Game.add(label_GameMP);
+        label_GameMP.setBounds(10, 100, 240, 40);
+
+        label_GameHP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_GameHP.setForeground(new java.awt.Color(221, 221, 222));
+        label_GameHP.setText("HP:");
+        panel_Game.add(label_GameHP);
+        label_GameHP.setBounds(10, 60, 240, 40);
+
+        label_Location.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_Location.setForeground(new java.awt.Color(221, 221, 222));
+        label_Location.setText("Location: ");
+        panel_Game.add(label_Location);
+        label_Location.setBounds(10, 10, 240, 40);
+
+        label_Travel.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_Travel.setText("Travel");
+        panel_Game.add(label_Travel);
+        label_Travel.setBounds(10, 250, 150, 40);
+
+        label_Inventory.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_Inventory.setText("Inventory");
+        label_Inventory.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                label_InventoryActionPerformed(evt);
+            }
+        });
+        panel_Game.add(label_Inventory);
+        label_Inventory.setBounds(180, 250, 150, 40);
+
+        label_Status.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_Status.setText("Status");
+        label_Status.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                label_StatusActionPerformed(evt);
+            }
+        });
+        panel_Game.add(label_Status);
+        label_Status.setBounds(360, 250, 150, 40);
+
+        panel_Village.setBackground(new java.awt.Color(63, 63, 63));
+        panel_Village.setLayout(null);
+
+        label_VillageElder.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_VillageElder.setText("Village Elder");
+        label_VillageElder.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                label_VillageElderActionPerformed(evt);
+            }
+        });
+        panel_Village.add(label_VillageElder);
+        label_VillageElder.setBounds(10, 90, 220, 30);
+
+        label_TravellingMerchant.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_TravellingMerchant.setText("Travelling Merchant");
+        label_TravellingMerchant.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                label_TravellingMerchantActionPerformed(evt);
+            }
+        });
+        panel_Village.add(label_TravellingMerchant);
+        label_TravellingMerchant.setBounds(10, 50, 220, 30);
+
+        label_Home.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_Home.setText("Home");
+        label_Home.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                label_HomeActionPerformed(evt);
+            }
+        });
+        panel_Village.add(label_Home);
+        label_Home.setBounds(10, 10, 220, 30);
+
+        panel_Game.add(panel_Village);
+        panel_Village.setBounds(270, 10, 240, 230);
+
+        panel_Main.add(panel_Game);
+        panel_Game.setBounds(5, 130, 520, 300);
+
+        panel_Travel.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Travel.setLayout(null);
+        panel_Main.add(panel_Travel);
+        panel_Travel.setBounds(5, 130, 520, 300);
 
         panel_Inventory.setBackground(new java.awt.Color(69, 69, 69));
         panel_Inventory.setLayout(null);
@@ -1081,59 +1182,6 @@ public class Game extends javax.swing.JFrame {
         panel_Main.add(panel_Attributes);
         panel_Attributes.setBounds(5, 130, 520, 300);
 
-        panel_Game.setBackground(new java.awt.Color(69, 69, 69));
-        panel_Game.setLayout(null);
-
-        label_GameMP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_GameMP.setForeground(new java.awt.Color(221, 221, 222));
-        label_GameMP.setText("MP:");
-        panel_Game.add(label_GameMP);
-        label_GameMP.setBounds(10, 100, 230, 40);
-
-        label_GameHP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_GameHP.setForeground(new java.awt.Color(221, 221, 222));
-        label_GameHP.setText("HP:");
-        panel_Game.add(label_GameHP);
-        label_GameHP.setBounds(10, 60, 230, 40);
-
-        label_Location.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_Location.setForeground(new java.awt.Color(221, 221, 222));
-        label_Location.setText("Location: ");
-        panel_Game.add(label_Location);
-        label_Location.setBounds(10, 10, 500, 40);
-
-        label_LocationImage.setText("Location");
-        panel_Game.add(label_LocationImage);
-        label_LocationImage.setBounds(270, 60, 240, 180);
-
-        label_Travel.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_Travel.setText("Travel");
-        panel_Game.add(label_Travel);
-        label_Travel.setBounds(10, 250, 150, 40);
-
-        label_Inventory.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_Inventory.setText("Inventory");
-        label_Inventory.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                label_InventoryActionPerformed(evt);
-            }
-        });
-        panel_Game.add(label_Inventory);
-        label_Inventory.setBounds(180, 250, 150, 40);
-
-        label_Status.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_Status.setText("Status");
-        label_Status.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                label_StatusActionPerformed(evt);
-            }
-        });
-        panel_Game.add(label_Status);
-        label_Status.setBounds(360, 250, 150, 40);
-
-        panel_Main.add(panel_Game);
-        panel_Game.setBounds(5, 130, 520, 300);
-
         panel_StartingGear.setBackground(new java.awt.Color(69, 69, 69));
         panel_StartingGear.setLayout(null);
 
@@ -1188,11 +1236,6 @@ public class Game extends javax.swing.JFrame {
 
         panel_Main.add(panel_StartingGear);
         panel_StartingGear.setBounds(5, 130, 520, 300);
-
-        panel_Travel.setBackground(new java.awt.Color(69, 69, 69));
-        panel_Travel.setLayout(null);
-        panel_Main.add(panel_Travel);
-        panel_Travel.setBounds(5, 130, 520, 300);
 
         panel_ClassMenu.setBackground(new java.awt.Color(69, 69, 69));
         panel_ClassMenu.setLayout(null);
@@ -1306,13 +1349,6 @@ public class Game extends javax.swing.JFrame {
 
             moveDialogue();
 
-        } else {
-
-            label_GameHP.setText(String.format("Health Points (HP): %s / %s\n", String.valueOf(player.currentHP),
-                    String.valueOf(player.healthPoints)));
-            label_GameMP.setText(String.format("Magic Points (MP): %s / %s\n", String.valueOf(player.currentMP),
-                    String.valueOf(player.intelligencePoints * 5)));
-
         }
 
     }//GEN-LAST:event_panel_MainMouseClicked
@@ -1377,12 +1413,8 @@ public class Game extends javax.swing.JFrame {
             }
         } else {
 
-            label_Header.setText("");
-            openGameScreen();
-            label_GameHP.setText(String.format("Health Points (HP): %s / %s\n", String.valueOf(player.currentHP),
-                    String.valueOf(player.healthPoints)));
-            label_GameMP.setText(String.format("Magic Points (MP): %s / %s\n", String.valueOf(player.currentMP),
-                    String.valueOf(player.intelligencePoints * 5)));
+            label_Header.setText("REALM OF ALLYRIA (v0.4)");
+            travelToLocation("Village");
             introSequenceFinished = true;
 
         }
@@ -1411,6 +1443,11 @@ public class Game extends javax.swing.JFrame {
     }
 
     private void openGameScreen() {
+
+        label_GameHP.setText(String.format("Health Points (HP): %s / %s\n", String.valueOf(player.currentHP),
+                String.valueOf(player.healthPoints)));
+        label_GameMP.setText(String.format("Magic Points (MP): %s / %s\n", String.valueOf(player.currentMP),
+                String.valueOf(player.intelligencePoints * 5)));
 
         panel_Travel.setVisible(false);
         panel_Inventory.setVisible(false);
@@ -1608,9 +1645,10 @@ public class Game extends javax.swing.JFrame {
 
     }//GEN-LAST:event_label_StatusActionPerformed
 
+    // return to game menu (appears in travel, inventory, and attributes/ status menu)
     private void button_ReturnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_ReturnActionPerformed
 
-        openGameScreen();
+        travelToLocation(currentLocation);
 
     }//GEN-LAST:event_button_ReturnActionPerformed
 
@@ -1763,6 +1801,40 @@ public class Game extends javax.swing.JFrame {
 
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------
+    // <editor-fold desc="choosing the starting gear and inventory stuff">
+    private void travelToLocation(String locationTravelledTo) {
+
+        panel_Village.setVisible(false);
+        
+        // put the locations here
+        switch (locationTravelledTo) {
+            case "Village" -> {
+                panel_Village.setVisible(true);
+            }
+        }
+
+        currentLocation = locationTravelledTo;
+        
+        label_Location.setText(String.format("Location: %s", locationTravelledTo));
+        openGameScreen();
+
+    }
+
+    private void label_HomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_label_HomeActionPerformed
+
+    }//GEN-LAST:event_label_HomeActionPerformed
+
+    private void label_TravellingMerchantActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_label_TravellingMerchantActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_label_TravellingMerchantActionPerformed
+
+    private void label_VillageElderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_label_VillageElderActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_label_VillageElderActionPerformed
+    // </editor-fold>
+    // -----------------------------------------------------------------------------------------------------------
+
     public static void main(String args[]) {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -1832,13 +1904,13 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JLabel label_HPAddition;
     private javax.swing.JLabel label_Header;
     private javax.swing.JLabel label_HealthPoints;
+    private javax.swing.JButton label_Home;
     private javax.swing.JLabel label_IPAddition;
     private javax.swing.JLabel label_IntelligencePoints;
     private javax.swing.JButton label_Inventory;
     private javax.swing.JLabel label_IronSword;
     private javax.swing.JLabel label_Level;
     private javax.swing.JLabel label_Location;
-    private javax.swing.JLabel label_LocationImage;
     private javax.swing.JLabel label_MDef;
     private javax.swing.JLabel label_MDmg;
     private javax.swing.JLabel label_Madeis;
@@ -1862,7 +1934,9 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JLabel label_TotalPDmg;
     private javax.swing.JLabel label_TotalSP;
     private javax.swing.JButton label_Travel;
+    private javax.swing.JButton label_TravellingMerchant;
     private javax.swing.JLabel label_Tutela;
+    private javax.swing.JButton label_VillageElder;
     private javax.swing.JLabel label_Virtus;
     private javax.swing.JLabel label_Weapon;
     private javax.swing.JPanel panel_Attributes;
@@ -1882,6 +1956,7 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JPanel panel_SubTotal;
     private javax.swing.JPanel panel_Total;
     private javax.swing.JPanel panel_Travel;
+    private javax.swing.JPanel panel_Village;
     private javax.swing.JTextField textField_NameField;
     // End of variables declaration//GEN-END:variables
     // </editor-fold>

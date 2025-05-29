@@ -1,13 +1,14 @@
 to do:
-- fill in update log
-- add method on setting location (intro)
-- add prompt for tutorial after dialogue
+- tutorial
+- rearrange attributes/ affinities/ starting gear to be meaningful
 - work on xp and level
 - add combat mechanics
 - towns
 - death/ respawn screen
 
 future
-- add save/ load feature
+- remove all tool tips using null
+- tips screen between travelling
 - hardcore or normal difficulty
+- add save/ load feature
 - rework ui
