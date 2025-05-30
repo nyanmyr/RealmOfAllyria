@@ -1,5 +1,4 @@
 to do:
-- tutorial
 - rearrange attributes/ affinities/ starting gear to be meaningful
 - work on xp and level
 - add combat mechanics

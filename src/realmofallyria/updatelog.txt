@@ -21,3 +21,9 @@ progress (5/29/2025)
 • location travel method
 • worked on dialogue
 • started work on travel
+
+version 0.0.5 (prototype)
+progress (5/30/2025)
+• fixed some bugs with attributes/ status menu (confirm would disappear even with attribute points available)
+• working on village elder training/ tutorial
+• started work on combat
