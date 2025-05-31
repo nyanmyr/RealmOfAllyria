@@ -27,3 +27,7 @@ progress (5/30/2025)
 • fixed some bugs with attributes/ status menu (confirm would disappear even with attribute points available)
 • working on village elder training/ tutorial
 • started work on combat
+
+version 0.0.6 (prototype)
+progress (5/31/2025)
+• worked on skill implementation

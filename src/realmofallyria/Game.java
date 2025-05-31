@@ -1,5 +1,8 @@
+
 package realmofallyria;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 
 /*
@@ -97,6 +100,8 @@ class TestingGrounds {
 
 class Mob {
 
+    Random critChanceRandomizer = new Random();
+
     String name;
     String typeAffinity;
 
@@ -177,10 +182,11 @@ class Mob {
         this.name = mobName;
         this.typeAffinity = mobTypeAffinity;
         this.level = mobLevel;
+
         chooseAffinity();
-        equipGear(mobArmor, mobArmorLevel, mobWeapon, mobWeaponLevel);
         randomizeAttributes();
         confirmAttributeChanges();
+        equipGear(mobArmor, mobArmorLevel, mobWeapon, mobWeaponLevel);
 
     }
 
@@ -350,13 +356,19 @@ class Mob {
         // -----------------------------------------------------------------------------------------------------------
 
         switch (chosenArmor) {
-            case "Leather Armor" -> {
-                HPGearAddition += armorLevel * 1000;
-                DPGearAddition += armorLevel * 1000;
+            case "Unarmored" -> {
+                break;
             }
-            case "DEBUG" -> {
+            case "Slime Armor" -> {
+                IPGearAddition += armorLevel * 1;
+            }
+            case "Leather Armor" -> {
                 HPGearAddition += armorLevel * 10;
                 DPGearAddition += armorLevel * 1;
+            }
+            case "DEBUG" -> {
+                HPGearAddition += armorLevel * 1000;
+                DPGearAddition += armorLevel * 1000;
             }
             default -> {
                 break;
@@ -375,6 +387,9 @@ class Mob {
             case "Crude Wand" -> {
                 IPGearAddition += weaponLevel * 2;
                 skill1 = "Magic Missile";
+            }
+            case "Slime" -> {
+                skill1 = "Slime";
             }
             case "DEBUG" -> {
                 IPGearAddition += weaponLevel * 1000;
@@ -426,31 +441,83 @@ class Mob {
     }
 
     // use skill method here
+    public double[] useSkill(String skillUsed) {
+
+        // index 0 is for pdmg, and 1 is for mdmg
+        double[] damageDealt = new double[2];
+
+        switch (skillUsed) {
+            case "Slash" -> {
+                damageDealt[0] = physicalDamage;
+            }
+            case "Shoot" -> {
+                damageDealt[0] = physicalDamage / 2;
+            }
+            case "Magic Missile" -> {
+                damageDealt[1] = magicalDamage;
+            }
+            case "Punch" -> {
+                damageDealt[0] = physicalDamage;
+            }
+            case "SlimeAttack" -> {
+                damageDealt[0] = physicalDamage;
+            }
+        }
+
+        if (critChance > critChanceRandomizer.nextDouble(1, 101)) {
+            System.out.println("CRITDAMAGE DEALT");
+            damageDealt[0] *= 2;
+            damageDealt[1] *= 2;
+        }
+
+        return damageDealt;
+
+    }
+
+    public void defend(double[] damageTaken) {
+
+        currentHP -= damageTaken[0] - physicalDefense;
+        currentHP -= damageTaken[1] - magicalDefense;
+
+    }
+
     // level/ xp up method here
 }
 
 class Battle {
 
-    int turn;
+    Queue<String> turns = new LinkedList<>();
 
     Mob player;
     Mob enemy;
 
     public Battle(Mob givenPlayer, Mob givenEnemy) {
+
         this.player = givenPlayer;
         this.enemy = givenEnemy;
-    }
-
-    // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    // work here
-    // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-
-    // use skill method here
-    public Mob useSkill(String skillUsed, Mob attackedMob) {
-
-        return attackedMob;
+        if (player.agilityPoints > enemy.agilityPoints) {
+            turns.add(player.name);
+        } else {
+            turns.add(enemy.name);
+        }
 
     }
+
+    public void takeTurn(String mobSkillUsed, Mob defendingMob, Mob attackingMob) {
+
+        // <editor-fold desc="uses a queue data structure to determine turns.">
+        if (turns.peek().equals(player.name)) {
+            turns.add(enemy.name);
+        } else {
+            turns.add(player.name);
+        }
+        turns.poll();
+        // </editor-fold>
+
+        defendingMob.defend(attackingMob.useSkill(mobSkillUsed));
+
+    }
+
 }
 
 public class Game extends javax.swing.JFrame {
@@ -538,7 +605,8 @@ public class Game extends javax.swing.JFrame {
         dialogueIndex = 6;
 
         player = new Mob();
-        player.generateMob("Saitama", "Madeis", 50, "DEBUG", 1, "DEBUG", 1);
+        player.generateMob("Bashame", "Virtus", 1, "Leather Armor", 1, "Iron Sword", 1);
+        // player.generateMob("Saitama", "Madeis", 50, "DEBUG", 1, "DEBUG", 1);
 
         initComponents();
 
@@ -560,7 +628,6 @@ public class Game extends javax.swing.JFrame {
     // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     // unusued for now
     // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-
     private String generateName(String type) {
         // use linked list
 
@@ -588,13 +655,13 @@ public class Game extends javax.swing.JFrame {
         button_UseInventory = new javax.swing.JButton();
         button_FleeCombat = new javax.swing.JButton();
         button_UseAttack = new javax.swing.JButton();
+        panel_CombatLog = new javax.swing.JPanel();
+        label_CombatLog = new javax.swing.JLabel();
         panel_Skills = new javax.swing.JPanel();
         button_UseSkill1 = new javax.swing.JButton();
         button_UseSkill2 = new javax.swing.JButton();
         button_UseSkill3 = new javax.swing.JButton();
         button_UseSkill4 = new javax.swing.JButton();
-        panel_CombatLog = new javax.swing.JPanel();
-        label_CombatLog = new javax.swing.JLabel();
         panel_Dialogue = new javax.swing.JPanel();
         label_Talker = new javax.swing.JLabel();
         label_Dialogue = new javax.swing.JLabel();
@@ -729,7 +796,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_Main.add(button_Return);
-        button_Return.setBounds(420, 90, 100, 27);
+        button_Return.setBounds(420, 90, 100, 23);
 
         label_Header.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         label_Header.setText("REALM OF ALLYRIA (CLICK TO START)");
@@ -739,7 +806,7 @@ public class Game extends javax.swing.JFrame {
 
         textField_NameField.setText("Adventurer");
         panel_Main.add(textField_NameField);
-        textField_NameField.setBounds(6, 59, 520, 26);
+        textField_NameField.setBounds(6, 59, 520, 22);
 
         button_DialogueConfirm.setText("Confirm");
         button_DialogueConfirm.addActionListener(new java.awt.event.ActionListener() {
@@ -748,7 +815,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_Main.add(button_DialogueConfirm);
-        button_DialogueConfirm.setBounds(6, 97, 160, 27);
+        button_DialogueConfirm.setBounds(6, 97, 160, 23);
 
         panel_Combat.setBackground(new java.awt.Color(69, 69, 69));
         panel_Combat.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -830,6 +897,20 @@ public class Game extends javax.swing.JFrame {
         panel_Combat.add(button_UseAttack);
         button_UseAttack.setBounds(20, 240, 150, 40);
 
+        panel_CombatLog.setLayout(null);
+
+        label_CombatLog.setBackground(new java.awt.Color(99, 99, 99));
+        label_CombatLog.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_CombatLog.setForeground(new java.awt.Color(9, 9, 9));
+        label_CombatLog.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_CombatLog.setText("Actions");
+        label_CombatLog.setOpaque(true);
+        panel_CombatLog.add(label_CombatLog);
+        label_CombatLog.setBounds(0, 0, 480, 100);
+
+        panel_Combat.add(panel_CombatLog);
+        panel_CombatLog.setBounds(20, 130, 480, 100);
+
         panel_Skills.setLayout(null);
 
         button_UseSkill1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -874,20 +955,6 @@ public class Game extends javax.swing.JFrame {
 
         panel_Combat.add(panel_Skills);
         panel_Skills.setBounds(20, 130, 480, 100);
-
-        panel_CombatLog.setLayout(null);
-
-        label_CombatLog.setBackground(new java.awt.Color(99, 99, 99));
-        label_CombatLog.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_CombatLog.setForeground(new java.awt.Color(9, 9, 9));
-        label_CombatLog.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_CombatLog.setText("Actions");
-        label_CombatLog.setOpaque(true);
-        panel_CombatLog.add(label_CombatLog);
-        label_CombatLog.setBounds(10, 10, 460, 80);
-
-        panel_Combat.add(panel_CombatLog);
-        panel_CombatLog.setBounds(20, 130, 480, 100);
 
         panel_Main.add(panel_Combat);
         panel_Combat.setBounds(5, 130, 520, 300);
@@ -1666,7 +1733,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_ClassMenu.add(button_Sanitas);
-        button_Sanitas.setBounds(10, 10, 76, 27);
+        button_Sanitas.setBounds(10, 10, 72, 23);
 
         label_Sanitas.setForeground(new java.awt.Color(221, 221, 222));
         label_Sanitas.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -1683,7 +1750,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_ClassMenu.add(button_Celeritas);
-        button_Celeritas.setBounds(110, 10, 76, 27);
+        button_Celeritas.setBounds(110, 10, 76, 23);
 
         label_Celeritas.setForeground(new java.awt.Color(221, 221, 222));
         label_Celeritas.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -1699,7 +1766,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_ClassMenu.add(button_Madeis);
-        button_Madeis.setBounds(220, 10, 76, 27);
+        button_Madeis.setBounds(220, 10, 72, 23);
 
         label_Madeis.setForeground(new java.awt.Color(221, 221, 222));
         label_Madeis.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -1715,7 +1782,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_ClassMenu.add(button_Tutela);
-        button_Tutela.setBounds(330, 10, 76, 27);
+        button_Tutela.setBounds(330, 10, 72, 23);
 
         label_Tutela.setForeground(new java.awt.Color(221, 221, 222));
         label_Tutela.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -1731,7 +1798,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_ClassMenu.add(button_Virtus);
-        button_Virtus.setBounds(430, 10, 76, 27);
+        button_Virtus.setBounds(430, 10, 72, 23);
 
         label_Virtus.setForeground(new java.awt.Color(221, 221, 222));
         label_Virtus.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -1839,26 +1906,15 @@ public class Game extends javax.swing.JFrame {
 
             label_Dialogue.setText(loadedDialoge[textIndex]);
 
-            if (dialogueIndex == 7 && textIndex == 19) {
+            // put back to normal: (dialogueIndex == 7 && textIndex == 19)
+            if (dialogueIndex == 7 && textIndex == 1) {
 
                 // method this
                 enemy = new Mob();
-                enemy.generateMob("Slime", "Madeis", 1, "", 0, "", 0);
+                enemy.generateMob("Slime", "Madeis", 1, "Slime Armor", 1, "Slime", 1);
                 battle = new Battle(player, enemy);
 
-                label_CombatPlayer.setText(String.format("%s (LVL %s)", battle.player.name,
-                        battle.player.level));
-                label_CombatHP.setText(String.format("Health Points (HP): %s / %s\n", String.valueOf(battle.player.currentHP),
-                        String.valueOf(battle.player.healthPoints)));
-                label_CombatMP.setText(String.format("Magic Points (MP): %s / %s\n", String.valueOf(battle.player.currentMP),
-                        String.valueOf(battle.player.intelligencePoints * 5)));
-
-                label_CombatEnemy.setText(String.format("%s (LVL %s)", battle.enemy.name,
-                        battle.enemy.level));
-                label_EnemyHP.setText(String.format("Health Points (HP): %s / %s\n", String.valueOf(battle.enemy.currentHP),
-                        String.valueOf(battle.enemy.healthPoints)));
-                label_EnemyMP.setText(String.format("Magic Points (MP): %s / %s\n", String.valueOf(battle.enemy.currentMP),
-                        String.valueOf(battle.enemy.intelligencePoints * 5)));
+                updateCombatScreen();
 
                 panel_Combat.setVisible(true);
                 panel_CombatLog.setVisible(true);
@@ -1880,6 +1936,22 @@ public class Game extends javax.swing.JFrame {
 
         }
 
+    }
+
+    private void updateCombatScreen() {
+        label_CombatPlayer.setText(String.format("%s (LVL %s)", battle.player.name,
+                battle.player.level));
+        label_CombatHP.setText(String.format("Health Points (HP): %s / %s\n", String.valueOf(battle.player.currentHP),
+                String.valueOf(battle.player.healthPoints)));
+        label_CombatMP.setText(String.format("Magic Points (MP): %s / %s\n", String.valueOf(battle.player.currentMP),
+                String.valueOf(battle.player.intelligencePoints * 5)));
+
+        label_CombatEnemy.setText(String.format("%s (LVL %s)", battle.enemy.name,
+                battle.enemy.level));
+        label_EnemyHP.setText(String.format("Health Points (HP): %s / %s\n", String.valueOf(battle.enemy.currentHP),
+                String.valueOf(battle.enemy.healthPoints)));
+        label_EnemyMP.setText(String.format("Magic Points (MP): %s / %s\n", String.valueOf(battle.enemy.currentMP),
+                String.valueOf(battle.enemy.intelligencePoints * 5)));
     }
 
     private void button_DialogueConfirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_DialogueConfirmActionPerformed
@@ -2362,8 +2434,23 @@ public class Game extends javax.swing.JFrame {
 
     }//GEN-LAST:event_panel_DialogueMouseClicked
 
+    private void tempTakeTurn() {
+        
+        label_CombatLog;
+        
+    }
+    
     private void button_UseSkill1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_UseSkill1ActionPerformed
-        // TODO add your handling code here:
+
+        battle.takeTurn(player.skill1, enemy, player);
+        
+        tempTakeTurn();
+
+        panel_CombatLog.setVisible(true);
+        panel_Skills.setVisible(false);
+
+        updateCombatScreen();
+
     }//GEN-LAST:event_button_UseSkill1ActionPerformed
 
     private void button_FleeCombatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_FleeCombatActionPerformed
