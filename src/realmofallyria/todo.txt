@@ -1,11 +1,16 @@
-to do:
-- turn health points to int
+menial things;
+- add message in dialogue (click to talk)
 - rearrange attributes/ affinities/ starting gear to be meaningful
+
+to do:
 - add combat mechanics
-- work on skill attack messages
+- work on
 - work on xp and level
+- fleeing
 - towns
 - death/ respawn screen
+- tutorial death screen
+- quest menu
 
 future
 - remove all tool tips using null

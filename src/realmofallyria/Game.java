@@ -100,7 +100,7 @@ class TestingGrounds {
 
 class Mob {
 
-    Random critChanceRandomizer = new Random();
+    Random mobRandomizer = new Random();
 
     String name;
     String typeAffinity;
@@ -115,27 +115,27 @@ class Mob {
     // -----------------------------------------------------------------------------------------------------------
     // <editor-fold desc="attributes stuff">
     // attributes
-    double healthPoints;
-    double intelligencePoints;
-    double agilityPoints;
-    double defensePoints;
-    double strengthPoints;
+    int healthPoints;
+    int intelligencePoints;
+    int agilityPoints;
+    int defensePoints;
+    int strengthPoints;
 
     // gear attribute addition: the attributes added from certain gears
-    double HPGearAddition;
-    double IPGearAddition;
-    double APGearAddition;
-    double DPGearAddition;
-    double SPGearAddition;
+    int HPGearAddition;
+    int IPGearAddition;
+    int APGearAddition;
+    int DPGearAddition;
+    int SPGearAddition;
 
     // attributes addition (used in attribute menu)
-    double usedAttributePoints;
+    int usedAttributePoints;
 
-    double HPAddition;
-    double IPAddition;
-    double APAddition;
-    double DPAddition;
-    double SPAddition;
+    int HPAddition;
+    int IPAddition;
+    int APAddition;
+    int DPAddition;
+    int SPAddition;
 
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
@@ -198,7 +198,7 @@ class Mob {
 
             switch (randomizer.nextInt(5)) {
                 case 0 -> {
-                    HPAddition += 10;
+                    HPAddition++;
                 }
                 case 1 -> {
                     IPAddition++;
@@ -220,10 +220,10 @@ class Mob {
     }
 
     public void chooseAffinity() {
-        attributePoints = level * 5;
+        attributePoints = level * 10;
 
         // attributes
-        healthPoints = level * 10;
+        healthPoints = level;
         agilityPoints = level;
         intelligencePoints = level;
         defensePoints = level;
@@ -231,24 +231,24 @@ class Mob {
 
         switch (typeAffinity) {
             case "Sanitas" -> {
-                healthPoints += level * 10;
+                healthPoints += level * 2;
             }
             case "Celeritas" -> {
-                agilityPoints += level * 1;
+                agilityPoints += level * 2;
             }
             case "Madeis" -> {
-                intelligencePoints += level * 1;
+                intelligencePoints += level * 2;
             }
             case "Tutela" -> {
-                defensePoints += level * 1;
+                defensePoints += level * 2;
             }
             case "Virtus" -> {
-                strengthPoints += level * 1;
+                strengthPoints += level * 2;
             }
         }
 
-        currentHP = healthPoints;
-        currentMP = intelligencePoints * 5;
+        currentHP = healthPoints * 5;
+        currentMP = intelligencePoints * 2.5;
 
     }
 
@@ -257,19 +257,19 @@ class Mob {
 
         switch (affinityAddition) {
             case "Sanitas" -> {
-                HPAddition += 10;
+                HPAddition += 2;
             }
             case "Celeritas" -> {
-                APAddition += 1;
+                APAddition += 2;
             }
             case "Madeis" -> {
-                IPAddition += 1;
+                IPAddition += 2;
             }
             case "Tutela" -> {
-                DPAddition += 1;
+                DPAddition += 2;
             }
             case "Virtus" -> {
-                SPAddition += 1;
+                SPAddition += 2;
             }
         }
 
@@ -285,8 +285,8 @@ class Mob {
         defensePoints += DPAddition;
         strengthPoints += SPAddition;
 
-        currentHP += HPAddition;
-        currentMP += IPAddition * 5;
+        currentHP += HPAddition * 5;
+        currentMP += IPAddition * 2.5;
 
         HPAddition = 0;
         IPAddition = 0;
@@ -327,7 +327,6 @@ class Mob {
         magicalDefense -= mDefGearAddition;
         physicalDamage -= pDmgGearAddition;
         magicalDamage -= mDmgGearAddition;
-        // may be a bug here
         critChance -= addedCC;
 
         healthPoints -= HPGearAddition;
@@ -336,8 +335,8 @@ class Mob {
         defensePoints -= DPGearAddition;
         strengthPoints -= SPGearAddition;
 
-        currentHP -= HPGearAddition;
-        currentMP -= IPGearAddition * 5;
+        currentHP -= HPGearAddition * 5;
+        currentMP -= IPGearAddition * 2.5;
 
         HPGearAddition = 0;
         IPGearAddition = 0;
@@ -356,46 +355,53 @@ class Mob {
         // -----------------------------------------------------------------------------------------------------------
 
         switch (chosenArmor) {
-            case "Unarmored" -> {
+            case "Slime Armor": {
+                IPGearAddition += armorLevel * 2;
                 break;
             }
-            case "Slime Armor" -> {
-                IPGearAddition += armorLevel * 1;
+            case "Leather Armor": {
+                HPGearAddition += armorLevel * 2;
+                DPGearAddition += armorLevel * 2;
+                break;
             }
-            case "Leather Armor" -> {
-                HPGearAddition += armorLevel * 10;
-                DPGearAddition += armorLevel * 1;
-            }
-            case "DEBUG" -> {
+            case "DEBUG": {
                 HPGearAddition += armorLevel * 1000;
                 DPGearAddition += armorLevel * 1000;
+                break;
             }
-            default -> {
+            case "Unarmored":
+            default: {
                 break;
             }
         }
 
         switch (chosenWeapon) {
-            case "Iron Sword" -> {
-                SPGearAddition += weaponLevel * 2;
+            case "Iron Sword": {
+                SPGearAddition += weaponLevel * 3;
                 skill1 = "Slash";
+                break;
             }
-            case "Simple Bow" -> {
+            case "Simple Bow": {
+                SPGearAddition += weaponLevel * 1;
                 APGearAddition += weaponLevel * 2;
                 skill1 = "Shoot";
+                break;
             }
-            case "Crude Wand" -> {
-                IPGearAddition += weaponLevel * 2;
+            case "Crude Wand": {
+                IPGearAddition += weaponLevel * 3;
                 skill1 = "Magic Missile";
+                break;
             }
-            case "Slime" -> {
-                skill1 = "SlimeAttack";
+            case "Body": {
+                skill1 = "Tackle";
+                break;
             }
-            case "DEBUG" -> {
+            case "DEBUG": {
                 IPGearAddition += weaponLevel * 1000;
                 skill1 = "Punch";
+                break;
             }
-            default -> {
+            default: {
                 break;
             }
         }
@@ -404,23 +410,21 @@ class Mob {
         mDefGearAddition += IPGearAddition * 0.375;
         pDmgGearAddition += SPGearAddition * 1.5;
         mDmgGearAddition += IPGearAddition * 0.75;
-        cCGearAddition += APGearAddition;
 
         physicalDefense += pDefGearAddition;
         magicalDefense += mDefGearAddition;
         physicalDamage += pDmgGearAddition;
         magicalDamage += mDmgGearAddition;
-        critChance += scaleCritChance(cCGearAddition);
-        addedCC += scaleCritChance(cCGearAddition);
 
         healthPoints += HPGearAddition;
-        intelligencePoints += IPGearAddition;
         agilityPoints += APGearAddition;
+        intelligencePoints += IPGearAddition;
         defensePoints += DPGearAddition;
         strengthPoints += SPGearAddition;
 
-        currentHP += HPGearAddition;
-        currentMP += IPGearAddition * 5;
+        currentHP += HPGearAddition * 5;
+        currentMP += IPGearAddition * 2.5;
+        scaleCritChance();
 
     }
 
@@ -430,44 +434,72 @@ class Mob {
         magicalDefense = intelligencePoints * 0.375;
         physicalDamage = strengthPoints * 1.5;
         magicalDamage = intelligencePoints * 0.75;
-        critChance = scaleCritChance(agilityPoints);
+        scaleCritChance();
 
     }
 
-    private double scaleCritChance(double givenAP) {
+    private void scaleCritChance() {
 
-        double scaleModifier = critChance > 100 ? 0.0625 : critChance > 50 ? 0.125 : 0.25;
-        return givenAP * scaleModifier;
+        // cCGearAddition = mult
+        // agilityPoints
+        // addedCC
+        double baseAgility = agilityPoints - APGearAddition;
+        double gearBonus = APGearAddition;
+
+        double critChanceWithoutGear = calculateCritChance(baseAgility);
+        double critChanceWithGear = calculateCritChance(baseAgility + gearBonus);
+
+        critChance = critChanceWithGear;
+        addedCC = cCGearAddition = critChanceWithGear - critChanceWithoutGear;
+
+    }
+
+    private double calculateCritChance(double agility) {
+        double above0 = Math.min(agility, 50);
+        double above50 = Math.min(Math.max(agility - 50, 0), 50);
+        double above100 = Math.max(agility - 100, 0);
+
+        return (above0 * 0.50) + (above50 * 0.25) + (above100 * 0.125);
     }
 
     // use skill method here
     public double[] useSkill(String skillUsed) {
 
         // index 0 is for pdmg, and 1 is for mdmg
-        double[] damageDealt = new double[2];
+        double[] damageDealt = new double[7];
 
         switch (skillUsed) {
-            case "Slash" -> {
+            case "Tackle":
+            case "Punch":
+            case "Slash": {
                 damageDealt[0] = physicalDamage;
+                break;
             }
-            case "Shoot" -> {
-                damageDealt[0] = physicalDamage / 2;
+            case "Shoot": {
+                damageDealt[0] = physicalDamage * 0.5;
+                break;
             }
-            case "Magic Missile" -> {
+            case "Magic Missile": {
                 damageDealt[1] = magicalDamage;
-            }
-            case "Punch" -> {
-                damageDealt[0] = physicalDamage;
-            }
-            case "SlimeAttack" -> {
-                damageDealt[0] = physicalDamage;
+                break;
             }
         }
 
-        if (critChance > critChanceRandomizer.nextDouble(1, 101)) {
-            System.out.println("CRITDAMAGE DEALT");
+        // randomizes the damage dealt, for variation
+        if (damageDealt[0] > 0) {
+            damageDealt[0] += mobRandomizer.nextDouble((physicalDamage * 0.25) * -1, (physicalDamage * 0.25));
+        }
+        if (damageDealt[1] > 0) {
+            damageDealt[1] += mobRandomizer.nextDouble((magicalDamage * 0.25) * -1, (magicalDamage * 0.25));
+        }
+
+        // third index indicates if the hit is a crit (0 for false, 1 for true)
+        damageDealt[2] = 0;
+
+        if (critChance > mobRandomizer.nextDouble(1, 101)) {
             damageDealt[0] *= 2;
             damageDealt[1] *= 2;
+            damageDealt[2] = 1;
         }
 
         return damageDealt;
@@ -476,22 +508,36 @@ class Mob {
 
     public double[] defend(double[] damageTaken) {
 
-//        System.out.println("physicalDamage: " + (damageTaken[0] - physicalDefense > 0 ? 0 : damageTaken[0] - (physicalDefense * 0.75)));
-//        System.out.println("magicalDamage: " + (damageTaken[1] - magicalDefense > 0 ? 0 : damageTaken[1] - (magicalDefense * 0.8)));
-//        // rework this... damage heals for some reason and return does not align
-//        currentHP -= (damageTaken[0] - physicalDefense > 0 ? 0 : damageTaken[0] - (physicalDefense * 0.75));
-//        currentHP -= (damageTaken[1] - magicalDefense > 0 ? 0 : damageTaken[1] - (magicalDefense * 0.8));
-        System.out.println("PDmg: " + damageTaken[0]);
-        System.out.println("MDmg: " + damageTaken[1]);
+        // is damage even greater than 0? 
+//        System.out.println("PDmg: " + damageTaken[0]);
+//        System.out.println("PDmg Defended: " + physicalDefense);
+//        System.out.println("PDmg Total: " + (damageTaken[0] > 0 ? ((damageTaken[0] * 0.75) - physicalDefense < 0 ? (damageTaken[0] * 0.25) : (damageTaken[0] * 0.75) - physicalDefense + (damageTaken[0] * 0.25)) : 0));
+//        System.out.println("///");
+//        System.out.println("MDmg: " + damageTaken[1]);
+//        System.out.println("MDmg Defended: " + magicalDefense);
+//        System.out.println("MDmg Total: " + (damageTaken[1] > 0 ? ((damageTaken[1] * 0.75) - magicalDefense < 0 ? (damageTaken[1] * 0.25) : (damageTaken[1] * 0.75) - magicalDefense + (damageTaken[1] * 0.25)) : 0));
+//        System.out.println();
+        // saves the dmg inflicted
+        damageTaken[5] = damageTaken[0];
+        damageTaken[6] = damageTaken[1];
 
-        System.out.println("PDmg Defended: " + physicalDefense);
-        System.out.println("MDmg Defended: " + magicalDefense);
+        // saves the dmg defended
+        damageTaken[3] = physicalDefense;
+        damageTaken[4] = magicalDefense;
 
-        // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        // set the damageTaken values to these then officiate the dmg taken
-        // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        System.out.println("PDmg Total: " + (damageTaken[0] > 0 ? (damageTaken[0] - physicalDefense < 0 ? 0 : damageTaken[0] - physicalDefense) : 0));
-        System.out.println("MDmg Total: " + (damageTaken[1] > 0 ? (damageTaken[1] - magicalDefense < 0 ? 0 : damageTaken[1] - magicalDefense) : 0));
+        // saves the total damaged suffered
+        damageTaken[0] = (damageTaken[0] > 0
+                ? (damageTaken[0] - physicalDefense < 0
+                        ? (damageTaken[0] * 0.25) : damageTaken[0] * 0.75 - physicalDefense)
+                : 0);
+        damageTaken[1] = (damageTaken[1] > 0
+                ? (damageTaken[1] - magicalDefense < 0
+                        ? (damageTaken[1] * 0.25) : damageTaken[1] * 0.75 - magicalDefense)
+                : 0);
+
+        // reduces the health by the damage suffered
+        currentHP -= damageTaken[0];
+        currentHP -= damageTaken[1];
 
         return damageTaken;
 
@@ -507,7 +553,7 @@ class Battle {
     Mob player;
     Mob enemy;
 
-    double[] mobDamageTaken;
+    double[] battleDamageTaken;
 
     public Battle(Mob givenPlayer, Mob givenEnemy) {
 
@@ -521,7 +567,7 @@ class Battle {
 
     }
 
-    public String takeTurn(String mobSkillUsed, Mob defendingMob, Mob attackingMob) {
+    public String takeTurn(String battleSkillUsed, Mob defendingMob, Mob attackingMob) {
 
         // <editor-fold desc="uses a queue data structure to determine turns.">
         if (turns.peek().equals(player.name)) {
@@ -532,22 +578,49 @@ class Battle {
         turns.poll();
         // </editor-fold>
 
-        mobDamageTaken = defendingMob.defend(attackingMob.useSkill(mobSkillUsed));
+        battleDamageTaken = defendingMob.defend(attackingMob.useSkill(battleSkillUsed));
 
+        String skilluseString = "";
+
+        switch (battleSkillUsed) {
+
+            case "Tackle": {
+                skilluseString = "%s tackled %s";
+                break;
+            }
+            case "Punch": {
+                skilluseString = "%s punched %s";
+                break;
+            }
+            case "Slash": {
+                skilluseString = "%s slashed %s";
+                break;
+            }
+            case "Shoot": {
+                skilluseString = "%s hit %s";
+                break;
+            }
+            case "Magic Missile": {
+                skilluseString = "%s fired a magic missile at %s";
+                break;
+            }
+
+        }
+
+        // no such thing as blocked damage
         String attackString = String.format(""" 
                                             <html>
                                             <p align="center">
-                                            %s used %s on %s
-                                            %s %s
+                                            %s %s %s %s
                                             </p>
                                             </html>
-                                            """, attackingMob.name, mobSkillUsed, defendingMob.name,
-                (mobDamageTaken[0] > 0 ? String.format("<br> Physical damage inflicted (-%s HP)", mobDamageTaken[0]) : ""),
-                (mobDamageTaken[1] > 0 ? String.format("<br> Magical damage inflicted (-%s MP)", mobDamageTaken[1]) : ""));
+                                            """, String.format(skilluseString, attackingMob.name, defendingMob.name),
+                (battleDamageTaken[0] > 0 ? String.format("<br> PDmg inflicted (-%.2f HP)", battleDamageTaken[0]) : battleDamageTaken[5] > 0 ? "<br> Attacked completely blocked!" : ""),
+                (battleDamageTaken[1] > 0 ? String.format("<br> MDmg inflicted (-%.2f MP)", battleDamageTaken[1]) : battleDamageTaken[6] > 0 ? "<br> Attacked completely resisted!" : ""),
+                (battleDamageTaken[2] > 0 ? String.format("<br> CRITICAL HIT! (2x inflicted dmg)") : ""));
 
-        System.out.println(attackString);
+//        System.out.println(attackString);
 //        System.out.println("NEXT TURN:" + turns.peek());
-
         return attackString;
 
     }
@@ -645,8 +718,11 @@ public class Game extends javax.swing.JFrame {
         dialogueIndex = 6;
 
         player = new Mob();
-        player.generateMob("Bashame", "Virtus", 1, "Leather Armor", 1, "Iron Sword", 1);
-        player.attributePoints += 1000;
+        player.generateMob("Bashame",
+                "Celeritas", 1,
+                "Leather Armor", 1,
+                "Simple Bow", 1);
+//        player.attributePoints += 1000;
 // player.generateMob("Saitama", "Madeis", 50, "DEBUG", 1, "DEBUG", 1);
 
         initComponents();
@@ -1952,14 +2028,23 @@ public class Game extends javax.swing.JFrame {
 
                 // method this
                 enemy = new Mob();
-                enemy.generateMob("Slime", "Madeis", 1, "Slime Armor", 1, "Slime", 1);
+                enemy.generateMob("Slime", "Madeis", 1, "Slime Armor", 1, "Body", 1);
                 battle = new Battle(player, enemy);
 
-                startCombat();
+                button_Return.setVisible(false);
+                panel_Home.setVisible(false);
+                panel_Dialogue.setVisible(false);
+                panel_Travel.setVisible(false);
+                panel_Inventory.setVisible(false);
+                panel_Attributes.setVisible(false);
+                button_Return.setVisible(false);
+                panel_Home.setVisible(false);
 
                 panel_Combat.setVisible(true);
                 panel_CombatLog.setVisible(true);
                 panel_Skills.setVisible(false);
+
+                combatTurn();
 
             }
 
@@ -1984,16 +2069,16 @@ public class Game extends javax.swing.JFrame {
         label_CombatPlayer.setText(String.format("%s (LVL %s)", battle.player.name,
                 battle.player.level));
         label_CombatHP.setText(String.format("Health Points (HP): %.2f / %.2f\n", battle.player.currentHP,
-                battle.player.healthPoints));
+                (double) battle.player.healthPoints * 5));
         label_CombatMP.setText(String.format("Magic Points (MP): %.2f / %.2f\n", battle.player.currentMP,
-                battle.player.intelligencePoints * 5));
+                (double) battle.player.intelligencePoints * 2.5));
 
         label_CombatEnemy.setText(String.format("%s (LVL %s)", battle.enemy.name,
                 battle.enemy.level));
         label_EnemyHP.setText(String.format("Health Points (HP): %.2f / %.2f\n", battle.enemy.currentHP,
-                battle.enemy.healthPoints));
+                (double) battle.enemy.healthPoints * 5));
         label_EnemyMP.setText(String.format("Magic Points (MP): %.2f / %.2f\n", battle.enemy.currentMP,
-                battle.enemy.intelligencePoints * 5));
+                (double) battle.enemy.intelligencePoints * 2.5));
 
     }
 
@@ -2024,10 +2109,16 @@ public class Game extends javax.swing.JFrame {
     private void openGameScreen() {
 
         label_GameHP.setText(String.format("Health Points (HP): %.2f / %.2f\n", player.currentHP,
-                player.healthPoints));
+                (double) player.healthPoints * 5));
         label_GameMP.setText(String.format("Magic Points (MP): %.2f / %.2f\n", player.currentMP,
-                player.intelligencePoints * 5));
+                (double) player.intelligencePoints * 2.5));
 
+        // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        // method this
+        // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        button_Return.setVisible(false);
+        panel_Home.setVisible(false);
+        panel_Dialogue.setVisible(false);
         panel_Travel.setVisible(false);
         panel_Inventory.setVisible(false);
         panel_Attributes.setVisible(false);
@@ -2364,7 +2455,7 @@ public class Game extends javax.swing.JFrame {
             label_GearMDmg.setVisible(false);
         }
         if (player.cCGearAddition > 0) {
-            label_GearCC.setText(String.format("(+%s)", String.valueOf(player.cCGearAddition)));
+            label_GearCC.setText(String.format("(+%s)", String.valueOf(player.addedCC)));
             label_GearCC.setVisible(true);
         } else {
             label_GearCC.setVisible(false);
@@ -2477,18 +2568,22 @@ public class Game extends javax.swing.JFrame {
 
     }//GEN-LAST:event_panel_DialogueMouseClicked
 
-    private void startCombat() {
+    private void combatTurn() {
+
+        button_UseAttack.setVisible(false);
+        button_FleeCombat.setVisible(false);
+        button_UseInventory.setVisible(false);
 
         if (battle.turns.peek().equals(battle.enemy.name)) {
 
             label_CombatLog.setText(battle.takeTurn(enemy.skill1, player, enemy));
-            button_UseAttack.setVisible(false);
-            button_FleeCombat.setVisible(false);
-            button_UseInventory.setVisible(false);
 
         } else {
 
-            label_CombatLog.setText(battle.player.name + "'s turn.");
+            label_CombatLog.setText(battle.player.name + "'s turn");
+            button_UseAttack.setVisible(true);
+            button_FleeCombat.setVisible(true);
+            button_UseInventory.setVisible(true);
 
         }
 
@@ -2498,23 +2593,16 @@ public class Game extends javax.swing.JFrame {
 
     private void button_UseSkill1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_UseSkill1ActionPerformed
 
-        if (battle.turns.peek().equals(battle.player.name)) {
-
-            label_CombatLog.setText(battle.takeTurn(player.skill1, enemy, player));
-
-        }
+        label_CombatLog.setText(battle.takeTurn(player.skill1, enemy, player));
+        button_UseAttack.setVisible(false);
+        button_FleeCombat.setVisible(false);
+        button_UseInventory.setVisible(false);
 
         button_UseAttack.setText("Attack");
         panel_CombatLog.setVisible(true);
         panel_Skills.setVisible(false);
 
-        // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        // player's attack message does not display
-        // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        
         updateCombatScreen();
-
-//        startCombat();
 
     }//GEN-LAST:event_button_UseSkill1ActionPerformed
 
@@ -2524,14 +2612,7 @@ public class Game extends javax.swing.JFrame {
 
     private void panel_CombatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panel_CombatMouseClicked
 
-        if (battle.turns.peek().equals(battle.player.name)) {
-
-            label_CombatLog.setText(battle.player.name + "'s turn.");
-            button_UseAttack.setVisible(true);
-            button_FleeCombat.setVisible(true);
-            button_UseInventory.setVisible(true);
-
-        }
+        combatTurn();
 
     }//GEN-LAST:event_panel_CombatMouseClicked
 
