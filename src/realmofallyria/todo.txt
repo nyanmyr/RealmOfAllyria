@@ -1,7 +1,9 @@
 to do:
+- turn health points to int
 - rearrange attributes/ affinities/ starting gear to be meaningful
-- work on xp and level
 - add combat mechanics
+- work on skill attack messages
+- work on xp and level
 - towns
 - death/ respawn screen
 

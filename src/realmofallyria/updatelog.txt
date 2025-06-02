@@ -31,3 +31,7 @@ progress (5/30/2025)
 version 0.0.6 (prototype)
 progress (5/31/2025)
 • worked on skill implementation
+
+version 0.0.7 (prototype)
+progress (6/02/2025)
+• continued work on combat screen

@@ -109,33 +109,33 @@ class Mob {
     int attributePoints;
 
     // current
-    int currentHP;
-    int currentMP;
+    double currentHP;
+    double currentMP;
 
     // -----------------------------------------------------------------------------------------------------------
     // <editor-fold desc="attributes stuff">
     // attributes
-    int healthPoints;
-    int intelligencePoints;
-    int agilityPoints;
-    int defensePoints;
-    int strengthPoints;
+    double healthPoints;
+    double intelligencePoints;
+    double agilityPoints;
+    double defensePoints;
+    double strengthPoints;
 
     // gear attribute addition: the attributes added from certain gears
-    int HPGearAddition;
-    int IPGearAddition;
-    int APGearAddition;
-    int DPGearAddition;
-    int SPGearAddition;
+    double HPGearAddition;
+    double IPGearAddition;
+    double APGearAddition;
+    double DPGearAddition;
+    double SPGearAddition;
 
     // attributes addition (used in attribute menu)
-    int usedAttributePoints;
+    double usedAttributePoints;
 
-    int HPAddition;
-    int IPAddition;
-    int APAddition;
-    int DPAddition;
-    int SPAddition;
+    double HPAddition;
+    double IPAddition;
+    double APAddition;
+    double DPAddition;
+    double SPAddition;
 
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
@@ -389,7 +389,7 @@ class Mob {
                 skill1 = "Magic Missile";
             }
             case "Slime" -> {
-                skill1 = "Slime";
+                skill1 = "SlimeAttack";
             }
             case "DEBUG" -> {
                 IPGearAddition += weaponLevel * 1000;
@@ -474,10 +474,26 @@ class Mob {
 
     }
 
-    public void defend(double[] damageTaken) {
+    public double[] defend(double[] damageTaken) {
 
-        currentHP -= damageTaken[0] - physicalDefense;
-        currentHP -= damageTaken[1] - magicalDefense;
+//        System.out.println("physicalDamage: " + (damageTaken[0] - physicalDefense > 0 ? 0 : damageTaken[0] - (physicalDefense * 0.75)));
+//        System.out.println("magicalDamage: " + (damageTaken[1] - magicalDefense > 0 ? 0 : damageTaken[1] - (magicalDefense * 0.8)));
+//        // rework this... damage heals for some reason and return does not align
+//        currentHP -= (damageTaken[0] - physicalDefense > 0 ? 0 : damageTaken[0] - (physicalDefense * 0.75));
+//        currentHP -= (damageTaken[1] - magicalDefense > 0 ? 0 : damageTaken[1] - (magicalDefense * 0.8));
+        System.out.println("PDmg: " + damageTaken[0]);
+        System.out.println("MDmg: " + damageTaken[1]);
+
+        System.out.println("PDmg Defended: " + physicalDefense);
+        System.out.println("MDmg Defended: " + magicalDefense);
+
+        // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        // set the damageTaken values to these then officiate the dmg taken
+        // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        System.out.println("PDmg Total: " + (damageTaken[0] > 0 ? (damageTaken[0] - physicalDefense < 0 ? 0 : damageTaken[0] - physicalDefense) : 0));
+        System.out.println("MDmg Total: " + (damageTaken[1] > 0 ? (damageTaken[1] - magicalDefense < 0 ? 0 : damageTaken[1] - magicalDefense) : 0));
+
+        return damageTaken;
 
     }
 
@@ -491,6 +507,8 @@ class Battle {
     Mob player;
     Mob enemy;
 
+    double[] mobDamageTaken;
+
     public Battle(Mob givenPlayer, Mob givenEnemy) {
 
         this.player = givenPlayer;
@@ -503,7 +521,7 @@ class Battle {
 
     }
 
-    public void takeTurn(String mobSkillUsed, Mob defendingMob, Mob attackingMob) {
+    public String takeTurn(String mobSkillUsed, Mob defendingMob, Mob attackingMob) {
 
         // <editor-fold desc="uses a queue data structure to determine turns.">
         if (turns.peek().equals(player.name)) {
@@ -514,7 +532,23 @@ class Battle {
         turns.poll();
         // </editor-fold>
 
-        defendingMob.defend(attackingMob.useSkill(mobSkillUsed));
+        mobDamageTaken = defendingMob.defend(attackingMob.useSkill(mobSkillUsed));
+
+        String attackString = String.format(""" 
+                                            <html>
+                                            <p align="center">
+                                            %s used %s on %s
+                                            %s %s
+                                            </p>
+                                            </html>
+                                            """, attackingMob.name, mobSkillUsed, defendingMob.name,
+                (mobDamageTaken[0] > 0 ? String.format("<br> Physical damage inflicted (-%s HP)", mobDamageTaken[0]) : ""),
+                (mobDamageTaken[1] > 0 ? String.format("<br> Magical damage inflicted (-%s MP)", mobDamageTaken[1]) : ""));
+
+        System.out.println(attackString);
+//        System.out.println("NEXT TURN:" + turns.peek());
+
+        return attackString;
 
     }
 
@@ -577,7 +611,13 @@ public class Game extends javax.swing.JFrame {
         "You should always keep something in mind when you venture into the wilderness.",
         "You may face foes far surpassing your current power.",
         "Which makes it all the more pertinent to start your training right away.",
-        "Defeat the slime and complete your training."};
+        "But before you begin, you need to learn a few things.",
+        "Whoever has the higher agility points will attack first.",
+        "You do not know their agility points so be careful.",
+        "I do not expect you to die against this slime, but please do not surprise me.",
+        "I cannot let you flee combat.",
+        "You must either defeat it or be defeated.",
+        "Defeat the slime and complete your training.",};
 
     String playerName = "";
     Mob player;
@@ -606,7 +646,8 @@ public class Game extends javax.swing.JFrame {
 
         player = new Mob();
         player.generateMob("Bashame", "Virtus", 1, "Leather Armor", 1, "Iron Sword", 1);
-        // player.generateMob("Saitama", "Madeis", 50, "DEBUG", 1, "DEBUG", 1);
+        player.attributePoints += 1000;
+// player.generateMob("Saitama", "Madeis", 50, "DEBUG", 1, "DEBUG", 1);
 
         initComponents();
 
@@ -1906,7 +1947,7 @@ public class Game extends javax.swing.JFrame {
 
             label_Dialogue.setText(loadedDialoge[textIndex]);
 
-            // put back to normal: (dialogueIndex == 7 && textIndex == 19)
+            // put back to normal: (dialogueIndex == 7 && textIndex == 25)
             if (dialogueIndex == 7 && textIndex == 1) {
 
                 // method this
@@ -1914,7 +1955,7 @@ public class Game extends javax.swing.JFrame {
                 enemy.generateMob("Slime", "Madeis", 1, "Slime Armor", 1, "Slime", 1);
                 battle = new Battle(player, enemy);
 
-                updateCombatScreen();
+                startCombat();
 
                 panel_Combat.setVisible(true);
                 panel_CombatLog.setVisible(true);
@@ -1939,19 +1980,21 @@ public class Game extends javax.swing.JFrame {
     }
 
     private void updateCombatScreen() {
+
         label_CombatPlayer.setText(String.format("%s (LVL %s)", battle.player.name,
                 battle.player.level));
-        label_CombatHP.setText(String.format("Health Points (HP): %s / %s\n", String.valueOf(battle.player.currentHP),
-                String.valueOf(battle.player.healthPoints)));
-        label_CombatMP.setText(String.format("Magic Points (MP): %s / %s\n", String.valueOf(battle.player.currentMP),
-                String.valueOf(battle.player.intelligencePoints * 5)));
+        label_CombatHP.setText(String.format("Health Points (HP): %.2f / %.2f\n", battle.player.currentHP,
+                battle.player.healthPoints));
+        label_CombatMP.setText(String.format("Magic Points (MP): %.2f / %.2f\n", battle.player.currentMP,
+                battle.player.intelligencePoints * 5));
 
         label_CombatEnemy.setText(String.format("%s (LVL %s)", battle.enemy.name,
                 battle.enemy.level));
-        label_EnemyHP.setText(String.format("Health Points (HP): %s / %s\n", String.valueOf(battle.enemy.currentHP),
-                String.valueOf(battle.enemy.healthPoints)));
-        label_EnemyMP.setText(String.format("Magic Points (MP): %s / %s\n", String.valueOf(battle.enemy.currentMP),
-                String.valueOf(battle.enemy.intelligencePoints * 5)));
+        label_EnemyHP.setText(String.format("Health Points (HP): %.2f / %.2f\n", battle.enemy.currentHP,
+                battle.enemy.healthPoints));
+        label_EnemyMP.setText(String.format("Magic Points (MP): %.2f / %.2f\n", battle.enemy.currentMP,
+                battle.enemy.intelligencePoints * 5));
+
     }
 
     private void button_DialogueConfirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_DialogueConfirmActionPerformed
@@ -1980,10 +2023,10 @@ public class Game extends javax.swing.JFrame {
 
     private void openGameScreen() {
 
-        label_GameHP.setText(String.format("Health Points (HP): %s / %s\n", String.valueOf(player.currentHP),
-                String.valueOf(player.healthPoints)));
-        label_GameMP.setText(String.format("Magic Points (MP): %s / %s\n", String.valueOf(player.currentMP),
-                String.valueOf(player.intelligencePoints * 5)));
+        label_GameHP.setText(String.format("Health Points (HP): %.2f / %.2f\n", player.currentHP,
+                player.healthPoints));
+        label_GameMP.setText(String.format("Magic Points (MP): %.2f / %.2f\n", player.currentMP,
+                player.intelligencePoints * 5));
 
         panel_Travel.setVisible(false);
         panel_Inventory.setVisible(false);
@@ -2434,22 +2477,44 @@ public class Game extends javax.swing.JFrame {
 
     }//GEN-LAST:event_panel_DialogueMouseClicked
 
-    private void tempTakeTurn() {
-        
-        label_CombatLog;
-        
+    private void startCombat() {
+
+        if (battle.turns.peek().equals(battle.enemy.name)) {
+
+            label_CombatLog.setText(battle.takeTurn(enemy.skill1, player, enemy));
+            button_UseAttack.setVisible(false);
+            button_FleeCombat.setVisible(false);
+            button_UseInventory.setVisible(false);
+
+        } else {
+
+            label_CombatLog.setText(battle.player.name + "'s turn.");
+
+        }
+
+        updateCombatScreen();
+
     }
-    
+
     private void button_UseSkill1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_UseSkill1ActionPerformed
 
-        battle.takeTurn(player.skill1, enemy, player);
-        
-        tempTakeTurn();
+        if (battle.turns.peek().equals(battle.player.name)) {
 
+            label_CombatLog.setText(battle.takeTurn(player.skill1, enemy, player));
+
+        }
+
+        button_UseAttack.setText("Attack");
         panel_CombatLog.setVisible(true);
         panel_Skills.setVisible(false);
 
+        // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        // player's attack message does not display
+        // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        
         updateCombatScreen();
+
+//        startCombat();
 
     }//GEN-LAST:event_button_UseSkill1ActionPerformed
 
@@ -2458,7 +2523,16 @@ public class Game extends javax.swing.JFrame {
     }//GEN-LAST:event_button_FleeCombatActionPerformed
 
     private void panel_CombatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panel_CombatMouseClicked
-        // TODO add your handling code here:
+
+        if (battle.turns.peek().equals(battle.player.name)) {
+
+            label_CombatLog.setText(battle.player.name + "'s turn.");
+            button_UseAttack.setVisible(true);
+            button_FleeCombat.setVisible(true);
+            button_UseInventory.setVisible(true);
+
+        }
+
     }//GEN-LAST:event_panel_CombatMouseClicked
 
     private void button_UseInventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_UseInventoryActionPerformed
