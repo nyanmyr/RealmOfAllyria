@@ -1,3 +1,4 @@
+
 package realmofallyria;
 
 import java.util.LinkedList;
@@ -18,6 +19,7 @@ class Mob {
 
     double xp;
     double xpNeeded;
+    int accumulatedLVL;
 
     // current
     double currentHP;
@@ -81,7 +83,14 @@ class Mob {
     String skill3;
     String skill4;
 
-    int accumulatedLVL;
+    // -----------------------------------------------------------------------------------------------------------
+    // <editor-fold desc="currency stuff">
+    int totalCoins;
+    int copperCoins;
+    int silverCoins;
+    int goldCoins;
+    // </editor-fold>
+    // -----------------------------------------------------------------------------------------------------------
 
     // generates a mob
     public void generateMob(String mobName,
@@ -136,6 +145,10 @@ class Mob {
     }
 
     public void chooseAffinity() {
+        level = 1;
+
+        xpNeeded = (level + 1) * 12;
+
         attributePoints = level * 10;
 
         // attributes
@@ -147,24 +160,21 @@ class Mob {
 
         switch (typeAffinity) {
             case "Sanitas" -> {
-                healthPoints += level * 2;
+                healthPoints = level * 2;
             }
             case "Celeritas" -> {
-                agilityPoints += level * 2;
+                agilityPoints = level * 2;
             }
             case "Madeis" -> {
-                intelligencePoints += level * 2;
+                intelligencePoints = level * 2;
             }
             case "Tutela" -> {
-                defensePoints += level * 2;
+                defensePoints = level * 2;
             }
             case "Virtus" -> {
-                strengthPoints += level * 2;
+                strengthPoints = level * 2;
             }
         }
-
-        currentHP = healthPoints * 5;
-        currentMP = intelligencePoints * 2.5;
 
     }
 
@@ -173,19 +183,19 @@ class Mob {
 
         switch (affinityAddition) {
             case "Sanitas" -> {
-                HPAddition += 2;
+                HPAddition++;
             }
             case "Celeritas" -> {
-                APAddition += 2;
+                APAddition++;
             }
             case "Madeis" -> {
-                IPAddition += 2;
+                IPAddition++;
             }
             case "Tutela" -> {
-                DPAddition += 2;
+                DPAddition++;
             }
             case "Virtus" -> {
-                SPAddition += 2;
+                SPAddition++;
             }
         }
 
@@ -365,16 +375,24 @@ class Mob {
     }
 
     private double calculateCritChance(double agility) {
-        
-        // 1 (25) >> 0.75 (25) >> 0.5 (25) >> 0.25 (25) >> 0.125 (25)
-        
-        double temp1 = Math.min(agility, 25);
-        double temp2 = Math.min(Math.max(agility - 25, 0), 25);
-        double temp3 = Math.min(Math.max(agility - 25, 0), 25);
-        double temp4 = Math.min(Math.max(agility - 25, 0), 25);
-        double temp5 = Math.max(agility - 25, 0);
 
-        return (temp1 * 1) + (temp2 * 0.75) + (temp3 * 0.5) + (temp4 * 0.25) + (temp5 * 0.125);
+//        double above0 = Math.min(agility, 50);
+//        double above50 = Math.min(Math.max(agility - 50, 0), 50);
+//        double above100 = Math.max(agility - 100, 0);
+        // (1 * 25) + (0.75 * 25) + (0.5 * 25) + (0.25 * 25) + (0.125 * 25) == 65.625
+        // 1 (25) >> 0.75 (25) >> 0.5 (25) >> 0.25 (25) >> 0.125 (25)
+        double[] critChancesTable = new double[5];
+        critChancesTable[0] = Math.min(agility, 25);
+        critChancesTable[1] = Math.min(Math.max(agility - 25, 0), 25);
+        critChancesTable[2] = Math.min(Math.max(agility - 50, 0), 25);
+        critChancesTable[3] = Math.min(Math.max(agility - 75, 0), 25);
+        critChancesTable[4] = Math.max(agility - 100, 0);
+
+        return (critChancesTable[0] * 1)
+                + (critChancesTable[1] * 0.75)
+                + (critChancesTable[2] * 0.5)
+                + (critChancesTable[3] * 0.25)
+                + (critChancesTable[4] * 0.125);
     }
 
     // use skill method here
@@ -465,7 +483,10 @@ class Mob {
 
     }
 
-    public void xpGain(double xpGained) {
+    public void receiveXPCoinsReward(double xpGained, double coinsGained) {
+
+        totalCoins += coinsGained;
+        convertCoins();
 
         accumulatedLVL = 0;
 
@@ -526,6 +547,28 @@ class Mob {
 
     }
 
+    public void fullHeal() {
+
+        currentHP = healthPoints * 5;
+        currentMP = intelligencePoints * 2.5;
+
+    }
+
+    private void convertCoins() {
+
+        // 50 bronze coins == 1 silver coin, 2500 bronze coins = 1 gold coin
+        goldCoins = totalCoins / 2500;
+        int remainingAfterGold = totalCoins % 2500;
+
+        silverCoins = remainingAfterGold / 50;
+        copperCoins = remainingAfterGold % 50;
+
+//        System.out.println("Total Coins: " + totalCoins);
+//        System.out.println("Gold Coins: " + goldCoins);
+//        System.out.println("Silver Coins: " + silverCoins);
+//        System.out.println("Bronze Coins: " + copperCoins);
+    }
+
 }
 // </editor-fold>
 // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -541,8 +584,11 @@ class Battle {
     Mob enemy;
 
     // the longer the battle, the more xp
-    double xpTurnIncrease;
-    double xpGain;
+    double battleXPTurnIncrease;
+    double battleXPGain;
+
+    double battleCoinTurnIncrease;
+    double battleCoinGain;
 
     double[] battleDamageTaken;
 
@@ -556,8 +602,16 @@ class Battle {
 
         this.player = givenPlayer;
         this.enemy = givenEnemy;
-        xpGain = battleRandomizer.nextDouble(givenEnemy.level * 2, givenEnemy.level * 3);
-        xpTurnIncrease = (xpGain * 0.0625);
+
+        // calculate xp reward
+        battleXPGain = battleRandomizer.nextDouble(givenEnemy.level * 2, givenEnemy.level * 3);
+        battleXPTurnIncrease = (battleXPGain * 0.0625);
+
+        // calculate coins reward
+        battleCoinGain = battleRandomizer.nextDouble(givenEnemy.level * 5, givenEnemy.level * 10);
+        battleCoinTurnIncrease = (battleXPGain * 0.0625);
+
+        // calculates escape chance
         // this ensures that the escape chance never exceeds 90.00%
         // and never falls short short of 20.00%
         escapeChance = 20 + ((player.agilityPoints - enemy.agilityPoints) * 5) > 90 ? 90
@@ -585,7 +639,8 @@ class Battle {
         turns.poll();
         // </editor-fold>
 
-        xpGain += xpTurnIncrease;
+        battleXPGain += battleXPTurnIncrease;
+        battleCoinGain += battleCoinTurnIncrease;
         battleDamageTaken = defendingMob.defend(attackingMob.useSkill(battleSkillUsed));
 
         String skilluseString = "";
@@ -618,9 +673,19 @@ class Battle {
         // no such thing as blocked damage
         String attackString = String.format(""" 
                                             <html>
+
+                                            <head>
+                                            <h3 align="center">
+                                            %s
+                                            </h3>
+                                            </head>
+
+                                            <body>
                                             <p align="center">
-                                            %s %s %s %s
+                                            %s %s %s
                                             </p>
+                                            </body>
+
                                             </html>
                                             """, String.format(skilluseString, attackingMob.name, defendingMob.name),
                 (battleDamageTaken[0] > 0 ? String.format("<br> PDmg inflicted (-%.2f HP)", battleDamageTaken[0]) : battleDamageTaken[5] > 0 ? "<br> Attacked completely blocked!" : ""),
@@ -637,6 +702,10 @@ class Battle {
 
     public String battleEnd(Boolean fleeing) {
 
+        int battleGoldCoins = 0;
+        int battleSilverCoins = 0;
+        int battleCopperCoins = 0;
+
         String battleEndString = "";
 
         if (!fleeing) {
@@ -645,20 +714,40 @@ class Battle {
             if (player.currentHP < 0) {
                 defeatedMob = player.name;
                 winningMob = enemy.name;
+                battleXPGain = 0;
+                battleCoinGain = 0;
             } else {
                 defeatedMob = enemy.name;
                 winningMob = player.name;
+                battleGoldCoins = (int) battleCoinGain / 2500;
+                int battleRemainingAfterGold = (int) battleCoinGain % 2500;
+                battleSilverCoins = battleRemainingAfterGold / 50;
+                battleCopperCoins = battleRemainingAfterGold % 50;
             }
 
             battleEndString = String.format("""
-                                               <html>
-                                               <p align="center">
-                                               %s %s %s
-                                               </p>
-                                               </html>
-                                               """, String.format("<br> %s defeated %s.", winningMob, defeatedMob),
+                                                <html>
+
+                                                <head>
+                                                <h3 align="center">
+                                                %s
+                                                </h3>
+                                                </head>
+
+                                                <body>
+                                                <p align="center">
+                                                %s %s %s %s %s %s
+                                                </p>
+                                                </body>
+
+                                                </html>
+                                                """, String.format("%s defeated %s.", winningMob, defeatedMob),
                     String.format("<br> (%s turns)", totalTurns / 2),
-                    String.format("<br> +%.2f XP gained.", xpGain));
+                    battleXPGain > 0 ? String.format("<br> +%.2f XP gained.", battleXPGain) : "",
+                    battleCopperCoins > 0 ? String.format("<br> %s (Copper) ", battleCopperCoins) : "",
+                    battleSilverCoins > 0 ? String.format(" %s (Silver) ", battleSilverCoins) : "",
+                    battleGoldCoins > 0 ? String.format(" %s (Gold) ", battleGoldCoins) : "",
+                    battleCoinGain > 0 ? String.format(" coins acquired ") : "");
             battleEnded = true;
 
         } else {
@@ -668,12 +757,6 @@ class Battle {
         }
 
         return battleEndString;
-
-    }
-
-    public double receiveBattleXP() {
-
-        return xpGain;
 
     }
 
@@ -688,8 +771,8 @@ public class Game extends javax.swing.JFrame {
     int textIndex = 0;
     int dialogueIndex = 0;
 
-    // merge with dialogue hashmap
-    // intro/ opening dialogue
+    // -----------------------------------------------------------------------------------------------------------
+    // <editor-fold desc="dialogue manuscript">
     String[] introDialogue = {"Welcome to the Realm of Allyria.",
         "Before your travels begin adventurer...",
         "What is your name?"};
@@ -753,9 +836,12 @@ public class Game extends javax.swing.JFrame {
     String[] tutorialEnd = {
         "Take this as a learning experience.",
         "It goes to show you still have much potential in you.",
-        "However, you tried your best.",
+        "You tried your best.",
         "Thus I shall give you my blessing to explore the world and become stronger",
-        "Fight the monsters of the wilderness.",
+        "But before you go I will patch you up to full health.",
+        "You must be prepared to fight the monsters in the wilderness.",
+        "When you need healing rest in your home for a moment.",
+        "Afterward you may venture into the wilderness",
         "Earn experience points and grow stronger.",
         "Acquire currency from defeating monsters.",
         "Visit the local travelling merchant if you wish to upgrade your gear.",
@@ -765,6 +851,8 @@ public class Game extends javax.swing.JFrame {
         "Save princess %s.",
         "Defeat the demon lord %s.",
         "Safe travels and may the gods be with you, %s."};
+    // </editor-fold>
+    // -----------------------------------------------------------------------------------------------------------
 
     String playerName = "";
     Mob player;
@@ -773,40 +861,50 @@ public class Game extends javax.swing.JFrame {
 
     String currentLocation = "";
 
-    // turn to int?
     boolean introSequenceFinished = false;
-
-    // use int instead?
-    String[] unlockedLocations = new String[10];
 
     // indicates whether the dialogue menu is opened.
     boolean talkingToNPC = false;
-
-    // determines the player's progress in the storyline.
-    int storylineProgress = 0;
 
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
     public Game() {
 
-        // debugging stuff
+        // debugging stuff (0 for normal)
+        // 6 for testing dialogue menu
         dialogueIndex = 6;
 
+        // -----------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="debugging/ QA testing stuff">
+        // debug characters
         player = new Mob();
-        player.generateMob("Bashame",
-                "Celeritas", 1,
+        player.generateMob("Noko Shikanoko",
+                "Virtus", 1,
                 "Leather Armor", 1,
-                "Simple Bow", 1);
-//        player.attributePoints += 1000;
-// player.generateMob("Saitama", "Madeis", 50, "DEBUG", 1, "DEBUG", 1);
+                "Iron Sword", 100);
+//        player.generateMob("Torako Koshi",
+//                "Virtus", 1,
+//                "Leather Armor", 1,
+//                "Iron Sword", 100);
+//        player.generateMob("Anko Koshi",
+//                "Virtus", 1,
+//                "Leather Armor", 1,
+//                "Iron Sword", 100);
+//        player.generateMob("Meme Bashame",
+//                "Celeritas", 1,
+//                "Leather Armor", 1,
+//                "Simple Bow", 1);
+        player.attributePoints += 1000;
+//        player.currentHP = 1;
+        // </editor-fold>
+        // -----------------------------------------------------------------------------------------------------------
 
         initComponents();
-
         hideScreens();
 
     }
 
-    public void hideScreens() {
+    private void hideScreens() {
         textField_NameField.setVisible(false);
         button_DialogueConfirm.setVisible(false);
         panel_ClassMenu.setVisible(false);
@@ -842,6 +940,41 @@ public class Game extends javax.swing.JFrame {
         label_Header = new javax.swing.JLabel();
         textField_NameField = new javax.swing.JTextField();
         button_DialogueConfirm = new javax.swing.JButton();
+        panel_Combat = new javax.swing.JPanel();
+        label_CombatPlayer = new javax.swing.JLabel();
+        label_CombatHP = new javax.swing.JLabel();
+        label_CombatMP = new javax.swing.JLabel();
+        label_CombatEnemy = new javax.swing.JLabel();
+        label_EnemyHP = new javax.swing.JLabel();
+        label_EnemyMP = new javax.swing.JLabel();
+        button_UseInventory = new javax.swing.JButton();
+        button_FleeCombat = new javax.swing.JButton();
+        button_UseAttack = new javax.swing.JButton();
+        panel_CombatLog = new javax.swing.JPanel();
+        label_CombatLog = new javax.swing.JLabel();
+        panel_Skills = new javax.swing.JPanel();
+        button_UseSkill1 = new javax.swing.JButton();
+        button_UseSkill2 = new javax.swing.JButton();
+        button_UseSkill3 = new javax.swing.JButton();
+        button_UseSkill4 = new javax.swing.JButton();
+        panel_Game = new javax.swing.JPanel();
+        label_GameCurrency = new javax.swing.JLabel();
+        label_GameXP = new javax.swing.JLabel();
+        label_GameMP = new javax.swing.JLabel();
+        label_GameHP = new javax.swing.JLabel();
+        label_Location = new javax.swing.JLabel();
+        button_Travel = new javax.swing.JButton();
+        button_Inventory = new javax.swing.JButton();
+        button_Status = new javax.swing.JButton();
+        panel_LocationPanel = new javax.swing.JPanel();
+        button_Place1 = new javax.swing.JButton();
+        buttonl_Place2 = new javax.swing.JButton();
+        button_Place3 = new javax.swing.JButton();
+        panel_Dialogue = new javax.swing.JPanel();
+        label_Talker = new javax.swing.JLabel();
+        label_Dialogue = new javax.swing.JLabel();
+        button_Yes = new javax.swing.JButton();
+        button_No = new javax.swing.JButton();
         panel_Warning = new javax.swing.JPanel();
         label_WarningTitle = new javax.swing.JLabel();
         panel_WarningMessage = new javax.swing.JPanel();
@@ -896,40 +1029,6 @@ public class Game extends javax.swing.JFrame {
         button_IPAddition = new javax.swing.JButton();
         button_DPAddition = new javax.swing.JButton();
         button_SPAddition = new javax.swing.JButton();
-        panel_Game = new javax.swing.JPanel();
-        label_GameXP = new javax.swing.JLabel();
-        label_GameMP = new javax.swing.JLabel();
-        label_GameHP = new javax.swing.JLabel();
-        label_Location = new javax.swing.JLabel();
-        button_Travel = new javax.swing.JButton();
-        button_Inventory = new javax.swing.JButton();
-        button_Status = new javax.swing.JButton();
-        panel_LocationPanel = new javax.swing.JPanel();
-        button_Place1 = new javax.swing.JButton();
-        buttonl_Place2 = new javax.swing.JButton();
-        button_Place3 = new javax.swing.JButton();
-        panel_Combat = new javax.swing.JPanel();
-        label_CombatPlayer = new javax.swing.JLabel();
-        label_CombatHP = new javax.swing.JLabel();
-        label_CombatMP = new javax.swing.JLabel();
-        label_CombatEnemy = new javax.swing.JLabel();
-        label_EnemyHP = new javax.swing.JLabel();
-        label_EnemyMP = new javax.swing.JLabel();
-        button_UseInventory = new javax.swing.JButton();
-        button_FleeCombat = new javax.swing.JButton();
-        button_UseAttack = new javax.swing.JButton();
-        panel_CombatLog = new javax.swing.JPanel();
-        label_CombatLog = new javax.swing.JLabel();
-        panel_Skills = new javax.swing.JPanel();
-        button_UseSkill1 = new javax.swing.JButton();
-        button_UseSkill2 = new javax.swing.JButton();
-        button_UseSkill3 = new javax.swing.JButton();
-        button_UseSkill4 = new javax.swing.JButton();
-        panel_Dialogue = new javax.swing.JPanel();
-        label_Talker = new javax.swing.JLabel();
-        label_Dialogue = new javax.swing.JLabel();
-        button_Yes = new javax.swing.JButton();
-        button_No = new javax.swing.JButton();
         panel_Home = new javax.swing.JPanel();
         button_Rest = new javax.swing.JButton();
         label_Home = new javax.swing.JLabel();
@@ -1002,7 +1101,7 @@ public class Game extends javax.swing.JFrame {
         button_Return.setBounds(420, 90, 100, 23);
 
         label_Header.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Header.setText("REALM OF ALLYRIA (CLICK TO START)");
+        label_Header.setText("REALM OF ALLYRIA [CLICK TO START]");
         label_Header.setToolTipText("");
         panel_Main.add(label_Header);
         label_Header.setBounds(6, 6, 520, 47);
@@ -1019,6 +1118,295 @@ public class Game extends javax.swing.JFrame {
         });
         panel_Main.add(button_DialogueConfirm);
         button_DialogueConfirm.setBounds(6, 97, 160, 23);
+
+        panel_Combat.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Combat.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                panel_CombatMouseClicked(evt);
+            }
+        });
+        panel_Combat.setLayout(null);
+
+        label_CombatPlayer.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        label_CombatPlayer.setForeground(new java.awt.Color(221, 221, 222));
+        label_CombatPlayer.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        label_CombatPlayer.setText("Player (LVL 50)");
+        panel_Combat.add(label_CombatPlayer);
+        label_CombatPlayer.setBounds(10, 10, 250, 40);
+
+        label_CombatHP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_CombatHP.setForeground(new java.awt.Color(221, 221, 222));
+        label_CombatHP.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        label_CombatHP.setText("HP: 0 / 0");
+        panel_Combat.add(label_CombatHP);
+        label_CombatHP.setBounds(10, 50, 250, 20);
+
+        label_CombatMP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_CombatMP.setForeground(new java.awt.Color(221, 221, 222));
+        label_CombatMP.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        label_CombatMP.setText("MP: 0 / 0");
+        panel_Combat.add(label_CombatMP);
+        label_CombatMP.setBounds(10, 70, 250, 20);
+
+        label_CombatEnemy.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        label_CombatEnemy.setForeground(new java.awt.Color(221, 221, 222));
+        label_CombatEnemy.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        label_CombatEnemy.setText("Enemy (LVL 50)");
+        panel_Combat.add(label_CombatEnemy);
+        label_CombatEnemy.setBounds(270, 10, 240, 40);
+
+        label_EnemyHP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_EnemyHP.setForeground(new java.awt.Color(221, 221, 222));
+        label_EnemyHP.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        label_EnemyHP.setText("HP: 0 / 0");
+        panel_Combat.add(label_EnemyHP);
+        label_EnemyHP.setBounds(270, 50, 240, 20);
+
+        label_EnemyMP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_EnemyMP.setForeground(new java.awt.Color(221, 221, 222));
+        label_EnemyMP.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        label_EnemyMP.setText("MP: 0 / 0");
+        panel_Combat.add(label_EnemyMP);
+        label_EnemyMP.setBounds(270, 70, 240, 20);
+
+        button_UseInventory.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_UseInventory.setText("Inventory");
+        button_UseInventory.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_UseInventoryActionPerformed(evt);
+            }
+        });
+        panel_Combat.add(button_UseInventory);
+        button_UseInventory.setBounds(180, 240, 160, 40);
+
+        button_FleeCombat.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_FleeCombat.setText("Flee");
+        button_FleeCombat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_FleeCombatActionPerformed(evt);
+            }
+        });
+        panel_Combat.add(button_FleeCombat);
+        button_FleeCombat.setBounds(350, 240, 150, 40);
+
+        button_UseAttack.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_UseAttack.setText("Attack");
+        button_UseAttack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_UseAttackActionPerformed(evt);
+            }
+        });
+        panel_Combat.add(button_UseAttack);
+        button_UseAttack.setBounds(20, 240, 150, 40);
+
+        panel_CombatLog.setLayout(null);
+
+        label_CombatLog.setBackground(new java.awt.Color(99, 99, 99));
+        label_CombatLog.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_CombatLog.setForeground(new java.awt.Color(9, 9, 9));
+        label_CombatLog.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_CombatLog.setText("Actions");
+        label_CombatLog.setOpaque(true);
+        panel_CombatLog.add(label_CombatLog);
+        label_CombatLog.setBounds(0, 0, 480, 130);
+
+        panel_Combat.add(panel_CombatLog);
+        panel_CombatLog.setBounds(20, 100, 480, 130);
+
+        panel_Skills.setLayout(null);
+
+        button_UseSkill1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_UseSkill1.setText("Skill1");
+        button_UseSkill1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_UseSkill1ActionPerformed(evt);
+            }
+        });
+        panel_Skills.add(button_UseSkill1);
+        button_UseSkill1.setBounds(10, 10, 230, 40);
+
+        button_UseSkill2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_UseSkill2.setText("Skill2");
+        button_UseSkill2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_UseSkill2ActionPerformed(evt);
+            }
+        });
+        panel_Skills.add(button_UseSkill2);
+        button_UseSkill2.setBounds(10, 50, 230, 40);
+
+        button_UseSkill3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_UseSkill3.setText("Skill3");
+        button_UseSkill3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_UseSkill3ActionPerformed(evt);
+            }
+        });
+        panel_Skills.add(button_UseSkill3);
+        button_UseSkill3.setBounds(240, 10, 230, 40);
+
+        button_UseSkill4.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_UseSkill4.setText("Skill4");
+        button_UseSkill4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_UseSkill4ActionPerformed(evt);
+            }
+        });
+        panel_Skills.add(button_UseSkill4);
+        button_UseSkill4.setBounds(240, 50, 230, 40);
+
+        panel_Combat.add(panel_Skills);
+        panel_Skills.setBounds(20, 130, 480, 100);
+
+        panel_Main.add(panel_Combat);
+        panel_Combat.setBounds(5, 130, 520, 300);
+
+        panel_Game.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Game.setLayout(null);
+
+        label_GameCurrency.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_GameCurrency.setForeground(new java.awt.Color(221, 221, 222));
+        label_GameCurrency.setText("Coins: ");
+        panel_Game.add(label_GameCurrency);
+        label_GameCurrency.setBounds(10, 180, 240, 40);
+
+        label_GameXP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_GameXP.setForeground(new java.awt.Color(221, 221, 222));
+        label_GameXP.setText("XP:");
+        panel_Game.add(label_GameXP);
+        label_GameXP.setBounds(10, 140, 240, 40);
+
+        label_GameMP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_GameMP.setForeground(new java.awt.Color(221, 221, 222));
+        label_GameMP.setText("MP:");
+        panel_Game.add(label_GameMP);
+        label_GameMP.setBounds(10, 100, 240, 40);
+
+        label_GameHP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_GameHP.setForeground(new java.awt.Color(221, 221, 222));
+        label_GameHP.setText("HP:");
+        panel_Game.add(label_GameHP);
+        label_GameHP.setBounds(10, 60, 240, 40);
+
+        label_Location.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_Location.setForeground(new java.awt.Color(221, 221, 222));
+        label_Location.setText("Location: ");
+        panel_Game.add(label_Location);
+        label_Location.setBounds(10, 10, 240, 40);
+
+        button_Travel.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Travel.setText("Travel");
+        button_Travel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_TravelActionPerformed(evt);
+            }
+        });
+        panel_Game.add(button_Travel);
+        button_Travel.setBounds(10, 250, 150, 40);
+
+        button_Inventory.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Inventory.setText("Inventory");
+        button_Inventory.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_InventoryActionPerformed(evt);
+            }
+        });
+        panel_Game.add(button_Inventory);
+        button_Inventory.setBounds(180, 250, 150, 40);
+
+        button_Status.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Status.setText("Status");
+        button_Status.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_StatusActionPerformed(evt);
+            }
+        });
+        panel_Game.add(button_Status);
+        button_Status.setBounds(360, 250, 150, 40);
+
+        panel_LocationPanel.setBackground(new java.awt.Color(63, 63, 63));
+        panel_LocationPanel.setLayout(null);
+
+        button_Place1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Place1.setText("Village Elder");
+        button_Place1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_Place1ActionPerformed(evt);
+            }
+        });
+        panel_LocationPanel.add(button_Place1);
+        button_Place1.setBounds(10, 10, 220, 30);
+
+        buttonl_Place2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        buttonl_Place2.setText("Travelling Merchant");
+        buttonl_Place2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonl_Place2ActionPerformed(evt);
+            }
+        });
+        panel_LocationPanel.add(buttonl_Place2);
+        buttonl_Place2.setBounds(10, 50, 220, 30);
+
+        button_Place3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Place3.setText("Home");
+        button_Place3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_Place3ActionPerformed(evt);
+            }
+        });
+        panel_LocationPanel.add(button_Place3);
+        button_Place3.setBounds(10, 90, 220, 30);
+
+        panel_Game.add(panel_LocationPanel);
+        panel_LocationPanel.setBounds(270, 10, 240, 230);
+
+        panel_Main.add(panel_Game);
+        panel_Game.setBounds(5, 130, 520, 300);
+
+        panel_Dialogue.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Dialogue.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                panel_DialogueMouseClicked(evt);
+            }
+        });
+        panel_Dialogue.setLayout(null);
+
+        label_Talker.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        label_Talker.setForeground(new java.awt.Color(221, 221, 222));
+        label_Talker.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Talker.setText("Talker");
+        panel_Dialogue.add(label_Talker);
+        label_Talker.setBounds(180, 10, 150, 40);
+
+        label_Dialogue.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_Dialogue.setForeground(new java.awt.Color(221, 221, 222));
+        label_Dialogue.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Dialogue.setText("[CLICK TO START]");
+        panel_Dialogue.add(label_Dialogue);
+        label_Dialogue.setBounds(30, 60, 460, 100);
+
+        button_Yes.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Yes.setText("Yes");
+        button_Yes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_YesActionPerformed(evt);
+            }
+        });
+        panel_Dialogue.add(button_Yes);
+        button_Yes.setBounds(180, 170, 150, 40);
+
+        button_No.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_No.setText("No");
+        button_No.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_NoActionPerformed(evt);
+            }
+        });
+        panel_Dialogue.add(button_No);
+        button_No.setBounds(180, 220, 150, 40);
+
+        panel_Main.add(panel_Dialogue);
+        panel_Dialogue.setBounds(5, 130, 520, 300);
 
         panel_Warning.setLayout(null);
 
@@ -1396,289 +1784,6 @@ public class Game extends javax.swing.JFrame {
 
         panel_Main.add(panel_Attributes);
         panel_Attributes.setBounds(5, 130, 520, 300);
-
-        panel_Game.setBackground(new java.awt.Color(69, 69, 69));
-        panel_Game.setLayout(null);
-
-        label_GameXP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_GameXP.setForeground(new java.awt.Color(221, 221, 222));
-        label_GameXP.setText("XP:");
-        panel_Game.add(label_GameXP);
-        label_GameXP.setBounds(10, 140, 240, 40);
-
-        label_GameMP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_GameMP.setForeground(new java.awt.Color(221, 221, 222));
-        label_GameMP.setText("MP:");
-        panel_Game.add(label_GameMP);
-        label_GameMP.setBounds(10, 100, 240, 40);
-
-        label_GameHP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_GameHP.setForeground(new java.awt.Color(221, 221, 222));
-        label_GameHP.setText("HP:");
-        panel_Game.add(label_GameHP);
-        label_GameHP.setBounds(10, 60, 240, 40);
-
-        label_Location.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_Location.setForeground(new java.awt.Color(221, 221, 222));
-        label_Location.setText("Location: ");
-        panel_Game.add(label_Location);
-        label_Location.setBounds(10, 10, 240, 40);
-
-        button_Travel.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Travel.setText("Travel");
-        button_Travel.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_TravelActionPerformed(evt);
-            }
-        });
-        panel_Game.add(button_Travel);
-        button_Travel.setBounds(10, 250, 150, 40);
-
-        button_Inventory.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Inventory.setText("Inventory");
-        button_Inventory.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_InventoryActionPerformed(evt);
-            }
-        });
-        panel_Game.add(button_Inventory);
-        button_Inventory.setBounds(180, 250, 150, 40);
-
-        button_Status.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Status.setText("Status");
-        button_Status.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_StatusActionPerformed(evt);
-            }
-        });
-        panel_Game.add(button_Status);
-        button_Status.setBounds(360, 250, 150, 40);
-
-        panel_LocationPanel.setBackground(new java.awt.Color(63, 63, 63));
-        panel_LocationPanel.setLayout(null);
-
-        button_Place1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Place1.setText("Village Elder");
-        button_Place1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_Place1ActionPerformed(evt);
-            }
-        });
-        panel_LocationPanel.add(button_Place1);
-        button_Place1.setBounds(10, 10, 220, 30);
-
-        buttonl_Place2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        buttonl_Place2.setText("Travelling Merchant");
-        buttonl_Place2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonl_Place2ActionPerformed(evt);
-            }
-        });
-        panel_LocationPanel.add(buttonl_Place2);
-        buttonl_Place2.setBounds(10, 50, 220, 30);
-
-        button_Place3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Place3.setText("Home");
-        button_Place3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_Place3ActionPerformed(evt);
-            }
-        });
-        panel_LocationPanel.add(button_Place3);
-        button_Place3.setBounds(10, 90, 220, 30);
-
-        panel_Game.add(panel_LocationPanel);
-        panel_LocationPanel.setBounds(270, 10, 240, 230);
-
-        panel_Main.add(panel_Game);
-        panel_Game.setBounds(5, 130, 520, 300);
-
-        panel_Combat.setBackground(new java.awt.Color(69, 69, 69));
-        panel_Combat.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                panel_CombatMouseClicked(evt);
-            }
-        });
-        panel_Combat.setLayout(null);
-
-        label_CombatPlayer.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        label_CombatPlayer.setForeground(new java.awt.Color(221, 221, 222));
-        label_CombatPlayer.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        label_CombatPlayer.setText("Player (LVL 50)");
-        panel_Combat.add(label_CombatPlayer);
-        label_CombatPlayer.setBounds(10, 10, 250, 40);
-
-        label_CombatHP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_CombatHP.setForeground(new java.awt.Color(221, 221, 222));
-        label_CombatHP.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        label_CombatHP.setText("HP: 0 / 0");
-        panel_Combat.add(label_CombatHP);
-        label_CombatHP.setBounds(10, 50, 250, 20);
-
-        label_CombatMP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_CombatMP.setForeground(new java.awt.Color(221, 221, 222));
-        label_CombatMP.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        label_CombatMP.setText("MP: 0 / 0");
-        panel_Combat.add(label_CombatMP);
-        label_CombatMP.setBounds(10, 70, 250, 20);
-
-        label_CombatEnemy.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        label_CombatEnemy.setForeground(new java.awt.Color(221, 221, 222));
-        label_CombatEnemy.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        label_CombatEnemy.setText("Enemy (LVL 50)");
-        panel_Combat.add(label_CombatEnemy);
-        label_CombatEnemy.setBounds(270, 10, 240, 40);
-
-        label_EnemyHP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_EnemyHP.setForeground(new java.awt.Color(221, 221, 222));
-        label_EnemyHP.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        label_EnemyHP.setText("HP: 0 / 0");
-        panel_Combat.add(label_EnemyHP);
-        label_EnemyHP.setBounds(270, 50, 240, 20);
-
-        label_EnemyMP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_EnemyMP.setForeground(new java.awt.Color(221, 221, 222));
-        label_EnemyMP.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        label_EnemyMP.setText("MP: 0 / 0");
-        panel_Combat.add(label_EnemyMP);
-        label_EnemyMP.setBounds(270, 70, 240, 20);
-
-        button_UseInventory.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_UseInventory.setText("Inventory");
-        button_UseInventory.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_UseInventoryActionPerformed(evt);
-            }
-        });
-        panel_Combat.add(button_UseInventory);
-        button_UseInventory.setBounds(180, 240, 160, 40);
-
-        button_FleeCombat.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_FleeCombat.setText("Flee");
-        button_FleeCombat.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_FleeCombatActionPerformed(evt);
-            }
-        });
-        panel_Combat.add(button_FleeCombat);
-        button_FleeCombat.setBounds(350, 240, 150, 40);
-
-        button_UseAttack.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_UseAttack.setText("Attack");
-        button_UseAttack.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_UseAttackActionPerformed(evt);
-            }
-        });
-        panel_Combat.add(button_UseAttack);
-        button_UseAttack.setBounds(20, 240, 150, 40);
-
-        panel_CombatLog.setLayout(null);
-
-        label_CombatLog.setBackground(new java.awt.Color(99, 99, 99));
-        label_CombatLog.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_CombatLog.setForeground(new java.awt.Color(9, 9, 9));
-        label_CombatLog.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_CombatLog.setText("Actions");
-        label_CombatLog.setOpaque(true);
-        panel_CombatLog.add(label_CombatLog);
-        label_CombatLog.setBounds(0, 0, 480, 100);
-
-        panel_Combat.add(panel_CombatLog);
-        panel_CombatLog.setBounds(20, 130, 480, 100);
-
-        panel_Skills.setLayout(null);
-
-        button_UseSkill1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_UseSkill1.setText("Skill1");
-        button_UseSkill1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_UseSkill1ActionPerformed(evt);
-            }
-        });
-        panel_Skills.add(button_UseSkill1);
-        button_UseSkill1.setBounds(10, 10, 230, 40);
-
-        button_UseSkill2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_UseSkill2.setText("Skill2");
-        button_UseSkill2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_UseSkill2ActionPerformed(evt);
-            }
-        });
-        panel_Skills.add(button_UseSkill2);
-        button_UseSkill2.setBounds(10, 50, 230, 40);
-
-        button_UseSkill3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_UseSkill3.setText("Skill3");
-        button_UseSkill3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_UseSkill3ActionPerformed(evt);
-            }
-        });
-        panel_Skills.add(button_UseSkill3);
-        button_UseSkill3.setBounds(240, 10, 230, 40);
-
-        button_UseSkill4.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_UseSkill4.setText("Skill4");
-        button_UseSkill4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_UseSkill4ActionPerformed(evt);
-            }
-        });
-        panel_Skills.add(button_UseSkill4);
-        button_UseSkill4.setBounds(240, 50, 230, 40);
-
-        panel_Combat.add(panel_Skills);
-        panel_Skills.setBounds(20, 130, 480, 100);
-
-        panel_Main.add(panel_Combat);
-        panel_Combat.setBounds(5, 130, 520, 300);
-
-        panel_Dialogue.setBackground(new java.awt.Color(69, 69, 69));
-        panel_Dialogue.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                panel_DialogueMouseClicked(evt);
-            }
-        });
-        panel_Dialogue.setLayout(null);
-
-        label_Talker.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        label_Talker.setForeground(new java.awt.Color(221, 221, 222));
-        label_Talker.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Talker.setText("Talker");
-        panel_Dialogue.add(label_Talker);
-        label_Talker.setBounds(180, 10, 150, 40);
-
-        label_Dialogue.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_Dialogue.setForeground(new java.awt.Color(221, 221, 222));
-        label_Dialogue.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Dialogue.setText("Talker");
-        panel_Dialogue.add(label_Dialogue);
-        label_Dialogue.setBounds(30, 60, 460, 100);
-
-        button_Yes.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Yes.setText("Yes");
-        button_Yes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_YesActionPerformed(evt);
-            }
-        });
-        panel_Dialogue.add(button_Yes);
-        button_Yes.setBounds(180, 170, 150, 40);
-
-        button_No.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_No.setText("No");
-        button_No.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_NoActionPerformed(evt);
-            }
-        });
-        panel_Dialogue.add(button_No);
-        button_No.setBounds(180, 220, 150, 40);
-
-        panel_Main.add(panel_Dialogue);
-        panel_Dialogue.setBounds(5, 130, 520, 300);
 
         panel_Home.setBackground(new java.awt.Color(69, 69, 69));
         panel_Home.setLayout(null);
@@ -2066,7 +2171,7 @@ public class Game extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     // -----------------------------------------------------------------------------------------------------------
-    // <editor-fold desc="opening dialogue cutscene stuff">
+    // <editor-fold desc="opening sequence && openGameScreen method stuff">
 
     private void panel_MainMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panel_MainMouseClicked
 
@@ -2079,31 +2184,42 @@ public class Game extends javax.swing.JFrame {
     }//GEN-LAST:event_panel_MainMouseClicked
 
     private void moveDialogue() {
+        // System.out.println("textIndex: " + textIndex);
 
-        String[] loadedDialoge = new String[0];
+        String[] loadedDialogue = new String[0];
 
         // determine which dialogue array to load
         switch (dialogueIndex) {
             case 0 -> {
-                loadedDialoge = introDialogue;
+                loadedDialogue = introDialogue;
             }
             case 1 -> {
-                loadedDialoge = chooseClassDialogue;
+                loadedDialogue = chooseClassDialogue;
             }
             case 2 -> {
-                loadedDialoge = editAttributesDialogue;
+                loadedDialogue = editAttributesDialogue;
             }
             case 3 -> {
-                loadedDialoge = chooseGearDialogue;
+                loadedDialogue = chooseGearDialogue;
             }
             case 4 -> {
-                loadedDialoge = bonusArmorDialogue;
+                loadedDialogue = bonusArmorDialogue;
             }
             case 5 -> {
-                loadedDialoge = adventureBeginsDialogue;
+                loadedDialogue = adventureBeginsDialogue;
             }
             case 7 -> {
-                loadedDialoge = startingVillageElderDialogue;
+                loadedDialogue = startingVillageElderDialogue;
+            }
+            case 8 -> {
+                if (player.currentHP < 0) {
+                    loadedDialogue = tutorialDefeat;
+                } else {
+                    loadedDialogue = tutorialVictory;
+                }
+            }
+            case 9 -> {
+                loadedDialogue = tutorialEnd;
             }
         }
 
@@ -2111,11 +2227,11 @@ public class Game extends javax.swing.JFrame {
 
             // determine the text in the header
             if (dialogueIndex == 5 && textIndex == 2) {
-                label_Header.setText(String.format(loadedDialoge[textIndex], "DEMON NAME"));
+                label_Header.setText(String.format(loadedDialogue[textIndex], "DEMON NAME"));
             } else if (dialogueIndex == 5 && textIndex == 3) {
-                label_Header.setText(String.format(loadedDialoge[textIndex], "PRINCESS NAME"));
+                label_Header.setText(String.format(loadedDialogue[textIndex], "PRINCESS NAME"));
             } else {
-                label_Header.setText(loadedDialoge[textIndex]);
+                label_Header.setText(loadedDialogue[textIndex]);
             }
 
             if (dialogueIndex == 0 && textIndex == 2) {
@@ -2126,9 +2242,9 @@ public class Game extends javax.swing.JFrame {
                 player = new Mob();
                 player.name = playerName;
             } else if (dialogueIndex == 2 && textIndex == 0 && !panel_Attributes.isVisible()) {
-                player.chooseAffinity();
                 label_PlayerName.setText(player.name);
                 label_PlayerAffinity.setText(player.typeAffinity);
+                player.chooseAffinity();
                 openAttributesMenu();
             } else if (dialogueIndex == 3 && textIndex == 2) {
                 panel_StartingGear.setVisible(true);
@@ -2137,45 +2253,38 @@ public class Game extends javax.swing.JFrame {
                 button_DialogueConfirm.setText("<html>Begin Adventure");
             }
 
-            if (textIndex < loadedDialoge.length - 1) {
-                textIndex++;
-            }
-
-        } else if (talkingToNPC) {
-
-            label_Dialogue.setText(loadedDialoge[textIndex]);
-
-            // put back to normal: (dialogueIndex == 7 && textIndex == 26)
-            if (dialogueIndex == 7 && textIndex == 1) {
-
-                // method this
-                enemy = new Mob();
-                enemy.generateMob("Slime", "Madeis", 1, "Slime Armor", 1, "Body", 1);
-                battle = new Battle(player, enemy);
-                battle.escapeChance = 0;
-
-                hideScreens();
-
-                panel_Combat.setVisible(true);
-                panel_CombatLog.setVisible(true);
-                panel_Skills.setVisible(false);
-
-                combatTurn();
-
-            }
-
-            if (textIndex < loadedDialoge.length - 1) {
-                textIndex++;
-            }
-
         } else if (dialogueIndex < 7) {
 
-            label_Header.setText("REALM OF ALLYRIA (v0.4)");
+            label_Header.setText("REALM OF ALLYRIA (v0.8)");
             travelToLocation("Village");
-            unlockedLocations[0] = "Village";
             introSequenceFinished = true;
             nextDialogueArray();
 
+        } else if (talkingToNPC) {
+
+            label_Dialogue.setText(loadedDialogue[textIndex]);
+
+            // after testing purposes reset the following to (26, 1, 16)
+            if (dialogueIndex == 7 && textIndex == 1) {
+
+                button_Yes.setVisible(true);
+                button_Yes.setText("Start");
+
+            } else if (dialogueIndex == 8 && textIndex == 1) {
+
+                nextDialogueArray();
+
+            } else if (dialogueIndex == 9 && textIndex == 1) {
+
+                button_Yes.setVisible(true);
+                button_Yes.setText("End Tutorial");
+
+            }
+
+        }
+
+        if (textIndex < loadedDialogue.length - 1) {
+            textIndex++;
         }
 
     }
@@ -2222,6 +2331,15 @@ public class Game extends javax.swing.JFrame {
                 (double) player.intelligencePoints * 2.5));
         label_GameXP.setText(String.format("Experience Points (XP): %.2f / %.2f\n", player.xp,
                 player.xpNeeded));
+        label_GameCurrency.setText(String.format("""
+                                                 <html>
+                                                 <p>
+                                                 Coins:%s %s %s
+                                                 </p>
+                                                 </html>
+                                                 """, player.copperCoins > 0 ? String.format(" %s [Copper]", player.copperCoins) : "",
+                player.silverCoins > 0 ? String.format(" %s [Silver]", player.silverCoins) : "",
+                player.goldCoins > 0 ? String.format(" %s [Gold]", player.goldCoins) : ""));
 
         hideScreens();
 
@@ -2438,7 +2556,6 @@ public class Game extends javax.swing.JFrame {
     // finalizes the attributes added once confirmed has been selected
     private void setAttributesAddition() {
         panel_Attributes.setVisible(true);
-        label_Level.setText(String.format("Level: %s\n", String.valueOf(player.level)));
         label_AvailablePoints.setText(String.format("Available Attributes Points: %s\n", String.valueOf(player.attributePoints)));
 
         panel_AttributesAddition.setVisible(true);
@@ -2479,7 +2596,12 @@ public class Game extends javax.swing.JFrame {
 
     public void showAvailableAttributePoints() {
 
-        if (player.attributePoints > 0) {
+        if (player.attributePoints > 0
+                || player.HPAddition > 0
+                || player.APAddition > 0
+                || player.IPAddition > 0
+                || player.DPAddition > 0
+                || player.SPAddition > 0) {
             panel_AttributesActions.setVisible(true);
             panel_AttributesAdditionButtons.setVisible(true);
             panel_AttributesAddition.setVisible(true);
@@ -2576,6 +2698,61 @@ public class Game extends javax.swing.JFrame {
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------
+    // <editor-fold desc="location places buttons stuff">
+    private void button_Place3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_Place3ActionPerformed
+
+        if (dialogueIndex == 7) {
+
+            messagePopup("Tutorial");
+
+        } else {
+
+            panel_Game.setVisible(false);
+            button_Return.setVisible(true);
+            panel_Home.setVisible(true);
+
+        }
+
+    }//GEN-LAST:event_button_Place3ActionPerformed
+
+    private void buttonl_Place2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonl_Place2ActionPerformed
+
+        if (dialogueIndex == 7) {
+
+            messagePopup("Tutorial");
+
+        }
+
+    }//GEN-LAST:event_buttonl_Place2ActionPerformed
+
+    private void button_Place1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_Place1ActionPerformed
+
+        // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        // add params to this method to take into account different places
+        // i.e. village has village elder so it should be openDialogueMenu("Village"); or whatever current location
+        // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        openDialogueMenu();
+
+    }//GEN-LAST:event_button_Place1ActionPerformed
+
+    private void openDialogueMenu() {
+
+        panel_Game.setVisible(false);
+        panel_Dialogue.setVisible(true);
+
+        label_Talker.setText("Village Elder");
+        label_Dialogue.setText("[CLICK TO START]");
+
+        button_Yes.setVisible(false);
+        button_No.setVisible(false);
+
+        talkingToNPC = true;
+
+    }
+
+    // </editor-fold>
+    // -----------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------
     // <editor-fold desc="travel stuff">
     private void travelToLocation(String locationTravelledTo) {
 
@@ -2595,36 +2772,6 @@ public class Game extends javax.swing.JFrame {
 
     }
 
-    private void button_Place3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_Place3ActionPerformed
-
-        panel_Game.setVisible(false);
-        button_Return.setVisible(true);
-        panel_Home.setVisible(true);
-
-    }//GEN-LAST:event_button_Place3ActionPerformed
-
-    private void buttonl_Place2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonl_Place2ActionPerformed
-
-        if (storylineProgress == 0) {
-
-            warning("Tutorial");
-
-        }
-
-    }//GEN-LAST:event_buttonl_Place2ActionPerformed
-
-    private void button_Place1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_Place1ActionPerformed
-
-        panel_Game.setVisible(false);
-        panel_Dialogue.setVisible(true);
-        label_Talker.setText("Village Elder");
-        label_Dialogue.setText("");
-        button_Yes.setVisible(false);
-        button_No.setVisible(false);
-        talkingToNPC = true;
-
-    }//GEN-LAST:event_button_Place1ActionPerformed
-
     private void button_RestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_RestActionPerformed
 
 
@@ -2636,35 +2783,59 @@ public class Game extends javax.swing.JFrame {
         button_Return.setVisible(true);
         panel_Travel.setVisible(true);
 
-        if (unlockedLocations[0] != null) {
+        button_Village.setVisible(false);
+        button_Grasslands.setVisible(false);
+
+        if (dialogueIndex > 8) {
             button_Village.setVisible(true);
-
-        } else {
-            button_Village.setVisible(false);
-
-        }
-
-        if (unlockedLocations[1] != null) {
             button_Grasslands.setVisible(true);
-
-        } else {
-            button_Grasslands.setVisible(false);
-
         }
-
 
     }//GEN-LAST:event_button_TravelActionPerformed
 
     private void button_VillageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_VillageActionPerformed
-        // TODO add your handling code here:
     }//GEN-LAST:event_button_VillageActionPerformed
 
     private void button_GrasslandsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_GrasslandsActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_button_GrasslandsActionPerformed
 
+    // </editor-fold>
+    // -----------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------
+    // <editor-fold desc="dialogue menu stuff">
+
     private void button_YesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_YesActionPerformed
-        // TODO add your handling code here:
+
+        if (dialogueIndex == 7) {
+
+            // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+            // method this
+            // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+            enemy = new Mob();
+            enemy.generateMob("Slime", "Madeis", 1, "Slime Armor", 1, "Body", 1);
+            battle = new Battle(player, enemy);
+            battle.escapeChance = 0;
+
+            hideScreens();
+
+            panel_Combat.setVisible(true);
+            panel_CombatLog.setVisible(true);
+            panel_Skills.setVisible(false);
+
+            combatTurn();
+            nextDialogueArray();
+
+        } else if (dialogueIndex == 9) {
+
+            // tutorial ends here
+            openGameScreen();
+            talkingToNPC = false;
+
+        }
+
+        button_Yes.setText("Yes");
+
     }//GEN-LAST:event_button_YesActionPerformed
 
     private void button_NoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_NoActionPerformed
@@ -2755,11 +2926,19 @@ public class Game extends javax.swing.JFrame {
 
         if (battle.battleEnded) {
 
-            player.xpGain(battle.receiveBattleXP());
-            openGameScreen();
+            if (dialogueIndex == 8) {
 
-            if (player.accumulatedLVL > 0) {
-                warning("LVLup");
+                openDialogueMenu();
+
+            } else {
+
+                player.receiveXPCoinsReward(battle.battleXPGain, battle.battleCoinGain);
+                openGameScreen();
+
+                if (player.accumulatedLVL > 0) {
+                    messagePopup("LVLup");
+                }
+
             }
 
         } else {
@@ -2834,7 +3013,7 @@ public class Game extends javax.swing.JFrame {
     // -----------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------
     // <editor-fold desc="warning stuff">
-    private void warning(String type) {
+    private void messagePopup(String type) {
 
         String warningTitle = "";
         String warningLabel = "";
@@ -2854,7 +3033,7 @@ public class Game extends javax.swing.JFrame {
                                              </p>
                                              </html>
                                              """, String.format("<br> %s >> %s", (player.level - player.accumulatedLVL), player.level),
-                        String.format("<br> +%.2f XP gained.", battle.xpGain));
+                        String.format("<br> +%.2f XP gained.", battle.battleXPGain));
                 break;
             }
         }
@@ -2970,6 +3149,7 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JLabel label_Dialogue;
     private javax.swing.JLabel label_EnemyHP;
     private javax.swing.JLabel label_EnemyMP;
+    private javax.swing.JLabel label_GameCurrency;
     private javax.swing.JLabel label_GameHP;
     private javax.swing.JLabel label_GameMP;
     private javax.swing.JLabel label_GameXP;

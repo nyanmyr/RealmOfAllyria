@@ -39,7 +39,7 @@ progress (6/02/2025)
 • using of skills now have different attack messages
 • reworked the attributes
 
-version 0.0.7 (prototype)
+version 0.0.8 (prototype)
 progress (6/02/2025)
 • death/ victory message
 • battle xp calculation
@@ -48,3 +48,6 @@ progress (6/02/2025)
 • warning system
 • tutorial dialogue
 • tweaked crit chances
+• finished tutorial
+• fixed XP gaining in defeat
+• edited attack/ battle end messages

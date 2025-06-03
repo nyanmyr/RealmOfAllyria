@@ -1,12 +1,14 @@
 menial things;
+- resize stuff
 - warning menu bug (buttons not ordered porperly)
 - add message in dialogue (click to talk)
 - rearrange attributes/ affinities/ starting gear to be meaningful
+- mix class constructor with generateMob?
 
 to do:
-- tutorial end
-- fleeing
 - currency
+- resting screen
+- fleeing
 - boss battle
 - death/ respawn screen
 - tutorial death screen
