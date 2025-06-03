@@ -1,11 +1,13 @@
 menial things;
+- warning menu bug (buttons not ordered porperly)
 - add message in dialogue (click to talk)
 - rearrange attributes/ affinities/ starting gear to be meaningful
 
 to do:
-- work on xp and level up mechanics
+- tutorial end
 - fleeing
-- towns
+- currency
+- boss battle
 - death/ respawn screen
 - tutorial death screen
 - quest menu

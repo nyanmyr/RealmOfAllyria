@@ -45,3 +45,6 @@ progress (6/02/2025)
 • battle xp calculation
 • escape chance calculation
 • working on XP stuff
+• warning system
+• tutorial dialogue
+• tweaked crit chances

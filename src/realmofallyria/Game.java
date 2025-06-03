@@ -1,102 +1,9 @@
-
 package realmofallyria;
 
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
 
-// <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-// <editor-fold desc="XP TESTING">
-class XPSystem {
-
-    public static void main() {
-
-        Random randomizer = new Random();
-
-        String monsterName = "Slime";
-        int monsterLVL = 50;
-
-        int monsterAttributePoints = monsterLVL * 10;
-        int monsterHP = monsterLVL * 2;
-        int monsterAP = monsterLVL * 2;
-        int monsterMP = monsterLVL * 2;
-        int monsterDP = monsterLVL * 2;
-        int monsterSP = monsterLVL * 2;
-
-        int monsterXPRewardMin = monsterLVL * 3;
-        int monsterXPRewardMax = monsterLVL * 4;
-
-        String affinity = "Sanitas";
-        switch (affinity) {
-            case "Sanitas" -> {
-                monsterHP += monsterLVL * 2;
-            }
-            case "Celeritas" -> {
-                monsterAP += monsterLVL * 2;
-            }
-            case "Madeis" -> {
-                monsterMP += monsterLVL * 2;
-            }
-            case "Tetula" -> {
-                monsterDP += monsterLVL * 2;
-            }
-            case "Virtus" -> {
-                monsterSP += monsterLVL * 2;
-            }
-        }
-
-        for (int i = 0; i < monsterAttributePoints; i++) {
-
-            switch (randomizer.nextInt(5)) {
-                case 0 -> {
-                    monsterHP += 2;
-                }
-                case 1 -> {
-                    monsterAP += 2;
-                }
-                case 2 -> {
-                    monsterMP += 2;
-                }
-                case 3 -> {
-                    monsterDP += 2;
-                }
-                case 4 -> {
-                    monsterSP += 2;
-                }
-            }
-
-            monsterAttributePoints--;
-        }
-
-        System.out.println("Name: " + monsterName);
-        System.out.println("Attribute Points: " + monsterAttributePoints);
-        System.out.println("Monster HP: " + monsterHP);
-        System.out.println("Monster AP: " + monsterAP);
-        System.out.println("Monster MP: " + monsterMP);
-        System.out.println("Monster DP: " + monsterDP);
-        System.out.println("Monster SP: " + monsterSP);
-        System.out.printf("XP Reward: %s - %s\n", monsterXPRewardMin, monsterXPRewardMax);
-
-//        calculateXPNeeded();
-    }
-
-    public static void calculateXPNeeded() {
-        int lvl = 35;
-        int targetLevel = lvl + 1;
-        int xpNeeded;
-        System.out.printf("LVL: %s >>", lvl);
-
-        lvl++;
-        xpNeeded = lvl * 14;
-
-        System.out.println(" " + lvl);
-        System.out.printf("XP need to LVL %s: %s\n", targetLevel, xpNeeded);
-    }
-
-}
-
-// </editor-fold>
-// <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 // <editor-fold desc="Mob class">
 class Mob {
@@ -173,6 +80,8 @@ class Mob {
     String skill2;
     String skill3;
     String skill4;
+
+    int accumulatedLVL;
 
     // generates a mob
     public void generateMob(String mobName,
@@ -456,11 +365,16 @@ class Mob {
     }
 
     private double calculateCritChance(double agility) {
-        double above0 = Math.min(agility, 50);
-        double above50 = Math.min(Math.max(agility - 50, 0), 50);
-        double above100 = Math.max(agility - 100, 0);
+        
+        // 1 (25) >> 0.75 (25) >> 0.5 (25) >> 0.25 (25) >> 0.125 (25)
+        
+        double temp1 = Math.min(agility, 25);
+        double temp2 = Math.min(Math.max(agility - 25, 0), 25);
+        double temp3 = Math.min(Math.max(agility - 25, 0), 25);
+        double temp4 = Math.min(Math.max(agility - 25, 0), 25);
+        double temp5 = Math.max(agility - 25, 0);
 
-        return (above0 * 0.50) + (above50 * 0.25) + (above100 * 0.125);
+        return (temp1 * 1) + (temp2 * 0.75) + (temp3 * 0.5) + (temp4 * 0.25) + (temp5 * 0.125);
     }
 
     // use skill method here
@@ -540,10 +454,9 @@ class Mob {
         damageTaken[0] = damageTaken[0] < 0 ? 0 : damageTaken[0];
         damageTaken[1] = damageTaken[1] < 0 ? 0 : damageTaken[1];
 
-        System.out.println("damageTaken[0]: " + damageTaken[0]);
-        System.out.println("damageTaken[1]: " + damageTaken[1]);
-        System.out.println();
-
+//        System.out.println("damageTaken[0]: " + damageTaken[0]);
+//        System.out.println("damageTaken[1]: " + damageTaken[1]);
+//        System.out.println();
         // reduces the health by the damage suffered
         currentHP -= damageTaken[0];
         currentHP -= damageTaken[1];
@@ -554,68 +467,65 @@ class Mob {
 
     public void xpGain(double xpGained) {
 
-        double accumulatedXP = 0;
-        int accumulatedLVL = 0;
-        
+        accumulatedLVL = 0;
+
         while (true) {
-            
+
             if (xp + xpGained > xpNeeded) {
-                
+
                 accumulatedLVL++;
                 xp = 0;
                 xpGained -= xpNeeded;
-                accumulatedXP += xpNeeded;
-                
+
             } else {
-                
+
                 xp += xpGained;
                 break;
-                
+
             }
-            
+
         }
-        
-        levelUp(accumulatedLVL);
-        
+
+        levelUp();
+
     }
 
-    private void levelUp(int newLevels) {
+    private void levelUp() {
 
-        level += newLevels;
-        
-        attributePoints += level * 10;
+        level += accumulatedLVL;
+
+        attributePoints += accumulatedLVL * 10;
 
         // attributes
-        healthPoints += level;
-        agilityPoints += level;
-        intelligencePoints += level;
-        defensePoints += level;
-        strengthPoints += level;
+        healthPoints += accumulatedLVL;
+        agilityPoints += accumulatedLVL;
+        intelligencePoints += accumulatedLVL;
+        defensePoints += accumulatedLVL;
+        strengthPoints += accumulatedLVL;
 
         switch (typeAffinity) {
             case "Sanitas" -> {
-                healthPoints += level * 2;
+                healthPoints += accumulatedLVL * 2;
             }
             case "Celeritas" -> {
-                agilityPoints += level * 2;
+                agilityPoints += accumulatedLVL * 2;
             }
             case "Madeis" -> {
-                intelligencePoints += level * 2;
+                intelligencePoints += accumulatedLVL * 2;
             }
             case "Tutela" -> {
-                defensePoints += level * 2;
+                defensePoints += accumulatedLVL * 2;
             }
             case "Virtus" -> {
-                strengthPoints += level * 2;
+                strengthPoints += accumulatedLVL * 2;
             }
         }
 
         currentHP = healthPoints * 5;
         currentMP = intelligencePoints * 2.5;
-        
+
     }
 
-    // level/ xp up method here
 }
 // </editor-fold>
 // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -639,6 +549,8 @@ class Battle {
     int totalTurns;
 
     double escapeChance;
+
+    boolean battleEnded = false;
 
     public Battle(Mob givenPlayer, Mob givenEnemy) {
 
@@ -723,11 +635,11 @@ class Battle {
 
     }
 
-    public String battleEnd(Boolean fled) {
+    public String battleEnd(Boolean fleeing) {
 
         String battleEndString = "";
 
-        if (!fled) {
+        if (!fleeing) {
             String winningMob = "";
             String defeatedMob = "";
             if (player.currentHP < 0) {
@@ -747,6 +659,7 @@ class Battle {
                                                """, String.format("<br> %s defeated %s.", winningMob, defeatedMob),
                     String.format("<br> (%s turns)", totalTurns / 2),
                     String.format("<br> +%.2f XP gained.", xpGain));
+            battleEnded = true;
 
         } else {
 
@@ -755,6 +668,12 @@ class Battle {
         }
 
         return battleEndString;
+
+    }
+
+    public double receiveBattleXP() {
+
+        return xpGain;
 
     }
 
@@ -822,13 +741,35 @@ public class Game extends javax.swing.JFrame {
         "But before you begin, you need to learn a few things.",
         "Whoever has the higher agility points will attack first.",
         "You do not know their agility points so be careful.",
+        "Lastly, the longer your battle lasts the more experience you gain.",
         "I do not expect you to die against this slime, but please do not surprise me.",
         "I cannot let you flee combat.",
         "You must either defeat it or be defeated.",
         "Defeat the slime and complete your training.",};
+    String[] tutorialDefeat = {"<html>You were defeated by a mere slime?",
+        "Fret not, %s."};
+    String[] tutorialVictory = {"<html>Good work on defeating that slime.",
+        "You have done excellently, %s."};
+    String[] tutorialEnd = {
+        "Take this as a learning experience.",
+        "It goes to show you still have much potential in you.",
+        "However, you tried your best.",
+        "Thus I shall give you my blessing to explore the world and become stronger",
+        "Fight the monsters of the wilderness.",
+        "Earn experience points and grow stronger.",
+        "Acquire currency from defeating monsters.",
+        "Visit the local travelling merchant if you wish to upgrade your gear.",
+        "And if you are interested, then I may have a quest for you.",
+        "I will pay fairly.",
+        "Regardless, everything after this point is up to you now.",
+        "Save princess %s.",
+        "Defeat the demon lord %s.",
+        "Safe travels and may the gods be with you, %s."};
 
     String playerName = "";
     Mob player;
+    Mob enemy;
+    Battle battle;
 
     String currentLocation = "";
 
@@ -841,12 +782,11 @@ public class Game extends javax.swing.JFrame {
     // indicates whether the dialogue menu is opened.
     boolean talkingToNPC = false;
 
-    Mob enemy;
+    // determines the player's progress in the storyline.
+    int storylineProgress = 0;
 
-    Battle battle;
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
-
     public Game() {
 
         // debugging stuff
@@ -856,12 +796,17 @@ public class Game extends javax.swing.JFrame {
         player.generateMob("Bashame",
                 "Celeritas", 1,
                 "Leather Armor", 1,
-                "Simple Bow", 4);
+                "Simple Bow", 1);
 //        player.attributePoints += 1000;
 // player.generateMob("Saitama", "Madeis", 50, "DEBUG", 1, "DEBUG", 1);
 
         initComponents();
 
+        hideScreens();
+
+    }
+
+    public void hideScreens() {
         textField_NameField.setVisible(false);
         button_DialogueConfirm.setVisible(false);
         panel_ClassMenu.setVisible(false);
@@ -874,7 +819,7 @@ public class Game extends javax.swing.JFrame {
         panel_Home.setVisible(false);
         panel_Dialogue.setVisible(false);
         panel_Combat.setVisible(false);
-
+        panel_Warning.setVisible(false);
     }
 
     // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -897,6 +842,11 @@ public class Game extends javax.swing.JFrame {
         label_Header = new javax.swing.JLabel();
         textField_NameField = new javax.swing.JTextField();
         button_DialogueConfirm = new javax.swing.JButton();
+        panel_Warning = new javax.swing.JPanel();
+        label_WarningTitle = new javax.swing.JLabel();
+        panel_WarningMessage = new javax.swing.JPanel();
+        label_WarningBody = new javax.swing.JLabel();
+        button_CloseWarning = new javax.swing.JButton();
         panel_Attributes = new javax.swing.JPanel();
         panel_AttributesActions = new javax.swing.JPanel();
         button_AttributesConfirm = new javax.swing.JButton();
@@ -951,13 +901,13 @@ public class Game extends javax.swing.JFrame {
         label_GameMP = new javax.swing.JLabel();
         label_GameHP = new javax.swing.JLabel();
         label_Location = new javax.swing.JLabel();
-        label_Travel = new javax.swing.JButton();
-        label_Inventory = new javax.swing.JButton();
-        label_Status = new javax.swing.JButton();
-        panel_Village = new javax.swing.JPanel();
-        button_VillageElder = new javax.swing.JButton();
-        buttonl_TravellingMerchant = new javax.swing.JButton();
-        button_Home = new javax.swing.JButton();
+        button_Travel = new javax.swing.JButton();
+        button_Inventory = new javax.swing.JButton();
+        button_Status = new javax.swing.JButton();
+        panel_LocationPanel = new javax.swing.JPanel();
+        button_Place1 = new javax.swing.JButton();
+        buttonl_Place2 = new javax.swing.JButton();
+        button_Place3 = new javax.swing.JButton();
         panel_Combat = new javax.swing.JPanel();
         label_CombatPlayer = new javax.swing.JLabel();
         label_CombatHP = new javax.swing.JLabel();
@@ -980,14 +930,14 @@ public class Game extends javax.swing.JFrame {
         label_Dialogue = new javax.swing.JLabel();
         button_Yes = new javax.swing.JButton();
         button_No = new javax.swing.JButton();
+        panel_Home = new javax.swing.JPanel();
+        button_Rest = new javax.swing.JButton();
+        label_Home = new javax.swing.JLabel();
         panel_Travel = new javax.swing.JPanel();
         button_Village = new javax.swing.JButton();
         button_Grasslands = new javax.swing.JButton();
         label_Wilderness = new javax.swing.JLabel();
         label_Civilization = new javax.swing.JLabel();
-        panel_Home = new javax.swing.JPanel();
-        button_Rest = new javax.swing.JButton();
-        label_Home = new javax.swing.JLabel();
         panel_Inventory = new javax.swing.JPanel();
         label_Armor = new javax.swing.JLabel();
         label_PDef = new javax.swing.JLabel();
@@ -1069,6 +1019,36 @@ public class Game extends javax.swing.JFrame {
         });
         panel_Main.add(button_DialogueConfirm);
         button_DialogueConfirm.setBounds(6, 97, 160, 23);
+
+        panel_Warning.setLayout(null);
+
+        label_WarningTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_WarningTitle.setText("jLabel1");
+        panel_Warning.add(label_WarningTitle);
+        label_WarningTitle.setBounds(10, 10, 370, 40);
+
+        panel_WarningMessage.setBackground(new java.awt.Color(69, 69, 69));
+        panel_WarningMessage.setLayout(null);
+
+        label_WarningBody.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_WarningBody.setText("jLabel1");
+        panel_WarningMessage.add(label_WarningBody);
+        label_WarningBody.setBounds(10, 10, 370, 110);
+
+        button_CloseWarning.setText("Close");
+        button_CloseWarning.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                button_CloseWarningMouseClicked(evt);
+            }
+        });
+        panel_WarningMessage.add(button_CloseWarning);
+        button_CloseWarning.setBounds(120, 130, 160, 40);
+
+        panel_Warning.add(panel_WarningMessage);
+        panel_WarningMessage.setBounds(0, 60, 390, 190);
+
+        panel_Main.add(panel_Warning);
+        panel_Warning.setBounds(70, 150, 390, 240);
 
         panel_Attributes.setBackground(new java.awt.Color(69, 69, 69));
         panel_Attributes.setLayout(null);
@@ -1444,71 +1424,71 @@ public class Game extends javax.swing.JFrame {
         panel_Game.add(label_Location);
         label_Location.setBounds(10, 10, 240, 40);
 
-        label_Travel.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_Travel.setText("Travel");
-        label_Travel.addActionListener(new java.awt.event.ActionListener() {
+        button_Travel.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Travel.setText("Travel");
+        button_Travel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                label_TravelActionPerformed(evt);
+                button_TravelActionPerformed(evt);
             }
         });
-        panel_Game.add(label_Travel);
-        label_Travel.setBounds(10, 250, 150, 40);
+        panel_Game.add(button_Travel);
+        button_Travel.setBounds(10, 250, 150, 40);
 
-        label_Inventory.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_Inventory.setText("Inventory");
-        label_Inventory.addActionListener(new java.awt.event.ActionListener() {
+        button_Inventory.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Inventory.setText("Inventory");
+        button_Inventory.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                label_InventoryActionPerformed(evt);
+                button_InventoryActionPerformed(evt);
             }
         });
-        panel_Game.add(label_Inventory);
-        label_Inventory.setBounds(180, 250, 150, 40);
+        panel_Game.add(button_Inventory);
+        button_Inventory.setBounds(180, 250, 150, 40);
 
-        label_Status.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_Status.setText("Status");
-        label_Status.addActionListener(new java.awt.event.ActionListener() {
+        button_Status.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Status.setText("Status");
+        button_Status.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                label_StatusActionPerformed(evt);
+                button_StatusActionPerformed(evt);
             }
         });
-        panel_Game.add(label_Status);
-        label_Status.setBounds(360, 250, 150, 40);
+        panel_Game.add(button_Status);
+        button_Status.setBounds(360, 250, 150, 40);
 
-        panel_Village.setBackground(new java.awt.Color(63, 63, 63));
-        panel_Village.setLayout(null);
+        panel_LocationPanel.setBackground(new java.awt.Color(63, 63, 63));
+        panel_LocationPanel.setLayout(null);
 
-        button_VillageElder.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_VillageElder.setText("Village Elder");
-        button_VillageElder.addActionListener(new java.awt.event.ActionListener() {
+        button_Place1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Place1.setText("Village Elder");
+        button_Place1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_VillageElderActionPerformed(evt);
+                button_Place1ActionPerformed(evt);
             }
         });
-        panel_Village.add(button_VillageElder);
-        button_VillageElder.setBounds(10, 10, 220, 30);
+        panel_LocationPanel.add(button_Place1);
+        button_Place1.setBounds(10, 10, 220, 30);
 
-        buttonl_TravellingMerchant.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        buttonl_TravellingMerchant.setText("Travelling Merchant");
-        buttonl_TravellingMerchant.addActionListener(new java.awt.event.ActionListener() {
+        buttonl_Place2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        buttonl_Place2.setText("Travelling Merchant");
+        buttonl_Place2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonl_TravellingMerchantActionPerformed(evt);
+                buttonl_Place2ActionPerformed(evt);
             }
         });
-        panel_Village.add(buttonl_TravellingMerchant);
-        buttonl_TravellingMerchant.setBounds(10, 50, 220, 30);
+        panel_LocationPanel.add(buttonl_Place2);
+        buttonl_Place2.setBounds(10, 50, 220, 30);
 
-        button_Home.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Home.setText("Home");
-        button_Home.addActionListener(new java.awt.event.ActionListener() {
+        button_Place3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Place3.setText("Home");
+        button_Place3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_HomeActionPerformed(evt);
+                button_Place3ActionPerformed(evt);
             }
         });
-        panel_Village.add(button_Home);
-        button_Home.setBounds(10, 90, 220, 30);
+        panel_LocationPanel.add(button_Place3);
+        button_Place3.setBounds(10, 90, 220, 30);
 
-        panel_Game.add(panel_Village);
-        panel_Village.setBounds(270, 10, 240, 230);
+        panel_Game.add(panel_LocationPanel);
+        panel_LocationPanel.setBounds(270, 10, 240, 230);
 
         panel_Main.add(panel_Game);
         panel_Game.setBounds(5, 130, 520, 300);
@@ -1700,6 +1680,27 @@ public class Game extends javax.swing.JFrame {
         panel_Main.add(panel_Dialogue);
         panel_Dialogue.setBounds(5, 130, 520, 300);
 
+        panel_Home.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Home.setLayout(null);
+
+        button_Rest.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Rest.setText("Rest");
+        button_Rest.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_RestActionPerformed(evt);
+            }
+        });
+        panel_Home.add(button_Rest);
+        button_Rest.setBounds(150, 90, 220, 30);
+
+        label_Home.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Home.setText("Restore HP and MP");
+        panel_Home.add(label_Home);
+        label_Home.setBounds(150, 10, 220, 70);
+
+        panel_Main.add(panel_Home);
+        panel_Home.setBounds(5, 130, 520, 300);
+
         panel_Travel.setBackground(new java.awt.Color(69, 69, 69));
         panel_Travel.setLayout(null);
 
@@ -1739,27 +1740,6 @@ public class Game extends javax.swing.JFrame {
 
         panel_Main.add(panel_Travel);
         panel_Travel.setBounds(5, 130, 520, 300);
-
-        panel_Home.setBackground(new java.awt.Color(69, 69, 69));
-        panel_Home.setLayout(null);
-
-        button_Rest.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Rest.setText("Rest");
-        button_Rest.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_RestActionPerformed(evt);
-            }
-        });
-        panel_Home.add(button_Rest);
-        button_Rest.setBounds(150, 90, 220, 30);
-
-        label_Home.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Home.setText("Restore HP and MP");
-        panel_Home.add(label_Home);
-        label_Home.setBounds(150, 10, 220, 70);
-
-        panel_Main.add(panel_Home);
-        panel_Home.setBounds(5, 130, 520, 300);
 
         panel_Inventory.setBackground(new java.awt.Color(69, 69, 69));
         panel_Inventory.setLayout(null);
@@ -2165,7 +2145,7 @@ public class Game extends javax.swing.JFrame {
 
             label_Dialogue.setText(loadedDialoge[textIndex]);
 
-            // put back to normal: (dialogueIndex == 7 && textIndex == 25)
+            // put back to normal: (dialogueIndex == 7 && textIndex == 26)
             if (dialogueIndex == 7 && textIndex == 1) {
 
                 // method this
@@ -2174,17 +2154,7 @@ public class Game extends javax.swing.JFrame {
                 battle = new Battle(player, enemy);
                 battle.escapeChance = 0;
 
-                // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-                // put in a method to hide everything
-                // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-                button_Return.setVisible(false);
-                panel_Home.setVisible(false);
-                panel_Dialogue.setVisible(false);
-                panel_Travel.setVisible(false);
-                panel_Inventory.setVisible(false);
-                panel_Attributes.setVisible(false);
-                button_Return.setVisible(false);
-                panel_Home.setVisible(false);
+                hideScreens();
 
                 panel_Combat.setVisible(true);
                 panel_CombatLog.setVisible(true);
@@ -2236,6 +2206,16 @@ public class Game extends javax.swing.JFrame {
 
     private void openGameScreen() {
 
+        if (player.attributePoints > 0) {
+
+            button_Status.setText("Status (•)");
+
+        } else {
+
+            button_Status.setText("Status");
+
+        }
+
         label_GameHP.setText(String.format("Health Points (HP): %.2f / %.2f\n", player.currentHP,
                 (double) player.healthPoints * 5));
         label_GameMP.setText(String.format("Magic Points (MP): %.2f / %.2f\n", player.currentMP,
@@ -2243,17 +2223,7 @@ public class Game extends javax.swing.JFrame {
         label_GameXP.setText(String.format("Experience Points (XP): %.2f / %.2f\n", player.xp,
                 player.xpNeeded));
 
-        // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        // method this
-        // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        button_Return.setVisible(false);
-        panel_Home.setVisible(false);
-        panel_Dialogue.setVisible(false);
-        panel_Travel.setVisible(false);
-        panel_Inventory.setVisible(false);
-        panel_Attributes.setVisible(false);
-        button_Return.setVisible(false);
-        panel_Home.setVisible(false);
+        hideScreens();
 
         panel_Game.setVisible(true);
     }
@@ -2439,13 +2409,13 @@ public class Game extends javax.swing.JFrame {
     }
 
     // opens the attributes menu
-    private void label_StatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_label_StatusActionPerformed
+    private void button_StatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_StatusActionPerformed
 
         panel_Game.setVisible(false);
         button_Return.setVisible(true);
         openAttributesMenu();
 
-    }//GEN-LAST:event_label_StatusActionPerformed
+    }//GEN-LAST:event_button_StatusActionPerformed
 
     // return to game menu (appears in travel, inventory, and attributes/ status menu)
     private void button_ReturnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_ReturnActionPerformed
@@ -2510,10 +2480,12 @@ public class Game extends javax.swing.JFrame {
     public void showAvailableAttributePoints() {
 
         if (player.attributePoints > 0) {
+            panel_AttributesActions.setVisible(true);
             panel_AttributesAdditionButtons.setVisible(true);
             panel_AttributesAddition.setVisible(true);
             panel_AttributesActions.setVisible(true);
         } else {
+            panel_AttributesActions.setVisible(false);
             panel_AttributesAdditionButtons.setVisible(false);
         }
     }
@@ -2541,13 +2513,13 @@ public class Game extends javax.swing.JFrame {
 
     }//GEN-LAST:event_button_CrudeWandActionPerformed
 
-    private void label_InventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_label_InventoryActionPerformed
+    private void button_InventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_InventoryActionPerformed
 
         panel_Game.setVisible(false);
         button_Return.setVisible(true);
         openInventory();
 
-    }//GEN-LAST:event_label_InventoryActionPerformed
+    }//GEN-LAST:event_button_InventoryActionPerformed
 
     private void openInventory() {
         panel_Inventory.setVisible(true);
@@ -2607,12 +2579,12 @@ public class Game extends javax.swing.JFrame {
     // <editor-fold desc="travel stuff">
     private void travelToLocation(String locationTravelledTo) {
 
-        panel_Village.setVisible(false);
+        panel_LocationPanel.setVisible(false);
 
         // put the locations here
         switch (locationTravelledTo) {
             case "Village" -> {
-                panel_Village.setVisible(true);
+                panel_LocationPanel.setVisible(true);
             }
         }
 
@@ -2623,19 +2595,25 @@ public class Game extends javax.swing.JFrame {
 
     }
 
-    private void button_HomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_HomeActionPerformed
+    private void button_Place3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_Place3ActionPerformed
 
         panel_Game.setVisible(false);
         button_Return.setVisible(true);
         panel_Home.setVisible(true);
 
-    }//GEN-LAST:event_button_HomeActionPerformed
+    }//GEN-LAST:event_button_Place3ActionPerformed
 
-    private void buttonl_TravellingMerchantActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonl_TravellingMerchantActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_buttonl_TravellingMerchantActionPerformed
+    private void buttonl_Place2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonl_Place2ActionPerformed
 
-    private void button_VillageElderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_VillageElderActionPerformed
+        if (storylineProgress == 0) {
+
+            warning("Tutorial");
+
+        }
+
+    }//GEN-LAST:event_buttonl_Place2ActionPerformed
+
+    private void button_Place1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_Place1ActionPerformed
 
         panel_Game.setVisible(false);
         panel_Dialogue.setVisible(true);
@@ -2645,14 +2623,14 @@ public class Game extends javax.swing.JFrame {
         button_No.setVisible(false);
         talkingToNPC = true;
 
-    }//GEN-LAST:event_button_VillageElderActionPerformed
+    }//GEN-LAST:event_button_Place1ActionPerformed
 
     private void button_RestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_RestActionPerformed
 
 
     }//GEN-LAST:event_button_RestActionPerformed
 
-    private void label_TravelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_label_TravelActionPerformed
+    private void button_TravelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_TravelActionPerformed
 
         panel_Game.setVisible(false);
         button_Return.setVisible(true);
@@ -2675,7 +2653,7 @@ public class Game extends javax.swing.JFrame {
         }
 
 
-    }//GEN-LAST:event_label_TravelActionPerformed
+    }//GEN-LAST:event_button_TravelActionPerformed
 
     private void button_VillageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_VillageActionPerformed
         // TODO add your handling code here:
@@ -2775,7 +2753,20 @@ public class Game extends javax.swing.JFrame {
 
     private void panel_CombatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panel_CombatMouseClicked
 
-        combatTurn();
+        if (battle.battleEnded) {
+
+            player.xpGain(battle.receiveBattleXP());
+            openGameScreen();
+
+            if (player.accumulatedLVL > 0) {
+                warning("LVLup");
+            }
+
+        } else {
+
+            combatTurn();
+
+        }
 
     }//GEN-LAST:event_panel_CombatMouseClicked
 
@@ -2838,7 +2829,63 @@ public class Game extends javax.swing.JFrame {
     private void button_UseSkill2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_UseSkill2ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_button_UseSkill2ActionPerformed
+
     // </editor-fold>
+    // -----------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------
+    // <editor-fold desc="warning stuff">
+    private void warning(String type) {
+
+        String warningTitle = "";
+        String warningLabel = "";
+
+        switch (type) {
+            case "Tutorial": {
+                warningTitle = "Talk to the Village Elder first.";
+                warningLabel = "You are not ready.";
+                break;
+            }
+            case "LVLup": {
+                warningTitle = "Level Increased!";
+                warningLabel = String.format("""
+                                             <html>
+                                             <p>
+                                             %s %s
+                                             </p>
+                                             </html>
+                                             """, String.format("<br> %s >> %s", (player.level - player.accumulatedLVL), player.level),
+                        String.format("<br> +%.2f XP gained.", battle.xpGain));
+                break;
+            }
+        }
+
+        button_Place1.setEnabled(false);
+        buttonl_Place2.setEnabled(false);
+        button_Place3.setEnabled(false);
+        button_Travel.setEnabled(false);
+        button_Inventory.setEnabled(false);
+        button_Status.setEnabled(false);
+
+        panel_Main.setComponentZOrder(panel_Warning, 0);
+        panel_Warning.setVisible(true);
+        label_WarningTitle.setText(warningTitle);
+        label_WarningBody.setText(warningLabel);
+
+    }
+
+    private void button_CloseWarningMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_button_CloseWarningMouseClicked
+
+        panel_Warning.setVisible(false);
+
+        button_Place1.setEnabled(true);
+        buttonl_Place2.setEnabled(true);
+        button_Place3.setEnabled(true);
+        button_Travel.setEnabled(true);
+        button_Inventory.setEnabled(true);
+        button_Status.setEnabled(true);
+
+    }//GEN-LAST:event_button_CloseWarningMouseClicked
+// </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
 
     public static void main(String args[]) {
@@ -2858,22 +2905,27 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JButton button_AttributesConfirm;
     private javax.swing.JButton button_AttributesReset;
     private javax.swing.JButton button_Celeritas;
+    private javax.swing.JButton button_CloseWarning;
     private javax.swing.JButton button_CrudeWand;
     private javax.swing.JButton button_DPAddition;
     private javax.swing.JButton button_DialogueConfirm;
     private javax.swing.JButton button_FleeCombat;
     private javax.swing.JButton button_Grasslands;
     private javax.swing.JButton button_HPAddition;
-    private javax.swing.JButton button_Home;
     private javax.swing.JButton button_IPAddition;
+    private javax.swing.JButton button_Inventory;
     private javax.swing.JButton button_IronSword;
     private javax.swing.JButton button_Madeis;
     private javax.swing.JButton button_No;
+    private javax.swing.JButton button_Place1;
+    private javax.swing.JButton button_Place3;
     private javax.swing.JButton button_Rest;
     private javax.swing.JButton button_Return;
     private javax.swing.JButton button_SPAddition;
     private javax.swing.JButton button_Sanitas;
     private javax.swing.JButton button_SimpleBow;
+    private javax.swing.JButton button_Status;
+    private javax.swing.JButton button_Travel;
     private javax.swing.JButton button_Tutela;
     private javax.swing.JButton button_UseAttack;
     private javax.swing.JButton button_UseInventory;
@@ -2882,10 +2934,9 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JButton button_UseSkill3;
     private javax.swing.JButton button_UseSkill4;
     private javax.swing.JButton button_Village;
-    private javax.swing.JButton button_VillageElder;
     private javax.swing.JButton button_Virtus;
     private javax.swing.JButton button_Yes;
-    private javax.swing.JButton buttonl_TravellingMerchant;
+    private javax.swing.JButton buttonl_Place2;
     private javax.swing.JLabel label_APAddition;
     private javax.swing.JLabel label_AgilityPoints;
     private javax.swing.JLabel label_Armor;
@@ -2938,7 +2989,6 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JLabel label_Home;
     private javax.swing.JLabel label_IPAddition;
     private javax.swing.JLabel label_IntelligencePoints;
-    private javax.swing.JButton label_Inventory;
     private javax.swing.JLabel label_IronSword;
     private javax.swing.JLabel label_Level;
     private javax.swing.JLabel label_Location;
@@ -2952,7 +3002,6 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JLabel label_SPAddition;
     private javax.swing.JLabel label_Sanitas;
     private javax.swing.JLabel label_SimpleBow;
-    private javax.swing.JButton label_Status;
     private javax.swing.JLabel label_StrengthPoints;
     private javax.swing.JLabel label_Talker;
     private javax.swing.JLabel label_TotalAP;
@@ -2965,9 +3014,10 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JLabel label_TotalPDef;
     private javax.swing.JLabel label_TotalPDmg;
     private javax.swing.JLabel label_TotalSP;
-    private javax.swing.JButton label_Travel;
     private javax.swing.JLabel label_Tutela;
     private javax.swing.JLabel label_Virtus;
+    private javax.swing.JLabel label_WarningBody;
+    private javax.swing.JLabel label_WarningTitle;
     private javax.swing.JLabel label_Weapon;
     private javax.swing.JLabel label_Wilderness;
     private javax.swing.JPanel panel_Attributes;
@@ -2985,6 +3035,7 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JPanel panel_GearAddition;
     private javax.swing.JPanel panel_Home;
     private javax.swing.JPanel panel_Inventory;
+    private javax.swing.JPanel panel_LocationPanel;
     private javax.swing.JPanel panel_Main;
     private javax.swing.JPanel panel_Skills;
     private javax.swing.JPanel panel_StartingGear;
@@ -2992,7 +3043,8 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JPanel panel_SubTotal;
     private javax.swing.JPanel panel_Total;
     private javax.swing.JPanel panel_Travel;
-    private javax.swing.JPanel panel_Village;
+    private javax.swing.JPanel panel_Warning;
+    private javax.swing.JPanel panel_WarningMessage;
     private javax.swing.JTextField textField_NameField;
     // End of variables declaration//GEN-END:variables
     // </editor-fold>
