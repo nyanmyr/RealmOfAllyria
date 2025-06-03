@@ -38,3 +38,10 @@ progress (6/02/2025)
 • reworked crit chance scaling
 • using of skills now have different attack messages
 • reworked the attributes
+
+version 0.0.7 (prototype)
+progress (6/02/2025)
+• death/ victory message
+• battle xp calculation
+• escape chance calculation
+• working on XP stuff

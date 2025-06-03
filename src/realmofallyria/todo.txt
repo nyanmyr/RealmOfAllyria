@@ -3,9 +3,7 @@ menial things;
 - rearrange attributes/ affinities/ starting gear to be meaningful
 
 to do:
-- add combat mechanics
-- work on
-- work on xp and level
+- work on xp and level up mechanics
 - fleeing
 - towns
 - death/ respawn screen
