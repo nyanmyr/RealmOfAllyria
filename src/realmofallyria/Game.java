@@ -1,3 +1,4 @@
+
 package realmofallyria;
 
 import java.util.LinkedList;
@@ -168,7 +169,7 @@ class Mob {
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------
-    // <editor-fold desc="attribute mechanics && full heal method stuff">
+    // <editor-fold desc="attribute mechanics, equip gear, full heal stuff">
     public void chooseAffinity() {
 
         xpNeeded = (level + 1) * 12;
@@ -307,8 +308,8 @@ class Mob {
                 break;
             }
             case "Leather Armor": {
-                HPGearAddition += armorLevel * 2;
-                DPGearAddition += armorLevel * 2;
+                HPGearAddition += armorLevel * 3;
+                DPGearAddition += armorLevel * 3;
                 break;
             }
             case "DEBUG": {
@@ -497,40 +498,32 @@ class Mob {
 
     public double[] defend(double[] damageTaken) {
 
-        // is damage even greater than 0? 
-//        System.out.println("PDmg: " + damageTaken[0]);
-//        System.out.println("PDmg Defended: " + physicalDefense);
-//        System.out.println("PDmg Total: " + (damageTaken[0] > 0 ? ((damageTaken[0] * 0.75) - physicalDefense < 0 ? (damageTaken[0] * 0.25) : (damageTaken[0] * 0.75) - physicalDefense + (damageTaken[0] * 0.25)) : 0));
-//        System.out.println("///");
-//        System.out.println("MDmg: " + damageTaken[1]);
-//        System.out.println("MDmg Defended: " + magicalDefense);
-//        System.out.println("MDmg Total: " + (damageTaken[1] > 0 ? ((damageTaken[1] * 0.75) - magicalDefense < 0 ? (damageTaken[1] * 0.25) : (damageTaken[1] * 0.75) - magicalDefense + (damageTaken[1] * 0.25)) : 0));
-//        System.out.println();
-        // saves the dmg inflicted
+        // saves the total damaged suffered
         damageTaken[5] = damageTaken[0];
         damageTaken[6] = damageTaken[1];
 
-        // saves the dmg defended
-        damageTaken[3] = physicalDefense;
-        damageTaken[4] = magicalDefense;
-
-        // saves the total damaged suffered
+        // calculates actual dmg taken, taking into account physical defense
         damageTaken[0] = (damageTaken[0] > 0
                 ? (damageTaken[0] - physicalDefense < 0
-                        ? (damageTaken[0] * 0.25) : damageTaken[0] * 0.75 - physicalDefense)
+                        ? (damageTaken[0] * 0.1) : damageTaken[0] * 0.9 - physicalDefense)
                 : 0);
         damageTaken[1] = (damageTaken[1] > 0
                 ? (damageTaken[1] - magicalDefense < 0
-                        ? (damageTaken[1] * 0.25) : damageTaken[1] * 0.75 - magicalDefense)
+                        ? (damageTaken[1] * 0.1) : damageTaken[1] * 0.9 - magicalDefense)
                 : 0);
+
+        // saves the dmg defended
+        damageTaken[3] = physicalDefense;
+        damageTaken[4] = physicalDefense;
 
         // ensures that there is no way of increasing health from attack
         damageTaken[0] = damageTaken[0] < 0 ? 0 : damageTaken[0];
         damageTaken[1] = damageTaken[1] < 0 ? 0 : damageTaken[1];
 
-//        System.out.println("damageTaken[0]: " + damageTaken[0]);
-//        System.out.println("damageTaken[1]: " + damageTaken[1]);
 //        System.out.println();
+//        System.out.println("PDmg: " + damageTaken[5]);
+//        System.out.println("PDmg Defended: " + damageTaken[3]);
+//        System.out.println("PDmg Total: " + damageTaken[0]);
         // reduces the health by the damage suffered
         currentHP -= damageTaken[0];
         currentHP -= damageTaken[1];
@@ -550,21 +543,20 @@ class Mob {
 
         accumulatedLVL = 0;
 
-        while (true) {
+        while (xpGained > 0) {
+            double xpToLevelUp = xpNeeded - xp;
 
-            if (xp + xpGained > xpNeeded) {
-
+            if (xpGained >= xpToLevelUp) {
+                // Level up!
+                xpGained -= xpToLevelUp;
                 accumulatedLVL++;
                 xp = 0;
-                xpGained -= xpNeeded;
-
+                xpNeeded += 12;
             } else {
-
+                // Not enough XP to level up
                 xp += xpGained;
-                break;
-
+                xpGained = 0;
             }
-
         }
 
         if (accumulatedLVL > 0) {
@@ -624,6 +616,7 @@ class Mob {
     }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
+
 }
 // </editor-fold>
 // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -669,9 +662,9 @@ class Battle {
         // calculates escape chance
         // this ensures that the escape chance never exceeds 90.00%
         // and never falls short short of 20.00%
-        escapeChance = 20 + ((player.agilityPoints - enemy.agilityPoints) * 5) > 90 ? 90
-                : 20 + ((player.agilityPoints - enemy.agilityPoints) * 5) < 20 ? 20
-                        : 20 + ((player.agilityPoints - enemy.agilityPoints) * 5);
+        escapeChance = 25 + ((player.agilityPoints - enemy.agilityPoints) * 5) > 90 ? 90
+                : 25 + ((player.agilityPoints - enemy.agilityPoints) * 5) < 25 ? 25
+                        : 25 + ((player.agilityPoints - enemy.agilityPoints) * 5);
 //        System.out.printf("escapeChance: %.2f%%\n", escapeChance);
 
         if (player.agilityPoints > enemy.agilityPoints) {
@@ -1014,8 +1007,7 @@ public class Game extends javax.swing.JFrame {
         // debugging stuff (0 for normal)
         // 6 for testing dialogue menu
         // 9 for skipping tutorial
-        dialogueIndex = 0;
-
+//        dialogueIndex = 0;
         // -----------------------------------------------------------------------------------------------------------
         // <editor-fold desc="debugging/ QA testing stuff">
         // debug characters
@@ -1032,11 +1024,11 @@ public class Game extends javax.swing.JFrame {
 //                "Virtus", 1,
 //                "Leather Armor", 1,
 //                "Iron Sword", 100);
-        player.generateMob("Meme Bashame",
-                "Celeritas", 1,
-                "Leather Armor", 1,
-                "Simple Bow", 1);
-//^        player.attributePoints += 1000;
+//        player.generateMob("Meme Bashame",
+//                "Celeritas", 1,
+//                "Leather Armor", 1,
+//                "Simple Bow", 1);
+//        player.attributePoints += 1000;
 //        player.currentHP = 1;
         // </editor-fold>
         // -----------------------------------------------------------------------------------------------------------
@@ -3215,9 +3207,6 @@ public class Game extends javax.swing.JFrame {
         if (battle.battleEnded) {
 
             player.receiveXPCoinsReward(battle.battleXPGain, battle.battleCoinGain);
-            if (player.accumulatedLVL > 0) {
-                messagePopup("Level Increased!");
-            }
 
             if (dialogueIndex == 8) {
 
@@ -3233,6 +3222,10 @@ public class Game extends javax.swing.JFrame {
 
                 }
 
+            }
+
+            if (player.accumulatedLVL > 0) {
+                messagePopup("Level increased!");
             }
 
         } else {
@@ -3315,7 +3308,7 @@ public class Game extends javax.swing.JFrame {
             case "Talk to the Village Elder first." -> {
                 warningLabel = "You are not ready.";
             }
-            case "Level Increased!" -> {
+            case "Level increased!" -> {
                 warningLabel = String.format("""
                                              <html>
                                              <p>
@@ -3324,6 +3317,7 @@ public class Game extends javax.swing.JFrame {
                                              </html>
                                              """, String.format("<br> %s >> %s", (player.level - player.accumulatedLVL), player.level),
                         String.format("<br> +%.2f XP gained.", battle.battleXPGain));
+                openGameScreen();
             }
             case "Full HP and MP" -> {
                 warningLabel = "Your HP and MP are both full.";

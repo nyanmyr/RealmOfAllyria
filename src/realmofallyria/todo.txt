@@ -1,13 +1,14 @@
 menial things;
-- leveling up freezes
 - clicking the home panel should return to the game panel
 - fixed villlage elder dialogue
 - warning menu bug (buttons not ordered porperly) : os issue?
 - mix class constructor with generateMob?
 
 to do:
-- monster skills
+- warning of low HP
 - fleeing
+- defeat xp reward, coin reduction
+- monster skills
 - boss battle
 
 future

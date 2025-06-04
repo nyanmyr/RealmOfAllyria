@@ -67,3 +67,5 @@ progress (6/02/2025)
 • fixed dmg defended bug
 • wilderness battles
 • defeat in wilderness now respawns back to home
+• fixed the damage defended text (mob class)
+• fixed leveling system
