@@ -41,7 +41,7 @@ progress (6/02/2025)
 
 version 0.0.8 (prototype)
 progress (6/02/2025)
-• death/ victory message
+• defeat/ victory message
 • battle xp calculation
 • escape chance calculation
 • working on XP stuff
@@ -51,3 +51,19 @@ progress (6/02/2025)
 • finished tutorial
 • fixed XP gaining in defeat
 • edited attack/ battle end messages
+• coins system
+
+version 0.0.9 (prototype)
+progress (6/02/2025)
+• not receiving xp or coins reward bug fix
+• new affinities order: sanitas, virtus, tutela, madeis, celeritas
+• updated affinity and starter weapon descriptions
+• rearranged attributes to fit new order
+• added max HP and MP for mobs
+• put editor folds everywhere
+• fixed bug that increases max HP and MP after receiving reward from battle
+• home now gives full health
+• added the html tag to the dialoge manuscripts
+• fixed dmg defended bug
+• wilderness battles
+• defeat in wilderness now respawns back to home

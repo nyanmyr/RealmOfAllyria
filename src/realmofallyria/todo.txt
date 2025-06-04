@@ -1,22 +1,22 @@
 menial things;
-- resize stuff
-- warning menu bug (buttons not ordered porperly)
-- add message in dialogue (click to talk)
-- rearrange attributes/ affinities/ starting gear to be meaningful
+- leveling up freezes
+- clicking the home panel should return to the game panel
+- fixed villlage elder dialogue
+- warning menu bug (buttons not ordered porperly) : os issue?
 - mix class constructor with generateMob?
 
 to do:
-- currency
-- resting screen
+- monster skills
 - fleeing
 - boss battle
-- death/ respawn screen
-- tutorial death screen
-- quest menu
 
 future
+- resize stuff game
 - remove all tool tips using null
 - tips screen between travelling
 - hardcore or normal difficulty
 - add save/ load feature
 - rework ui
+
+consider:
+- shiny monsters??
