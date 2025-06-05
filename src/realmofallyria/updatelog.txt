@@ -69,3 +69,12 @@ progress (6/02/2025)
 • defeat in wilderness now respawns back to home
 • fixed the damage defended text (mob class)
 • fixed leveling system
+
+version 0.0.9 (prototype)
+progress (6/02/2025)
+• scenic views
+• player will now be warned of low hp and mp after battle
+• wilderness fleeing
+• wilderness exploration now continues after battle
+• escape is now fully functional
+• stronger monsters will now appear if the player gets stronger

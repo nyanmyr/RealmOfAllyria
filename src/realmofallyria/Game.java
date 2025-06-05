@@ -1,6 +1,7 @@
-
 package realmofallyria;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
@@ -598,6 +599,10 @@ class Mob {
 
         addHPMP(healthPoints, intelligencePoints, false);
 
+        fullHeal();
+
+        accumulatedLVL = 0;
+
     }
 
     private void convertCoins() {
@@ -662,9 +667,9 @@ class Battle {
         // calculates escape chance
         // this ensures that the escape chance never exceeds 90.00%
         // and never falls short short of 20.00%
-        escapeChance = 25 + ((player.agilityPoints - enemy.agilityPoints) * 5) > 90 ? 90
-                : 25 + ((player.agilityPoints - enemy.agilityPoints) * 5) < 25 ? 25
-                        : 25 + ((player.agilityPoints - enemy.agilityPoints) * 5);
+        escapeChance = 30 + ((player.agilityPoints - enemy.agilityPoints) * 5) > 90 ? 90
+                : 30 + ((player.agilityPoints - enemy.agilityPoints) * 5) < 30 ? 30
+                        : 30 + ((player.agilityPoints - enemy.agilityPoints) * 5);
 //        System.out.printf("escapeChance: %.2f%%\n", escapeChance);
 
         if (player.agilityPoints > enemy.agilityPoints) {
@@ -751,6 +756,24 @@ class Battle {
 
     }
 
+    public boolean attemptFlee() {
+
+        int fleeRoll = battleRandomizer.nextInt(1, 101);
+
+        if (fleeRoll < escapeChance) {
+
+            System.out.println("Escape Success");
+            return false;
+
+        } else {
+
+            System.out.println("Escape Failure");
+            return true;
+
+        }
+
+    }
+
     public String battleEnd(Boolean fleeing) {
 
         int battleGoldCoins = 0;
@@ -825,8 +848,12 @@ class Wilderness {
     String[] monsterNames;
     String[][] affinities;
     String[][] equipment;
+    String[] wildernessScenicViews;
     int exploreTurns;
     boolean obstructed = false;
+
+    // determines a chance increase to encountering stronger mobs
+    int difficultyDiceRollModifier;
 
     String wildernessMobName = "";
     String wildernessMobAffinity = "";
@@ -836,13 +863,48 @@ class Wilderness {
     String wildernessMobWeapon = "";
     int wildernessMobWeaponLVL = 0;
 
+    Queue wildernessEncounters = new LinkedList<>();
+    int scenicViewIndex;
+
     // enemy.generateMob("Slime", "Madeis", 1, "Slime Armor", 1, "Body", 1);
-    public Wilderness(int givenWildernessLevel, String[] givenMonsterNames, String[][] givenAffinities, String[][] givenEquipment) {
+    public Wilderness(int givenWildernessLevel,
+            String[] givenMonsterNames,
+            String[][] givenAffinities,
+            String[][] givenEquipment,
+            String[] scenicViews,
+            int playerLevel) {
 
         this.wildernessLevel = givenWildernessLevel;
         this.monsterNames = givenMonsterNames;
         this.affinities = givenAffinities;
         this.equipment = givenEquipment;
+        this.wildernessScenicViews = scenicViews;
+
+        // must not exceed 100
+        // if player level - wilderness level * 20 < 0 then it returns 0
+        // else if the player level - wilderness level * 20 > 0 then it returns 100
+        // finally it gives right result if it does not meet the previous requirements
+        difficultyDiceRollModifier = (playerLevel - (wildernessLevel * 10)) * 20 < 0 ? 0
+                : (playerLevel - (wildernessLevel * 10)) * 20 > 100 ? 100
+                        : (playerLevel - (wildernessLevel * 10)) * 20;
+        System.out.println("difficultyDiceRollModifier: " + difficultyDiceRollModifier);
+
+        for (int i = 0; i < 20; i++) {
+
+            int diceRoll = wildernessRandomizer.nextInt(20);
+
+            if (diceRoll < 6) {
+
+                wildernessEncounters.add("Combat");
+
+            } else {
+
+                wildernessEncounters.add("Scenery");
+
+            }
+
+        }
+
         exploreTurns = 0;
 
     }
@@ -850,12 +912,15 @@ class Wilderness {
     public String exploreTurn() {
 
         String exploreResult;
-        int diceRoll = wildernessRandomizer.nextInt(20);
 
-        if (diceRoll < 6) {
-            exploreResult = "Mob battle";
+        if (wildernessEncounters.poll().equals("Combat")) {
+
+            exploreResult = "Combat";
+
         } else {
-            exploreResult = "No encounter";
+
+            exploreResult = "Scenery";
+
         }
 
         exploreTurns++;
@@ -869,7 +934,7 @@ class Wilderness {
         // 0 1 2
         int mobTypeDiceRoll = wildernessRandomizer.nextInt(1, 201);
 //        System.out.println("randomizeChosenMob: " + mobTypeDiceRoll);
-        int chosenMob = mobTypeDiceRoll > 180 ? 2 : mobTypeDiceRoll > 150 ? 1 : 0;
+        int chosenMob = mobTypeDiceRoll + difficultyDiceRollModifier > 180 ? 2 : mobTypeDiceRoll + difficultyDiceRollModifier > 150 ? 1 : 0;
         int generatedMobLVL = (chosenMob == 0 ? 1 : chosenMob == 1 ? 2 : 3) * 2 - wildernessRandomizer.nextInt(2);
         int generatedAffinity = wildernessRandomizer.nextInt(2);
         int generatedArmorLVL = wildernessRandomizer.nextInt(1, 4);
@@ -1000,6 +1065,8 @@ public class Game extends javax.swing.JFrame {
     // indicates whether the dialogue menu is opened.
     boolean talkingToNPC = false;
 
+    Random gameRandomizer = new Random();
+
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
     public Game() {
@@ -1007,7 +1074,7 @@ public class Game extends javax.swing.JFrame {
         // debugging stuff (0 for normal)
         // 6 for testing dialogue menu
         // 9 for skipping tutorial
-//        dialogueIndex = 0;
+        dialogueIndex = 9;
         // -----------------------------------------------------------------------------------------------------------
         // <editor-fold desc="debugging/ QA testing stuff">
         // debug characters
@@ -1024,10 +1091,10 @@ public class Game extends javax.swing.JFrame {
 //                "Virtus", 1,
 //                "Leather Armor", 1,
 //                "Iron Sword", 100);
-//        player.generateMob("Meme Bashame",
-//                "Celeritas", 1,
-//                "Leather Armor", 1,
-//                "Simple Bow", 1);
+        player.generateMob("Meme Bashame",
+                "Celeritas", 1,
+                "Leather Armor", 1,
+                "Simple Bow", 100);
 //        player.attributePoints += 1000;
 //        player.currentHP = 1;
         // </editor-fold>
@@ -1036,8 +1103,8 @@ public class Game extends javax.swing.JFrame {
         hideScreens();
 
         // enable these along with putting dialogueIndex to 9 to skip tutorial
-//        openGameScreen();
-//        travelToLocation("Village");
+        openGameScreen();
+        travelToLocation("Village");
     }
 
     private void hideScreens() {
@@ -1065,6 +1132,49 @@ public class Game extends javax.swing.JFrame {
 
         String generatedName = "";
 
+        HashMap<String, String[]> characterNames = new HashMap<>();
+        String[] str = {"Merlina", "f"};
+        characterNames.put("Princess", str);
+
+        str[0] = "Earl";
+        str[1] = "m";
+        System.out.println(Arrays.toString(str));
+        characterNames.put("Village Elder",str);
+        str[0] = "Garett";
+        str[1] = "m";
+        characterNames.put("Lord",str);
+        str[0] = "Vanderlind";
+        str[1] = "m";
+        characterNames.put("Duke",str);
+        str[0] = "Hark";
+        str[1] = "m";
+        characterNames.put("Commander",str);
+        str[0] = "Anasthasia";
+        str[1] = "f";
+        characterNames.put("Queen",str);
+
+        str[0] = "Behemoth";
+        str[1] = "m";
+        characterNames.put("Baron", str);
+        str[0] = "Asmodeus";
+        str[1] = "f";
+        characterNames.put("General", str);
+        str[0] = "Baal";
+        str[1] = "m";
+        characterNames.put("Harbinger", str);
+        str[0] = "Azazel";
+        str[1] = "f";
+        characterNames.put("Arch Demon", str);
+        str[0] = "Tiamat";
+        str[1] = "f";
+        characterNames.put("Prince of the Underworld", str);
+
+        for (String title : characterNames.keySet()) {
+
+            System.out.printf("%s %s\n", title, characterNames.get(title));
+
+        }
+        
         return generatedName;
     }
 
@@ -1077,8 +1187,6 @@ public class Game extends javax.swing.JFrame {
         label_Header = new javax.swing.JLabel();
         textField_NameField = new javax.swing.JTextField();
         button_DialogueConfirm = new javax.swing.JButton();
-        panel_Home = new javax.swing.JPanel();
-        label_HomeLabel = new javax.swing.JLabel();
         panel_Wilderness = new javax.swing.JPanel();
         label_WildernessLocation = new javax.swing.JLabel();
         label_EncounterLog = new javax.swing.JLabel();
@@ -1101,6 +1209,8 @@ public class Game extends javax.swing.JFrame {
         button_UseSkill2 = new javax.swing.JButton();
         button_UseSkill3 = new javax.swing.JButton();
         button_UseSkill4 = new javax.swing.JButton();
+        panel_Home = new javax.swing.JPanel();
+        label_HomeLabel = new javax.swing.JLabel();
         panel_Game = new javax.swing.JPanel();
         label_GameCurrency = new javax.swing.JLabel();
         label_GameXP = new javax.swing.JLabel();
@@ -1259,18 +1369,6 @@ public class Game extends javax.swing.JFrame {
         });
         panel_Main.add(button_DialogueConfirm);
         button_DialogueConfirm.setBounds(6, 97, 160, 27);
-
-        panel_Home.setBackground(new java.awt.Color(69, 69, 69));
-        panel_Home.setLayout(null);
-
-        label_HomeLabel.setForeground(new java.awt.Color(221, 221, 222));
-        label_HomeLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_HomeLabel.setText("Restore full HP and MP");
-        panel_Home.add(label_HomeLabel);
-        label_HomeLabel.setBounds(150, 10, 220, 280);
-
-        panel_Main.add(panel_Home);
-        panel_Home.setBounds(5, 130, 520, 300);
 
         panel_Wilderness.setBackground(new java.awt.Color(69, 69, 69));
         panel_Wilderness.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -1456,6 +1554,18 @@ public class Game extends javax.swing.JFrame {
 
         panel_Main.add(panel_Combat);
         panel_Combat.setBounds(5, 130, 520, 300);
+
+        panel_Home.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Home.setLayout(null);
+
+        label_HomeLabel.setForeground(new java.awt.Color(221, 221, 222));
+        label_HomeLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_HomeLabel.setText("Restore full HP and MP");
+        panel_Home.add(label_HomeLabel);
+        label_HomeLabel.setBounds(150, 10, 220, 280);
+
+        panel_Main.add(panel_Home);
+        panel_Home.setBounds(5, 130, 520, 300);
 
         panel_Game.setBackground(new java.awt.Color(69, 69, 69));
         panel_Game.setLayout(null);
@@ -3197,7 +3307,13 @@ public class Game extends javax.swing.JFrame {
     }//GEN-LAST:event_button_UseSkill1ActionPerformed
 
     private void button_FleeCombatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_FleeCombatActionPerformed
-        // TODO add your handling code here:
+
+        if (battle.escapeChance > 0) {
+
+            fleeAttempt();
+
+        }
+
     }//GEN-LAST:event_button_FleeCombatActionPerformed
 
     private void panel_CombatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panel_CombatMouseClicked
@@ -3215,16 +3331,46 @@ public class Game extends javax.swing.JFrame {
 
             } else {
 
-                openGameScreen();
+                if (player.currentHP < (player.maxHP * 0.25)
+                        && player.currentHP > 0
+                        && player.currentMP < (player.maxMP * 0.25)
+                        && player.currentMP > 0) {
+
+                    messagePopup("Low HP and MP");
+
+                } else if (player.currentHP < (player.maxHP * 0.25) && player.currentHP > 0) {
+
+                    messagePopup("Low HP");
+
+                } else if (player.currentMP < (player.maxMP * 0.25) && player.currentMP > 0) {
+
+                    messagePopup("Low MP");
+
+                }
+
                 if (player.currentHP < 0) {
 
                     returnHome("Defeated");
 
                 }
 
+                if (!wilderness.wildernessEncounters.isEmpty()) {
+
+                    wilderness.obstructed = false;
+                    button_WildernessAttack.setVisible(false);
+                    button_WildernessFlee.setVisible(false);
+                    exploreWilderness(currentLocation, false);
+
+                } else {
+
+                    openGameScreen();
+
+                }
+
             }
 
             if (player.accumulatedLVL > 0) {
+
                 messagePopup("Level increased!");
             }
 
@@ -3312,15 +3458,27 @@ public class Game extends javax.swing.JFrame {
                 warningLabel = String.format("""
                                              <html>
                                              <p>
-                                             %s %s
+                                             %s %s %s
                                              </p>
                                              </html>
                                              """, String.format("<br> %s >> %s", (player.level - player.accumulatedLVL), player.level),
-                        String.format("<br> +%.2f XP gained.", battle.battleXPGain));
-                openGameScreen();
+                        String.format("<br> +%.2f XP gained.", battle.battleXPGain),
+                        String.format("<br> You have acquired (+%s) attribute point(s).", player.attributePoints));
             }
             case "Full HP and MP" -> {
                 warningLabel = "Your HP and MP are both full.";
+            }
+            case "Low HP and MP" -> {
+                warningLabel = "<html>You are on the brink of death and your magic power stores are nearly exhausted. Going back into the wilderness at this state is utterly unadvisable.";
+            }
+            case "Low HP" -> {
+                warningLabel = "<html>You are on the brink of death. Going back into the wilderness at this state is utterly unadvisable.";
+            }
+            case "Low MP" -> {
+                warningLabel = "<html>Your magic power stores are nearly exhausted. Going back into the wilderness at this state is utterly unadvisable.";
+            }
+            case "You have encountered Baron %s's encampment." -> {
+                warningLabel = "<html>You may attack and bring their reign of terror down whenever you are ready.";
             }
         }
 
@@ -3330,6 +3488,8 @@ public class Game extends javax.swing.JFrame {
         button_Travel.setEnabled(false);
         button_Inventory.setEnabled(false);
         button_Status.setEnabled(false);
+        button_WildernessAttack.setEnabled(false);
+        button_WildernessFlee.setEnabled(false);
 
         panel_Main.setComponentZOrder(panel_Warning, 0);
         panel_Warning.setVisible(true);
@@ -3349,6 +3509,8 @@ public class Game extends javax.swing.JFrame {
         button_Travel.setEnabled(true);
         button_Inventory.setEnabled(true);
         button_Status.setEnabled(true);
+        button_WildernessAttack.setEnabled(true);
+        button_WildernessFlee.setEnabled(true);
 
     }//GEN-LAST:event_button_CloseWarningMouseClicked
     // </editor-fold>
@@ -3358,6 +3520,7 @@ public class Game extends javax.swing.JFrame {
     private void exploreWilderness(String wildernessLocation, boolean newExploration) {
 
         hideScreens();
+
         panel_Wilderness.setVisible(true);
 
         if (newExploration) {
@@ -3382,8 +3545,22 @@ public class Game extends javax.swing.JFrame {
                         {"Unarmored", "Club"},
                         {"Unarmored", "Mouth"}
                     };
+                    String[] grasslandScenicViews = {
+                        "You come across a pretty flower.",
+                        "You come across a lonesome tree.",
+                        "The tall grass blades dance along the wind.",
+                        "A powerful gust of wind bursts across the plains.",
+                        "A flock of wild sheep graze in the open field.",
+                        "A swallow drifts across the sky.",
+                        "A shallow creek runs along your pathway."
+                    };
 
-                    wilderness = new Wilderness(0, grasslandMonsters, grasslandAffinities, grasslandEquipment);
+                    wilderness = new Wilderness(0,
+                            grasslandMonsters,
+                            grasslandAffinities,
+                            grasslandEquipment,
+                            grasslandScenicViews,
+                            player.level);
 
                 }
 
@@ -3391,11 +3568,11 @@ public class Game extends javax.swing.JFrame {
 
         } else {
 
-            if (wilderness.exploreTurns < 10 && !wilderness.obstructed) {
+            if (wilderness.exploreTurns < 20 && !wilderness.obstructed) {
 
                 switch (wilderness.exploreTurn()) {
 
-                    case "Mob battle" -> {
+                    case "Combat" -> {
 
                         wilderness.generateWildernessMob();
 
@@ -3418,19 +3595,31 @@ public class Game extends javax.swing.JFrame {
 
                                             <body>
                                             <p align="center">
-                                            %s
+                                            %s %s
                                             </p>
                                             </body>
 
                                             </html>
                                             """, String.format("Encountered %s (LVL %s)", battle.enemy.name, battle.enemy.level),
-                                "Flee or attack."));
+                                "Flee or attack.",
+                                String.format("<br> (%s / 20 turns taken)", wilderness.exploreTurns)));
 
                         button_WildernessAttack.setVisible(true);
                         button_WildernessFlee.setVisible(true);
                         button_WildernessFlee.setText(String.format("Flee (%.0f%%)", battle.escapeChance));
+
                     }
-                    case "No encounter" -> {
+                    case "Scenery" -> {
+
+                        // makes sure the same scenic view is not used twice in a row
+                        int newScenicViewIndex = 0;
+                        while (newScenicViewIndex == wilderness.scenicViewIndex) {
+
+                            newScenicViewIndex = gameRandomizer.nextInt(wilderness.wildernessScenicViews.length);
+
+                        }
+                        wilderness.scenicViewIndex = newScenicViewIndex;
+
                         label_EncounterLog.setText(String.format(""" 
                                             <html>
 
@@ -3447,14 +3636,14 @@ public class Game extends javax.swing.JFrame {
                                             </body>
 
                                             </html>
-                                            """, "Nothing encountered",
+                                            """, wilderness.wildernessScenicViews[newScenicViewIndex],
                                 "(CLICK TO CONTINUE)",
-                                String.format("<br> (%s / 10 turns taken)", wilderness.exploreTurns)));
+                                String.format("<br> (%s / 20 turns taken)", wilderness.exploreTurns)));
                     }
 
                 }
 
-            } else if (wilderness.exploreTurns >= 10) {
+            } else if (wilderness.exploreTurns >= 20) {
 
                 travelToLocation(currentLocation);
 
@@ -3477,12 +3666,55 @@ public class Game extends javax.swing.JFrame {
     }//GEN-LAST:event_button_WildernessAttackActionPerformed
 
     private void button_WildernessFleeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_WildernessFleeActionPerformed
-        // TODO add your handling code here:
+
+        fleeAttempt();
+
     }//GEN-LAST:event_button_WildernessFleeActionPerformed
+
+    private void fleeAttempt() {
+
+        panel_Combat.setVisible(false);
+
+        if (battle.attemptFlee()) {
+
+            startBattle();
+            label_CombatLog.setText("Escape unsuccessful");
+
+        } else {
+
+            wilderness.obstructed = false;
+            panel_Wilderness.setVisible(true);
+
+            button_WildernessAttack.setVisible(false);
+            button_WildernessFlee.setVisible(false);
+
+            label_EncounterLog.setText(String.format("""
+                    <html>
+
+                    <head>
+                    <h3 align="center">
+                    %s
+                    </h3>
+                    </head>
+
+                    <body>
+                    <p align="center">
+                    %s %s
+                    </p>
+                    </body>
+
+                    </html>
+                    """, "Escape Successful",
+                    "(CLICK TO CONTINUE)",
+                    String.format("<br> (%s / 20 turns taken)", wilderness.exploreTurns)));
+
+        }
+    }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------
     // <editor-fold desc="html stuff (making labels)">
+
     /*
 <html>
 <body>

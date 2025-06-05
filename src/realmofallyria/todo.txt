@@ -5,13 +5,13 @@ menial things;
 - mix class constructor with generateMob?
 
 to do:
-- warning of low HP
-- fleeing
-- defeat xp reward, coin reduction
-- monster skills
+- revamp fleeing chances
 - boss battle
+- monster skills
+- defeat xp reward, coin reduction
 
-future
+future:
+- rebalance for fairer gameplay
 - resize stuff game
 - remove all tool tips using null
 - tips screen between travelling
@@ -21,3 +21,23 @@ future
 
 consider:
 - shiny monsters??
+
+lore stuff:
+named characters:
+• princess
+
+settlements (named characters):
+• village: village elder
+• town: lord/ lady
+• city: duke/ duchess
+• fort city: commander
+• capital: king/ queen
+
+wilderness (and boss lair):
+• grasslands (encampment): Baron
+• forest (camp): Demon
+• mountains (castle): Harbinger
+• hell plains (fort hell): Arch Demon
+• mount hell (hell palace): Prince of the Underworld
+
+• defeating the boss does not mean you can no longer attack the lair.
