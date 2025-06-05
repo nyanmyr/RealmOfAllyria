@@ -5,12 +5,13 @@ menial things;
 - mix class constructor with generateMob?
 
 to do:
-- revamp fleeing chances
+- npc names functionality
 - boss battle
 - monster skills
 - defeat xp reward, coin reduction
 
 future:
+- revamp fleeing chances
 - rebalance for fairer gameplay
 - resize stuff game
 - remove all tool tips using null
@@ -35,8 +36,8 @@ settlements (named characters):
 
 wilderness (and boss lair):
 • grasslands (encampment): Baron
-• forest (camp): Demon
-• mountains (castle): Harbinger
+• forest (camp): General 
+• mountains (castle): Lesser Lord
 • hell plains (fort hell): Arch Demon
 • mount hell (hell palace): Prince of the Underworld
 

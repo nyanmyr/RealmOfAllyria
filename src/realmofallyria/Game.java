@@ -1,6 +1,7 @@
+
 package realmofallyria;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -1067,6 +1068,9 @@ public class Game extends javax.swing.JFrame {
 
     Random gameRandomizer = new Random();
 
+    // <fullname, gender>
+    HashMap<String, String[]> characterNames = new HashMap<>();
+
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
     public Game() {
@@ -1101,6 +1105,7 @@ public class Game extends javax.swing.JFrame {
         // -----------------------------------------------------------------------------------------------------------
         initComponents();
         hideScreens();
+        generateName();
 
         // enable these along with putting dialogueIndex to 9 to skip tutorial
         openGameScreen();
@@ -1127,55 +1132,291 @@ public class Game extends javax.swing.JFrame {
     // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     // unusued for now
     // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    private String generateName(String type) {
-        // use linked list
+    private void generateName() {
 
-        String generatedName = "";
+        Random nameRandomizer = new Random();
 
-        HashMap<String, String[]> characterNames = new HashMap<>();
-        String[] str = {"Merlina", "f"};
-        characterNames.put("Princess", str);
+        // ------------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="Array lists of names">
+        // ------------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="princess first names">
+        ArrayList<String> listOfPrincessFirstNames = new ArrayList<>();
+        listOfPrincessFirstNames.add("Evelyn");
+        listOfPrincessFirstNames.add("Rosamont");
+        listOfPrincessFirstNames.add("Elowen");
+        listOfPrincessFirstNames.add("Cecilia");
+        listOfPrincessFirstNames.add("Gwendolyn");
+        listOfPrincessFirstNames.add("Leonora");
+        listOfPrincessFirstNames.add("Theodora");
+        listOfPrincessFirstNames.add("Marianne");
+        listOfPrincessFirstNames.add("Beatrix");
+        listOfPrincessFirstNames.add("Emilia");
+        listOfPrincessFirstNames.add("Lorelei");
+        listOfPrincessFirstNames.add("Anneliese");
+        listOfPrincessFirstNames.add("Eléonore");
+        listOfPrincessFirstNames.add("Carmilla");
+        listOfPrincessFirstNames.add("Genevieve");
+        listOfPrincessFirstNames.add("Celestina");
+        listOfPrincessFirstNames.add("Evangeline");
+        listOfPrincessFirstNames.add("Giselle");
+        listOfPrincessFirstNames.add("Lysandra");
+        listOfPrincessFirstNames.add("Delphina");
+        listOfPrincessFirstNames.add("Esmeralda");
+        // </editor-fold>
+        // ------------------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="royalty first names">
+        ArrayList<String[]> listOfRoyalFirstNames = new ArrayList<>();
+        listOfRoyalFirstNames.add(new String[]{"William", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Charles", "m"});
+        listOfRoyalFirstNames.add(new String[]{"George", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Connor", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Nicholas", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Wulfric", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Bartholomew", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Benedict", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Alexander", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Alaric", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Hadrian", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Thelric", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Lucas", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Sebastian", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Arthur", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Seraphina", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Maerith", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Adelindra", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Alinora", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Eveline", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Melaina", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Marigold", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Miranda", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Katharina", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Ophelia", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Beatrice", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Rosalina", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Isabella", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Elizabeth", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Margaret", "f"});
+        // </editor-fold>
+        // ------------------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="royalty surnames">
+        ArrayList<String> listOfRoyalSurames = new ArrayList<>();
+        listOfRoyalSurames.add("Valenfort");
+        listOfRoyalSurames.add("Lionhart");
+        listOfRoyalSurames.add("Alderwynd");
+        listOfRoyalSurames.add("Kaisereich");
+        listOfRoyalSurames.add("Eichenwald");
+        listOfRoyalSurames.add("Grimsburg");
+        listOfRoyalSurames.add("Eastershire");
+        listOfRoyalSurames.add("Ravenwell");
+        listOfRoyalSurames.add("Hearthsvale");
+        listOfRoyalSurames.add("Drachtenfeld");
+        listOfRoyalSurames.add("Falkenford");
+        listOfRoyalSurames.add("Shwarzeholdt");
+        listOfRoyalSurames.add("Himmelfurt");
+        listOfRoyalSurames.add("Montrevaux");
+        listOfRoyalSurames.add("Duclaret");
+        listOfRoyalSurames.add("Wolfsheim");
+        listOfRoyalSurames.add("Steinwulf");
+        listOfRoyalSurames.add("Montclaire");
+        listOfRoyalSurames.add("Clermontaine");
+        listOfRoyalSurames.add("Florandis");
+        listOfRoyalSurames.add("Belleroix");
+        listOfRoyalSurames.add("Clermontaine");
+        listOfRoyalSurames.add("Rousselique");
+        listOfRoyalSurames.add("Laurevigne");
+        listOfRoyalSurames.add("Duvallon");
+        listOfRoyalSurames.add("Carmichael");
+        listOfRoyalSurames.add("Bradfort");
+        listOfRoyalSurames.add("Bonavich");
+        listOfRoyalSurames.add("Harrington");
+        listOfRoyalSurames.add("Barkshire");
+        listOfRoyalSurames.add("Aldereich");
+        listOfRoyalSurames.add("Astor");
+        listOfRoyalSurames.add("Lorraine");
+        listOfRoyalSurames.add("Ellington");
+        listOfRoyalSurames.add("Castleton");
+        listOfRoyalSurames.add("Davenport");
+        listOfRoyalSurames.add("Delacroix");
+        listOfRoyalSurames.add("Havilland");
+        listOfRoyalSurames.add("Greenwood");
+        // </editor-fold>
+        // ------------------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="demonic first names">
+        ArrayList<String[]> listOfDemonicFirstNames = new ArrayList<>();
+        listOfDemonicFirstNames.add(new String[]{"Setaroth", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Satanir", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Maddon", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Belphegon", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Asmodenus", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Beelzus", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Remiael", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Begemoth", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Baeloth", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Vareximon", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Obrithiel", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Zekarion", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Samaqel", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Belzahir", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Azrakael", "m"});
 
-        str[0] = "Earl";
-        str[1] = "m";
-        System.out.println(Arrays.toString(str));
-        characterNames.put("Village Elder",str);
-        str[0] = "Garett";
-        str[1] = "m";
-        characterNames.put("Lord",str);
-        str[0] = "Vanderlind";
-        str[1] = "m";
-        characterNames.put("Duke",str);
-        str[0] = "Hark";
-        str[1] = "m";
-        characterNames.put("Commander",str);
-        str[0] = "Anasthasia";
-        str[1] = "f";
-        characterNames.put("Queen",str);
+        listOfDemonicFirstNames.add(new String[]{"Malgrith", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Loravael", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Lucifera", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Lilith", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Nameenah", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Ashtera", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Uriela", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Zahreh", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Belphevra", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Drevaelah", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Malithra", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Ezkireth", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Ysmar", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Helviatha", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Ophiriel", "f"});
+        // </editor-fold>
+        // ------------------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="demonic surnames">
+        ArrayList<String> listOfDemonicSurnames = new ArrayList<>();
+        listOfDemonicSurnames.add("Blackthorn");
+        listOfDemonicSurnames.add("Shadowmere");
+        listOfDemonicSurnames.add("Grimshaw");
+        listOfDemonicSurnames.add("Darkweaver");
+        listOfDemonicSurnames.add("Hellstrom");
+        listOfDemonicSurnames.add("Nightshade");
+        listOfDemonicSurnames.add("Dreadmore");
+        listOfDemonicSurnames.add("Gravecourt");
+        listOfDemonicSurnames.add("Harrowfell");
+        listOfDemonicSurnames.add("Crimsonreach");
+        listOfDemonicSurnames.add("Blutkreig");
+        listOfDemonicSurnames.add("Hexenwaldt");
+        listOfDemonicSurnames.add("Eisenwraith");
+        listOfDemonicSurnames.add("Malrevoir");
+        listOfDemonicSurnames.add("Charnoire");
+        listOfDemonicSurnames.add("Sangversé");
+        listOfDemonicSurnames.add("Bellombre");
+        listOfDemonicSurnames.add("Vaulremort");
+        listOfDemonicSurnames.add("Infernus");
+        listOfDemonicSurnames.add("Malachai");
+        listOfDemonicSurnames.add("Grimharrow");
+        listOfDemonicSurnames.add("Nightbramble");
+        listOfDemonicSurnames.add("Ruinmarsh");
+        listOfDemonicSurnames.add("Kriegfaust");
+        listOfDemonicSurnames.add("Blutnacht");
+        listOfDemonicSurnames.add("Flammenriss");
+        listOfDemonicSurnames.add("Totensee");
+        listOfDemonicSurnames.add("Noireclat");
+        listOfDemonicSurnames.add("Vallombreux");
+        listOfDemonicSurnames.add("Belleschain");
+        listOfDemonicSurnames.add("Faucheval");
+        listOfDemonicSurnames.add("Morvelain");
+        listOfDemonicSurnames.add("Revenoir");
+        listOfDemonicSurnames.add("Darkenveil");
+        listOfDemonicSurnames.add("Hellhammer");
+        listOfDemonicSurnames.add("Hellscream");
+        listOfDemonicSurnames.add("Hexmourne");
+        listOfDemonicSurnames.add("Umbramist");
+        listOfDemonicSurnames.add("Gloomwraith");
+        // </editor-fold>
+        // ------------------------------------------------------------------------------------------------------------
+        // </editor-fold>
+        // ------------------------------------------------------------------------------------------------------------
 
-        str[0] = "Behemoth";
-        str[1] = "m";
-        characterNames.put("Baron", str);
-        str[0] = "Asmodeus";
-        str[1] = "f";
-        characterNames.put("General", str);
-        str[0] = "Baal";
-        str[1] = "m";
-        characterNames.put("Harbinger", str);
-        str[0] = "Azazel";
-        str[1] = "f";
-        characterNames.put("Arch Demon", str);
-        str[0] = "Tiamat";
-        str[1] = "f";
-        characterNames.put("Prince of the Underworld", str);
+        // ------------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="generates npc names">
+        int randomizedPrincessName = nameRandomizer.nextInt(listOfPrincessFirstNames.size());
+        int randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
+        characterNames.put("Princess",
+                new String[]{String.format("%s %s", listOfPrincessFirstNames.get(randomizedPrincessName),
+                            listOfRoyalSurames.remove(randomizedLastName)),
+                    "f"});
 
-        for (String title : characterNames.keySet()) {
+        int randomizedFirstName = nameRandomizer.nextInt(listOfRoyalFirstNames.size());
+        randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
+        characterNames.put("Village Elder",
+                new String[]{String.format("%s %s", listOfRoyalFirstNames.get(randomizedFirstName)[0],
+                            listOfRoyalSurames.remove(randomizedLastName)),
+                    listOfRoyalFirstNames.remove(randomizedFirstName)[1]});
 
-            System.out.printf("%s %s\n", title, characterNames.get(title));
+        randomizedFirstName = nameRandomizer.nextInt(listOfRoyalFirstNames.size());
+        randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
+        characterNames.put(listOfRoyalFirstNames.get(randomizedFirstName)[1].equals("f") ? "Lady" : "Lord",
+                new String[]{String.format("%s %s", listOfRoyalFirstNames.get(randomizedFirstName)[0],
+                            listOfRoyalSurames.remove(randomizedLastName)),
+                    listOfRoyalFirstNames.remove(randomizedFirstName)[1]});
 
-        }
-        
-        return generatedName;
+        randomizedFirstName = nameRandomizer.nextInt(listOfRoyalFirstNames.size());
+        randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
+        characterNames.put(listOfRoyalFirstNames.get(randomizedFirstName)[1].equals("f") ? "Duchess" : "Duke",
+                new String[]{String.format("%s %s", listOfRoyalFirstNames.get(randomizedFirstName)[0],
+                            listOfRoyalSurames.remove(randomizedLastName)),
+                    listOfRoyalFirstNames.remove(randomizedFirstName)[1]});
+
+        randomizedFirstName = nameRandomizer.nextInt(listOfRoyalFirstNames.size());
+        randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
+        characterNames.put(listOfRoyalFirstNames.get(randomizedFirstName)[1].equals("f") ? "Duchess" : "Duke",
+                new String[]{String.format("%s %s", listOfRoyalFirstNames.get(randomizedFirstName)[0],
+                            listOfRoyalSurames.remove(randomizedLastName)),
+                    listOfRoyalFirstNames.remove(randomizedFirstName)[1]});
+
+        randomizedFirstName = nameRandomizer.nextInt(listOfRoyalFirstNames.size());
+        randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
+        characterNames.put("Commander",
+                new String[]{String.format("%s %s", listOfRoyalFirstNames.get(randomizedFirstName)[0],
+                            listOfRoyalSurames.remove(randomizedLastName)),
+                    listOfRoyalFirstNames.remove(randomizedFirstName)[1]});
+
+        randomizedFirstName = nameRandomizer.nextInt(listOfRoyalFirstNames.size());
+        randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
+        characterNames.put(listOfRoyalFirstNames.get(randomizedFirstName)[1].equals("f") ? "Queen" : "King",
+                new String[]{String.format("%s %s", listOfRoyalFirstNames.get(randomizedFirstName)[0],
+                            listOfRoyalSurames.remove(randomizedLastName)),
+                    listOfRoyalFirstNames.remove(randomizedFirstName)[1]});
+        // </editor-fold>
+        // ------------------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="generates boss names">
+        int randomizedDemonFirstName = nameRandomizer.nextInt(listOfDemonicFirstNames.size());
+        int randomizedDemonLastName = nameRandomizer.nextInt(listOfDemonicSurnames.size());
+        characterNames.put(listOfDemonicFirstNames.get(randomizedDemonFirstName)[1].equals("f") ? "Baroness" : "Baron",
+                new String[]{String.format("%s %s", listOfDemonicFirstNames.get(randomizedDemonFirstName)[0],
+                            listOfDemonicSurnames.remove(randomizedDemonLastName)),
+                    listOfDemonicFirstNames.remove(randomizedDemonFirstName)[1]});
+
+        randomizedDemonFirstName = nameRandomizer.nextInt(listOfDemonicFirstNames.size());
+        randomizedDemonLastName = nameRandomizer.nextInt(listOfDemonicSurnames.size());
+        characterNames.put("General",
+                new String[]{String.format("%s %s", listOfDemonicFirstNames.get(randomizedDemonFirstName)[0],
+                            listOfDemonicSurnames.remove(randomizedDemonLastName)),
+                    listOfDemonicFirstNames.remove(randomizedDemonFirstName)[1]});
+
+        randomizedDemonFirstName = nameRandomizer.nextInt(listOfDemonicFirstNames.size());
+        randomizedDemonLastName = nameRandomizer.nextInt(listOfDemonicSurnames.size());
+        characterNames.put(listOfDemonicFirstNames.get(randomizedDemonFirstName)[1].equals("f") ? "Lesser Lady" : "Lesser Lord",
+                new String[]{String.format("%s %s", listOfDemonicFirstNames.get(randomizedDemonFirstName)[0],
+                            listOfDemonicSurnames.remove(randomizedDemonLastName)),
+                    listOfDemonicFirstNames.remove(randomizedDemonFirstName)[1]});
+
+        randomizedDemonFirstName = nameRandomizer.nextInt(listOfDemonicFirstNames.size());
+        randomizedDemonLastName = nameRandomizer.nextInt(listOfDemonicSurnames.size());
+        characterNames.put(listOfDemonicFirstNames.get(randomizedDemonFirstName)[1].equals("f") ? "Arch Demoness" : "Arch Demon",
+                new String[]{String.format("%s %s", listOfDemonicFirstNames.get(randomizedDemonFirstName)[0],
+                            listOfDemonicSurnames.remove(randomizedDemonLastName)),
+                    listOfDemonicFirstNames.remove(randomizedDemonFirstName)[1]});
+
+        randomizedDemonFirstName = nameRandomizer.nextInt(listOfDemonicFirstNames.size());
+        randomizedDemonLastName = nameRandomizer.nextInt(listOfDemonicSurnames.size());
+        characterNames.put(listOfDemonicFirstNames.get(randomizedDemonFirstName)[1].equals("f") ? "Princess of the Underworld" : "Prince of the Underworld",
+                new String[]{String.format("%s %s", listOfDemonicFirstNames.get(randomizedDemonFirstName)[0],
+                            listOfDemonicSurnames.remove(randomizedDemonLastName)),
+                    listOfDemonicFirstNames.remove(randomizedDemonFirstName)[1]});
+        // </editor-fold>
+        // ------------------------------------------------------------------------------------------------------------
+
     }
 
     @SuppressWarnings("unchecked")

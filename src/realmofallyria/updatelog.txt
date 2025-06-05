@@ -78,3 +78,4 @@ progress (6/02/2025)
 • wilderness exploration now continues after battle
 • escape is now fully functional
 • stronger monsters will now appear if the player gets stronger
+• finished npc name generator
