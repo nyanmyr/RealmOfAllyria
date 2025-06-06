@@ -6,9 +6,7 @@ menial things;
 - mix class constructor with generateMob?
 
 to do:
-- unsuccessful escape should be considered as combat turn
 - replace opening sequence panel with dialogue panel
-- change gender
 - village elder quest (3 slimes, 2 goblins, 1 wolf)
 - boss battle
 - monster skills
@@ -16,6 +14,10 @@ to do:
 - defeat xp reward, coin reduction penalties
 - other locations
 - max out content
+- change gender
+
+bug fixing:
+- unsuccessful escape should be considered as combat turn
 
 future:
 - update opening sequence text (mention the boss's minnions)

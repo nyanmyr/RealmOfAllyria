@@ -84,3 +84,4 @@ version 0.0.11 (prototype)
 progress (6/06/2025)
 • NPC names will now be replaced in text
 • NPC names will now be displayed in the dialogue panel
+• intro sequence now uses the storyline panel
