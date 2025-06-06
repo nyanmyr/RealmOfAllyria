@@ -1,18 +1,27 @@
 menial things;
-- clicking the home panel should return to the game panel
+- replace dialogue
+- clicking the home panel should return to the game panel automatically
 - fixed villlage elder dialogue
 - warning menu bug (buttons not ordered porperly) : os issue?
 - mix class constructor with generateMob?
 
 to do:
-- npc names functionality
+- unsuccessful escape should be considered as combat turn
+- replace opening sequence panel with dialogue panel
+- change gender
+- village elder quest (3 slimes, 2 goblins, 1 wolf)
 - boss battle
 - monster skills
-- defeat xp reward, coin reduction
+- shop
+- defeat xp reward, coin reduction penalties
+- other locations
+- max out content
 
 future:
+- update opening sequence text (mention the boss's minnions)
 - revamp fleeing chances
-- rebalance for fairer gameplay
+- make mob class constructor 
+- rebalance for fairer gameplay (enemies should get 5 attribute points per lvl)
 - resize stuff game
 - remove all tool tips using null
 - tips screen between travelling

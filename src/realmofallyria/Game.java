@@ -2,8 +2,13 @@
 package realmofallyria;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
 
@@ -968,88 +973,88 @@ public class Game extends javax.swing.JFrame {
     // -----------------------------------------------------------------------------------------------------------
     // <editor-fold desc="variables">
     int textIndex = 0;
-    int dialogueIndex = 0;
+    int storylineIndex = 0;
 
     // -----------------------------------------------------------------------------------------------------------
     // <editor-fold desc="dialogue manuscript">
-    String[] introDialogue = {"<html>Welcome to the Realm of Allyria.",
-        "<html>Before your travels begin adventurer...",
-        "<html>What is your name?"};
-    String[] chooseClassDialogue = {"<html>Before you begin your adventure, you must choose your affinity.",
-        "<html>Affinities determine the boost you will receive a certain attribute.",
-        "<html>Everytime you level up, you will receive an automatic addition to the attribute of your affinity.",
-        "<html>Those who have an affinity to Sanitas have a boost in health.",
-        "<html>Those who have an affinity to Celeritas have a boost in agility.",
-        "<html>Those who have an affinity to Madeis have a boost in magic.",
-        "<html>Those who have an affinity to Tutela have a boost in defense.",
-        "<html>Those who have an affinity to Virtus have a boost in strength.",
-        "<html>Now choose your affinity wisely. Your affinity will be permanent."};
-    String[] editAttributesDialogue = {"<html>Now adjust your attributes wisely. (Click to continue)"};
-    String[] chooseGearDialogue = {"<html>The world out there is dangerous.",
-        "<html>You will need something to defend yourself.",
-        "<html>Choose any of the following weapons to your liking..."};
-    String[] bonusArmorDialogue = {"<html>This weapon is not much.",
-        "<html>So I will provide you a full set of leather armor along with it.",
-        "<html>Safe travels adventurer..."};
-    String[] adventureBeginsDialogue = {"<html>Once again, welcome to the Realm of Allyria.",
-        "<html>Your journey begins in a quiet village in the peaceful grasslands.",
-        "<html>Word has spread that the nefarious Demon Lord %s of the Nether Realm has launched an invasion.",
-        "<html>Along the way they kidnapped the kingdom's own Princess %s.",
-        "<html>Thus it is now your task to venture across the kingdom and enter the Nether Realm to vanquish the evil army of the Demon Lord...",
-        "<html>... and save the princess.",
-        "<html>However...",
-        "<html>All adventures begin with humble beginnings...",
-        "<html>I am the Village Elder of the village in which you reside.",
-        "<html>Come talk to me so that you may learn how to fight."};
-    String[] startingVillageElderDialogue = {"<html>Greetings, %s.",
-        "<html>As you know, the world is in peril as of now.",
-        "<html>The kingdom's forces are engaged in a fierce war againts the demons of the Nether Continent.",
-        "<html>Most importantly princess %s has been captured.",
-        "<html>That is why time is of the essence, so I will teach you quickly.",
-        "<html>Your meager %s will not do you any good against even the weakest kind of demon.",
-        "<html>You will need to train.",
-        "<html>I have taught you as much as I can.",
-        "<html>In order to face strong foes you must get stronger first.",
-        "<html>Combat out there is vastly different to a training setting.",
-        "<html>Which is why you will have a taste of real combat soon.",
-        "<html>I captuted a slime from the grasslands.",
-        "<html>They appear harmless with their gelatinous amorphous bodies.",
-        "<html>But never let appearances deceive you.",
-        "<html>These creatures have been captured still filled with tiny bones and skulls...",
-        "<html>Sometimes that of humans...",
-        "<html>You should always keep something in mind when you venture into the wilderness.",
-        "<html>You may face foes far surpassing your current power.",
-        "<html>Which makes it all the more pertinent to start your training right away.",
-        "<html>But before you begin, you need to learn a few things.",
-        "<html>Whoever has the higher agility points will attack first.",
-        "<html>You do not know their agility points so be careful.",
-        "<html>Lastly, the longer your battle lasts the more experience you gain.",
-        "<html>I do not expect you to die against this slime, but please do not surprise me.",
-        "<html>I cannot let you flee combat.",
-        "<html>You must either defeat it or be defeated.",
-        "<html>Defeat the slime and complete your training.",};
-    String[] tutorialDefeat = {"<html>You were defeated by a mere slime?",
-        "<html>Fret not, %s."};
-    String[] tutorialVictory = {"<html>Good work on defeating that slime.",
-        "<html>You have done excellently, %s."};
+    String[] introDialogue = {"Welcome to the Realm of Allyria.",
+        "Before your travels begin adventurer...",
+        "What is your name?"};
+    String[] chooseClassDialogue = {"Before you begin your adventure, you must choose your affinity.",
+        "Affinities determine the boost you will receive a certain attribute.",
+        "Everytime you level up, you will receive an automatic addition to the attribute of your affinity.",
+        "Those who have an affinity to Sanitas have a boost in health.",
+        "Those who have an affinity to Celeritas have a boost in agility.",
+        "Those who have an affinity to Madeis have a boost in magic.",
+        "Those who have an affinity to Tutela have a boost in defense.",
+        "Those who have an affinity to Virtus have a boost in strength.",
+        "Now choose your affinity wisely. Your affinity will be permanent."};
+    String[] editAttributesDialogue = {"Now adjust your attributes wisely. (Click to continue)"};
+    String[] chooseGearDialogue = {"The world out there is dangerous.",
+        "You will need something to defend yourself.",
+        "Choose any of the following weapons to your liking..."};
+    String[] bonusArmorDialogue = {"This weapon is not much.",
+        "So I will provide you a full set of leather armor along with it.",
+        "Safe travels adventurer..."};
+    String[] adventureBeginsDialogue = {"Once again, welcome to the Realm of Allyria.",
+        "Your journey begins in a quiet village in the peaceful grasslands.",
+        "Word has spread that the nefarious Demon Lord {UNDERWORLDPRINCE} of the Nether Realm has launched an invasion.",
+        "Along the way they kidnapped the kingdom's own {PRINCESS}.",
+        "Thus it is now your task to venture across the kingdom and enter the Nether Realm to vanquish the evil army of the Demon Lord...",
+        "... and save the princess.",
+        "However...",
+        "All adventures begin with humble beginnings...",
+        "I am the Village Elder of the village in which you reside.",
+        "Come talk to me so that you may learn how to fight."};
+    String[] startingVillageElderDialogue = {"Greetings, {PLAYER}.",
+        "As you know, the world is in peril as of now.",
+        "The kingdom's forces are engaged in a fierce war againts the demons of the Nether Continent.",
+        "Most importantly {PRINCESS} has been captured.",
+        "That is why time is of the essence, so I will teach you quickly.",
+        "Your current strength will not do you any good against even the weakest kind of demon.",
+        "You will need to train.",
+        "I have taught you as much as I can.",
+        "In order to face strong foes you must get stronger first.",
+        "Combat out there is vastly different to a training setting.",
+        "Which is why you will have a taste of real combat soon.",
+        "I captuted a slime from the grasslands.",
+        "They appear harmless with their gelatinous amorphous bodies.",
+        "But never let appearances deceive you.",
+        "These creatures have been captured still filled with tiny bones and skulls...",
+        "Sometimes that of humans...",
+        "You should always keep something in mind when you venture into the wilderness.",
+        "You may face foes far surpassing your current power.",
+        "Which makes it all the more pertinent to start your training right away.",
+        "But before you begin, you need to learn a few things.",
+        "Whoever has the higher agility points will attack first.",
+        "You do not know their agility points so be careful.",
+        "Lastly, the longer your battle lasts the more experience you gain.",
+        "I do not expect you to die against this slime, but please do not surprise me.",
+        "I cannot let you flee combat.",
+        "You must either defeat it or be defeated.",
+        "Defeat the slime and complete your training.",};
+    String[] tutorialDefeat = {"You were defeated by a mere slime?",
+        "Fret not, {PLAYER}."};
+    String[] tutorialVictory = {"Good work on defeating that slime.",
+        "You have done excellently, {PLAYER}."};
     String[] tutorialEnd = {
-        "<html>Take this as a learning experience.",
-        "<html>It goes to show you still have much potential in you.",
-        "<html>You tried your best.",
-        "<html>Thus I shall give you my blessing to explore the world and become stronger",
-        "<html>But before you go I will patch you up to full health.",
-        "<html>You must be prepared to fight the monsters in the wilderness.",
-        "<html>When you need healing rest in your home for a moment.",
-        "<html>Afterward you may venture into the wilderness",
-        "<html>Earn experience points and grow stronger.",
-        "<html>Acquire currency from defeating monsters.",
-        "<html>Visit the local travelling merchant if you wish to upgrade your gear.",
-        "<html>And if you are interested, then I may have a quest for you.",
-        "<html>I will pay fairly.",
-        "<html>Regardless, everything after this point is up to you now.",
-        "<html>Save princess %s.",
-        "<html>Defeat the demon lord %s.",
-        "<html>Safe travels and may the gods be with you, %s."};
+        "Take this as a learning experience.",
+        "It goes to show you still have much potential in you.",
+        "You tried your best.",
+        "Thus I shall give you my blessing to explore the world and become stronger",
+        "But before you go I will patch you up to full health.",
+        "You must be prepared to fight the monsters in the wilderness.",
+        "When you need healing rest in your home for a moment.",
+        "Afterward you may venture into the wilderness",
+        "Earn experience points and grow stronger.",
+        "Acquire currency from defeating monsters.",
+        "Visit the local travelling merchant if you wish to upgrade your gear.",
+        "And if you are interested, then I may have a quest for you.",
+        "I will pay fairly.",
+        "Regardless, everything after this point is up to you now.",
+        "Save {PRINCESS}.",
+        "Defeat {UNDERWORLDPRINCE}.",
+        "Safe travels and may the gods be with you, {PLAYER}."};
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
 
@@ -1068,7 +1073,7 @@ public class Game extends javax.swing.JFrame {
 
     Random gameRandomizer = new Random();
 
-    // <fullname, gender>
+    // format: <"title", {"fullname", "gender"}>
     HashMap<String, String[]> characterNames = new HashMap<>();
 
     // </editor-fold>
@@ -1077,12 +1082,12 @@ public class Game extends javax.swing.JFrame {
 
         // debugging stuff (0 for normal)
         // 6 for testing dialogue menu
-        // 9 for skipping tutorial
-        dialogueIndex = 9;
+        // 8 for skipping tutorial
+        storylineIndex = 0;
         // -----------------------------------------------------------------------------------------------------------
         // <editor-fold desc="debugging/ QA testing stuff">
         // debug characters
-        player = new Mob();
+//        player = new Mob();
 //        player.generateMob("Noko Shikanoko",
 //                "Virtus", 1,
 //                "Leather Armor", 1,
@@ -1095,21 +1100,111 @@ public class Game extends javax.swing.JFrame {
 //                "Virtus", 1,
 //                "Leather Armor", 1,
 //                "Iron Sword", 100);
-        player.generateMob("Meme Bashame",
-                "Celeritas", 1,
-                "Leather Armor", 1,
-                "Simple Bow", 100);
+//        player.generateMob("Meme Bashame",
+//                "Celeritas", 1,
+//                "Leather Armor", 1,
+//                "Simple Bow", 100);
 //        player.attributePoints += 1000;
 //        player.currentHP = 1;
         // </editor-fold>
         // -----------------------------------------------------------------------------------------------------------
         initComponents();
         hideScreens();
-        generateName();
+        generateNPCNames();
 
-        // enable these along with putting dialogueIndex to 9 to skip tutorial
-        openGameScreen();
-        travelToLocation("Village");
+        // enable these along with putting storylineIndex to 9 to skip tutorial
+//        openGameScreen();
+//        travelToLocation("Village");
+    }
+
+    private String formatText(String textToBeFormatted) {
+
+        /*
+        NPC name tags:
+        player: {PLAYER}
+        princess: {PRINCESS}
+
+        ALLIES
+        village elder: {VILLAGEELDER}
+        lord/ lady: {LORD}
+        duke/ duchess: {DUKE}
+        commander: {COMMANDER}
+        king/ queen: {KING}
+
+        DEMONS
+        baron/ baroness: {BARON}
+        general:  {GENERAL}
+        lesser lord/ lady: {LESSERLORD}
+        arch demon: {ARCH}
+        prince/ princess of the underworld: {UNDERWORLDPRINCE}
+         */
+        Map<String, List<String>> placeholderToKeys = new LinkedHashMap<>();
+
+        placeholderToKeys.put("{PLAYER}", Collections.singletonList("Player"));
+        placeholderToKeys.put("{PRINCESS}", Collections.singletonList("Princess"));
+        placeholderToKeys.put("{VILLAGEELDER}", Collections.singletonList("Village Elder"));
+        placeholderToKeys.put("{COMMANDER}", Collections.singletonList("Player"));
+        placeholderToKeys.put("{GENERAL}", Collections.singletonList("Player"));
+
+        // Fallback roles (e.g., Lord → Lady if Lord is missing)
+        placeholderToKeys.put("{LORD}", Arrays.asList("Lord", "Lady"));
+        placeholderToKeys.put("{DUKE}", Arrays.asList("Duke", "Duchess"));
+        placeholderToKeys.put("{KING}", Arrays.asList("King", "Queen"));
+        placeholderToKeys.put("{BARON}", Arrays.asList("Baron", "Baroness"));
+        placeholderToKeys.put("{LESSERLORD}", Arrays.asList("Lesser Lord", "Lesser Lady"));
+        placeholderToKeys.put("{ARCH}", Arrays.asList("Arch Demon", "Arch Demoness"));
+        placeholderToKeys.put("{UNDERWORLDPRINCE}", Arrays.asList("Prince of the Underworld", "Princess of the Underworld"));
+
+        for (Map.Entry<String, List<String>> entry : placeholderToKeys.entrySet()) {
+            String placeholder = entry.getKey();
+            if (textToBeFormatted.contains(placeholder)) {
+                for (String key : entry.getValue()) {
+                    if (characterNames.containsKey(key)) {
+                        String replacement = key.equals("Player") ? characterNames.get(key)[0] : String.format("%s %s", key, characterNames.get(key)[0]);
+                        textToBeFormatted = textToBeFormatted.replace(placeholder, replacement);
+                        break; // stop after first valid replacement
+                    }
+                }
+            }
+        }
+
+        textToBeFormatted = "<html><p align=\"center\">" + textToBeFormatted + "</p></html>";
+
+        return textToBeFormatted;
+
+    }
+
+    private void openGameScreen() {
+
+        if (player.attributePoints > 0) {
+
+            button_Status.setText("Status (•)");
+
+        } else {
+
+            button_Status.setText("Status");
+
+        }
+
+        label_GameHP.setText(String.format("Health Points (HP): %.2f / %.2f\n", player.currentHP,
+                player.maxHP));
+        label_GameMP.setText(String.format("Magic Points (MP): %.2f / %.2f\n", player.currentMP,
+                player.maxMP));
+        label_GameXP.setText(String.format("Experience Points (XP): %.2f / %.2f\n", player.xp,
+                player.xpNeeded));
+        label_GameCurrency.setText(String.format("""
+                                                 <html>
+                                                 <p>
+                                                 Coins:%s %s %s
+                                                 </p>
+                                                 </html>
+                                                 """, player.copperCoins > 0 ? String.format(" %s [Copper]", player.copperCoins) : "",
+                player.silverCoins > 0 ? String.format(" %s [Silver]", player.silverCoins) : "",
+                player.goldCoins > 0 ? String.format(" %s [Gold]", player.goldCoins) : ""));
+
+        hideScreens();
+
+        panel_Game.setVisible(true);
     }
 
     private void hideScreens() {
@@ -1129,10 +1224,7 @@ public class Game extends javax.swing.JFrame {
         panel_Wilderness.setVisible(false);
     }
 
-    // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    // unusued for now
-    // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    private void generateName() {
+    private void generateNPCNames() {
 
         Random nameRandomizer = new Random();
 
@@ -1325,7 +1417,6 @@ public class Game extends javax.swing.JFrame {
         // ------------------------------------------------------------------------------------------------------------
         // </editor-fold>
         // ------------------------------------------------------------------------------------------------------------
-
         // ------------------------------------------------------------------------------------------------------------
         // <editor-fold desc="generates npc names">
         int randomizedPrincessName = nameRandomizer.nextInt(listOfPrincessFirstNames.size());
@@ -1428,6 +1519,10 @@ public class Game extends javax.swing.JFrame {
         label_Header = new javax.swing.JLabel();
         textField_NameField = new javax.swing.JTextField();
         button_DialogueConfirm = new javax.swing.JButton();
+        panel_Dialogue = new javax.swing.JPanel();
+        label_Talker = new javax.swing.JLabel();
+        label_Dialogue = new javax.swing.JLabel();
+        button_Yes = new javax.swing.JButton();
         panel_Wilderness = new javax.swing.JPanel();
         label_WildernessLocation = new javax.swing.JLabel();
         label_EncounterLog = new javax.swing.JLabel();
@@ -1537,11 +1632,6 @@ public class Game extends javax.swing.JFrame {
         label_Madeis = new javax.swing.JLabel();
         button_Celeritas = new javax.swing.JButton();
         label_Celeritas = new javax.swing.JLabel();
-        panel_Dialogue = new javax.swing.JPanel();
-        label_Talker = new javax.swing.JLabel();
-        label_Dialogue = new javax.swing.JLabel();
-        button_Yes = new javax.swing.JButton();
-        button_No = new javax.swing.JButton();
         panel_Warning = new javax.swing.JPanel();
         label_WarningTitle = new javax.swing.JLabel();
         panel_WarningMessage = new javax.swing.JPanel();
@@ -1590,7 +1680,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_Main.add(button_Return);
-        button_Return.setBounds(420, 90, 100, 27);
+        button_Return.setBounds(420, 90, 100, 23);
 
         label_Header.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         label_Header.setText("REALM OF ALLYRIA [CLICK TO START]");
@@ -1600,7 +1690,7 @@ public class Game extends javax.swing.JFrame {
 
         textField_NameField.setText("Adventurer");
         panel_Main.add(textField_NameField);
-        textField_NameField.setBounds(6, 59, 520, 26);
+        textField_NameField.setBounds(6, 59, 520, 22);
 
         button_DialogueConfirm.setText("Confirm");
         button_DialogueConfirm.addActionListener(new java.awt.event.ActionListener() {
@@ -1609,7 +1699,42 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_Main.add(button_DialogueConfirm);
-        button_DialogueConfirm.setBounds(6, 97, 160, 27);
+        button_DialogueConfirm.setBounds(6, 97, 160, 23);
+
+        panel_Dialogue.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Dialogue.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                panel_DialogueMouseClicked(evt);
+            }
+        });
+        panel_Dialogue.setLayout(null);
+
+        label_Talker.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_Talker.setForeground(new java.awt.Color(221, 221, 222));
+        label_Talker.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Talker.setText("Talker");
+        panel_Dialogue.add(label_Talker);
+        label_Talker.setBounds(30, 10, 460, 80);
+
+        label_Dialogue.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_Dialogue.setForeground(new java.awt.Color(221, 221, 222));
+        label_Dialogue.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Dialogue.setText("[CLICK TO START]");
+        panel_Dialogue.add(label_Dialogue);
+        label_Dialogue.setBounds(30, 100, 460, 140);
+
+        button_Yes.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Yes.setText("Yes");
+        button_Yes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_YesActionPerformed(evt);
+            }
+        });
+        panel_Dialogue.add(button_Yes);
+        button_Yes.setBounds(180, 250, 150, 40);
+
+        panel_Main.add(panel_Dialogue);
+        panel_Dialogue.setBounds(5, 130, 520, 300);
 
         panel_Wilderness.setBackground(new java.awt.Color(69, 69, 69));
         panel_Wilderness.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -2439,51 +2564,6 @@ public class Game extends javax.swing.JFrame {
         panel_Main.add(panel_AffinitiesMenu);
         panel_AffinitiesMenu.setBounds(5, 130, 520, 300);
 
-        panel_Dialogue.setBackground(new java.awt.Color(69, 69, 69));
-        panel_Dialogue.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                panel_DialogueMouseClicked(evt);
-            }
-        });
-        panel_Dialogue.setLayout(null);
-
-        label_Talker.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        label_Talker.setForeground(new java.awt.Color(221, 221, 222));
-        label_Talker.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Talker.setText("Talker");
-        panel_Dialogue.add(label_Talker);
-        label_Talker.setBounds(180, 10, 150, 40);
-
-        label_Dialogue.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_Dialogue.setForeground(new java.awt.Color(221, 221, 222));
-        label_Dialogue.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Dialogue.setText("[CLICK TO START]");
-        panel_Dialogue.add(label_Dialogue);
-        label_Dialogue.setBounds(30, 60, 460, 100);
-
-        button_Yes.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Yes.setText("Yes");
-        button_Yes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_YesActionPerformed(evt);
-            }
-        });
-        panel_Dialogue.add(button_Yes);
-        button_Yes.setBounds(180, 170, 150, 40);
-
-        button_No.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_No.setText("No");
-        button_No.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_NoActionPerformed(evt);
-            }
-        });
-        panel_Dialogue.add(button_No);
-        button_No.setBounds(180, 220, 150, 40);
-
-        panel_Main.add(panel_Dialogue);
-        panel_Dialogue.setBounds(5, 130, 520, 300);
-
         panel_Warning.setLayout(null);
 
         label_WarningTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -2697,7 +2777,7 @@ public class Game extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     // -----------------------------------------------------------------------------------------------------------
-    // <editor-fold desc="opening sequence && openGameScreen method stuff">
+    // <editor-fold desc="opening sequence stuff">
 
     private void panel_MainMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panel_MainMouseClicked
 
@@ -2710,79 +2790,82 @@ public class Game extends javax.swing.JFrame {
     }//GEN-LAST:event_panel_MainMouseClicked
 
     private void moveDialogue() {
-//        System.out.println("dialogueIndex: " + dialogueIndex);
+//        System.out.println("storylineIndex: " + storylineIndex);
 //        System.out.println("textIndex: " + textIndex);
 
-        String[] loadedDialogue = new String[0];
+        String[] loadedStorylineText = new String[0];
 
         // determine which dialogue array to load
-        switch (dialogueIndex) {
+        switch (storylineIndex) {
+
             case 0 -> {
-                loadedDialogue = introDialogue;
+                loadedStorylineText = introDialogue;
             }
             case 1 -> {
-                loadedDialogue = chooseClassDialogue;
+                loadedStorylineText = chooseClassDialogue;
             }
             case 2 -> {
-                loadedDialogue = editAttributesDialogue;
+                loadedStorylineText = editAttributesDialogue;
             }
             case 3 -> {
-                loadedDialogue = chooseGearDialogue;
+                loadedStorylineText = chooseGearDialogue;
             }
             case 4 -> {
-                loadedDialogue = bonusArmorDialogue;
+                loadedStorylineText = bonusArmorDialogue;
             }
             case 5 -> {
-                loadedDialogue = adventureBeginsDialogue;
+                loadedStorylineText = adventureBeginsDialogue;
+            }
+            case 6 -> {
+                loadedStorylineText = startingVillageElderDialogue;
             }
             case 7 -> {
-                loadedDialogue = startingVillageElderDialogue;
-            }
-            case 8 -> {
                 if (player.currentHP < 0) {
-                    loadedDialogue = tutorialDefeat;
+                    loadedStorylineText = tutorialDefeat;
                 } else {
-                    loadedDialogue = tutorialVictory;
+                    loadedStorylineText = tutorialVictory;
                 }
             }
-            case 9 -> {
-                loadedDialogue = tutorialEnd;
+            case 8 -> {
+                loadedStorylineText = tutorialEnd;
             }
         }
 
-        if (dialogueIndex < 6 && textIndex < 9) {
+        if (storylineIndex < 6 && textIndex < 9) {
 
-            // determine the text in the header
-            if (dialogueIndex == 5 && textIndex == 2) {
-                label_Header.setText(String.format(loadedDialogue[textIndex], "DEMON NAME"));
-            } else if (dialogueIndex == 5 && textIndex == 3) {
-                label_Header.setText(String.format(loadedDialogue[textIndex], "PRINCESS NAME"));
-            } else {
-                label_Header.setText(loadedDialogue[textIndex]);
-            }
+            label_Header.setText(formatText(loadedStorylineText[textIndex]));
 
-            if (dialogueIndex == 0 && textIndex == 2) {
+            if (storylineIndex == 0 && textIndex == 2) {
                 textField_NameField.setVisible(true);
                 button_DialogueConfirm.setVisible(true);
-            } else if (dialogueIndex == 1 && textIndex == 8) {
+            } else if (storylineIndex == 1 && textIndex == 8) {
                 panel_AffinitiesMenu.setVisible(true);
                 player = new Mob();
                 player.name = playerName;
-            } else if (dialogueIndex == 2 && textIndex == 0 && !panel_Attributes.isVisible()) {
+            } else if (storylineIndex == 2 && textIndex == 0 && !panel_Attributes.isVisible()) {
+
+                // sets the player name and affinity text in the attributes menu
                 label_PlayerName.setText(player.name);
                 label_PlayerAffinity.setText(player.typeAffinity);
+
                 player.level = 1;
                 player.chooseAffinity();
+
+                // puts the player name in the characterNames hashmap
+                characterNames.put("Player", new String[]{playerName, "m"});
+
                 openAttributesMenu();
-            } else if (dialogueIndex == 3 && textIndex == 2) {
+
+            } else if (storylineIndex == 3 && textIndex == 2) {
                 panel_StartingGear.setVisible(true);
-            } else if (dialogueIndex == 4 && textIndex == 2) {
+            } else if (storylineIndex == 4 && textIndex == 2) {
                 button_DialogueConfirm.setVisible(true);
                 button_DialogueConfirm.setText("<html>Begin Adventure");
             }
 
-        } else if (dialogueIndex < 7) {
+        } else if (storylineIndex < 7 && !talkingToNPC) {
 
+            // intro sequence text
             label_Header.setText("REALM OF ALLYRIA (v0.8)");
             travelToLocation("Village");
             introSequenceFinished = true;
@@ -2790,28 +2873,30 @@ public class Game extends javax.swing.JFrame {
 
         } else if (talkingToNPC) {
 
-            label_Dialogue.setText(loadedDialogue[textIndex]);
+            // NPC text stuff
+            label_Dialogue.setText(formatText(loadedStorylineText[textIndex]));
 
             // after testing purposes reset the following to (26, 1, 16)
-            if (dialogueIndex == 7 && textIndex >= 1) {
-
-                button_Yes.setVisible(true);
-                button_Yes.setText("Start");
-
-            } else if (dialogueIndex == 8 && textIndex >= 1) {
-
-                nextDialogueArray();
-
-            } else if (dialogueIndex == 9 && textIndex >= 1) {
-
-                button_Yes.setVisible(true);
-                button_Yes.setText("End Tutorial");
-
+            switch (storylineIndex) {
+                case 6:
+                    button_Yes.setVisible(true);
+                    button_Yes.setText("Skip");
+                    break;
+                case 7:
+                    nextDialogueArray();
+                    break;
+                case 8:
+                    button_Yes.setVisible(true);
+                    button_Yes.setText("End Tutorial");
+                    break;
+                default:
+                    break;
             }
 
         }
 
-        if (textIndex < loadedDialogue.length - 1) {
+        // moves the text index to the next line if thhe current index is not at the end of the loaded storyline text
+        if (textIndex < loadedStorylineText.length - 1) {
             textIndex++;
         }
 
@@ -2820,7 +2905,7 @@ public class Game extends javax.swing.JFrame {
     private void button_DialogueConfirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_DialogueConfirmActionPerformed
 
         // ask for adventurer name
-        if (dialogueIndex == 0 && textIndex == 2) {
+        if (storylineIndex == 0 && textIndex == 2) {
             playerName = textField_NameField.getText();
 
             textField_NameField.setVisible(false);
@@ -2835,43 +2920,12 @@ public class Game extends javax.swing.JFrame {
 
     private void nextDialogueArray() {
 
+        storylineIndex++;
         textIndex = 0;
-        dialogueIndex++;
-        moveDialogue();
 
-    }
-
-    private void openGameScreen() {
-
-        if (player.attributePoints > 0) {
-
-            button_Status.setText("Status (•)");
-
-        } else {
-
-            button_Status.setText("Status");
-
-        }
-
-        label_GameHP.setText(String.format("Health Points (HP): %.2f / %.2f\n", player.currentHP,
-                player.maxHP));
-        label_GameMP.setText(String.format("Magic Points (MP): %.2f / %.2f\n", player.currentMP,
-                player.maxMP));
-        label_GameXP.setText(String.format("Experience Points (XP): %.2f / %.2f\n", player.xp,
-                player.xpNeeded));
-        label_GameCurrency.setText(String.format("""
-                                                 <html>
-                                                 <p>
-                                                 Coins:%s %s %s
-                                                 </p>
-                                                 </html>
-                                                 """, player.copperCoins > 0 ? String.format(" %s [Copper]", player.copperCoins) : "",
-                player.silverCoins > 0 ? String.format(" %s [Silver]", player.silverCoins) : "",
-                player.goldCoins > 0 ? String.format(" %s [Gold]", player.goldCoins) : ""));
-
-        hideScreens();
-
-        panel_Game.setVisible(true);
+        String continueText = "(CLICK TO CONTINUE)";
+        label_Header.setText(continueText);
+        label_Header.setText(continueText);
     }
 
     // </editor-fold>
@@ -3026,7 +3080,7 @@ public class Game extends javax.swing.JFrame {
             panel_AttributesActions.setVisible(false);
         }
 
-        if (dialogueIndex == 2 && textIndex == 0) {
+        if (storylineIndex == 2 && textIndex == 0) {
 
             panel_Attributes.setVisible(false);
 
@@ -3253,9 +3307,9 @@ public class Game extends javax.swing.JFrame {
 
                 if (currentLocation.equals("Village")) {
 
-                    if (dialogueIndex <= 7) {
+                    if (storylineIndex <= 6) {
 
-                        openDialogueMenu();
+                        speakToNPC("Village Elder");
 
                     }
 
@@ -3271,7 +3325,7 @@ public class Game extends javax.swing.JFrame {
 
                 if (currentLocation.equals("Village")) {
 
-                    if (dialogueIndex == 7) {
+                    if (storylineIndex == 6) {
 
                         messagePopup("Talk to the Village Elder first.");
 
@@ -3332,18 +3386,34 @@ public class Game extends javax.swing.JFrame {
         player.fullHeal();
     }
 
-    private void openDialogueMenu() {
+    private void speakToNPC(String nameNPC) {
 
         hideScreens();
 
         panel_Dialogue.setVisible(true);
-        label_Talker.setText("Village Elder");
+        label_Talker.setText(String.format("""
+                                                <html>
+
+                                                <head>
+                                                <h2 align="center">
+                                                %s
+                                                </h2>
+                                                </head>
+
+                                                <body>
+                                                <p align="center">
+                                                %s
+                                                </p>
+                                                </body>
+
+                                                </html>
+                                                """, characterNames.get(nameNPC)[0], nameNPC));
         label_Dialogue.setText("[CLICK TO START]");
 
         button_Yes.setVisible(false);
-        button_No.setVisible(false);
 
         talkingToNPC = true;
+        textIndex = 0;
 
     }
 
@@ -3389,7 +3459,7 @@ public class Game extends javax.swing.JFrame {
         button_Village.setVisible(false);
         button_Grasslands.setVisible(false);
 
-        if (dialogueIndex > 8) {
+        if (storylineIndex > 7) {
             button_Village.setVisible(true);
             button_Grasslands.setVisible(true);
         }
@@ -3415,14 +3485,14 @@ public class Game extends javax.swing.JFrame {
 
     private void button_YesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_YesActionPerformed
 
-        if (dialogueIndex == 7) {
+        if (storylineIndex == 6) {
 
             generateBattle("Slime", "Madeis", 1, "Slime Armor", 1, "Body", 1, true);
             battle.escapeChance = 0;
 
             nextDialogueArray();
 
-        } else if (dialogueIndex == 9) {
+        } else if (storylineIndex == 8) {
 
             // tutorial ends here
             player.fullHeal();
@@ -3434,10 +3504,6 @@ public class Game extends javax.swing.JFrame {
         button_Yes.setText("Yes");
 
     }//GEN-LAST:event_button_YesActionPerformed
-
-    private void button_NoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_NoActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_button_NoActionPerformed
 
     private void panel_DialogueMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panel_DialogueMouseClicked
 
@@ -3559,15 +3625,15 @@ public class Game extends javax.swing.JFrame {
 
     private void panel_CombatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panel_CombatMouseClicked
 
-//        System.out.println("TEST: " + dialogueIndex);
+//        System.out.println("TEST: " + storylineIndex);
 //        System.out.println("TEST: " + battle.battleEnded);
         if (battle.battleEnded) {
 
             player.receiveXPCoinsReward(battle.battleXPGain, battle.battleCoinGain);
 
-            if (dialogueIndex == 8) {
+            if (storylineIndex == 7) {
 
-                openDialogueMenu();
+                speakToNPC("Village Elder");
                 textIndex = 0;
 
             } else {
@@ -3595,7 +3661,7 @@ public class Game extends javax.swing.JFrame {
 
                 }
 
-                if (!wilderness.wildernessEncounters.isEmpty()) {
+                if (wilderness != null && !wilderness.wildernessEncounters.isEmpty()) {
 
                     wilderness.obstructed = false;
                     button_WildernessAttack.setVisible(false);
@@ -4002,7 +4068,6 @@ Sanitas blesses the holders of her affinity by improving their overall constitut
     private javax.swing.JButton button_Inventory;
     private javax.swing.JButton button_IronSword;
     private javax.swing.JButton button_Madeis;
-    private javax.swing.JButton button_No;
     private javax.swing.JButton button_Place1;
     private javax.swing.JButton button_Place2;
     private javax.swing.JButton button_Place3;
