@@ -1,18 +1,16 @@
 
 package realmofallyria;
 
+import java.awt.Dimension;
+import java.awt.Image;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
+import javax.swing.ImageIcon;
 
-// <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+// -----------------------------------------------------------------------------------------------------------
 // <editor-fold desc="Mob class">
 class Mob {
 
@@ -630,8 +628,8 @@ class Mob {
 
 }
 // </editor-fold>
-// <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-// <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+// -----------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------
 // <editor-fold desc="Battle class">
 
 class Battle {
@@ -843,8 +841,8 @@ class Battle {
 
 }
 // </editor-fold>
-// <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-// <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+// -----------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------
 // <editor-fold desc="Wilderness class">
 
 class Wilderness {
@@ -967,20 +965,128 @@ class Wilderness {
 }
 
 // </editor-fold>
-// <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+// -----------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------
+// <editor-fold desc="Quest class">
+class Quest {
+
+    // format <Monster Name, {kill count, kill needed}>
+    HashMap<String, Integer[]> QuestTasks = new HashMap<>();
+    String questName = "";
+    double questXPReward;
+    double questCoinsReward;
+
+    /*
+    
+    format for new quest <String, Integer[]}> {
+    
+    {
+        put("Slime", new Integer[]{0, 3});
+    }
+    
+    }
+     */
+    public void newQuest(HashMap<String, Integer[]> newQuest,
+            String givenQuestName,
+            double givenXPReward,
+            double givenCoinsReward) {
+
+        QuestTasks.clear();
+
+        this.questName = givenQuestName;
+        this.QuestTasks.putAll(newQuest);
+        this.questXPReward = givenXPReward;
+        this.questCoinsReward = givenCoinsReward;
+
+        QuestTasks.put("Completed", new Integer[]{0, 1});
+
+    }
+
+    // gets an array of enemy levels and count of each enemies then returns the upperend of xp reward
+    public double[] generateReward(int[] enemyLevels, int[] enemyCount) {
+
+        double generatedXPReward = 0;
+        double generatedCoinsReward = 0;
+
+        for (int i = 0; i < enemyLevels.length; i++) {
+
+            generatedXPReward += (enemyLevels[i] * 5) * enemyCount[i];
+            generatedCoinsReward += (enemyLevels[i] * 10) * enemyCount[i];
+
+        }
+
+        return new double[]{generatedXPReward, generatedCoinsReward};
+
+    }
+
+    public String generateCoinsRewardString() {
+
+        int battleGoldCoins = (int) questCoinsReward / 2500;
+        int battleRemainingAfterGold = (int) questCoinsReward % 2500;
+        int battleSilverCoins = battleRemainingAfterGold / 50;
+        int battleCopperCoins = battleRemainingAfterGold % 50;
+
+        return String.format(String.format(
+                battleCopperCoins > 0 ? String.format("%s (Copper) ", battleCopperCoins) : "",
+                battleSilverCoins > 0 ? String.format(" %s (Silver) ", battleSilverCoins) : "",
+                battleGoldCoins > 0 ? String.format(" %s (Gold) ", battleGoldCoins) : "",
+                " coins acquired "));
+
+    }
+
+    public void updateTask(String mobKilledName) {
+
+        if (QuestTasks.containsKey(mobKilledName)) {
+
+            QuestTasks.put(mobKilledName,
+                    new Integer[]{(QuestTasks.get(mobKilledName)[0] + 1),
+                        QuestTasks.get(mobKilledName)[1]});
+
+        }
+
+    }
+
+    public boolean isQuestCompleted() {
+
+        boolean questCompleted = true;
+
+        for (String questTaskKey : QuestTasks.keySet()) {
+
+            if (!questTaskKey.equals("Completed")) {
+
+                if (QuestTasks.get(questTaskKey)[0] < QuestTasks.get(questTaskKey)[1]) {
+
+                    questCompleted = false;
+
+                }
+
+            }
+
+        }
+
+        return questCompleted;
+
+    }
+
+}
+// </editor-fold>
+// -----------------------------------------------------------------------------------------------------------
+
 public class Game extends javax.swing.JFrame {
 
-    // -----------------------------------------------------------------------------------------------------------
+    // --+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
     // <editor-fold desc="variables">
     int textIndex = 0;
     int storylineIndex = 0;
 
     // -----------------------------------------------------------------------------------------------------------
     // <editor-fold desc="dialogue manuscript">
-    String[] introDialogue = {"Welcome to the Realm of Allyria.",
+    String[] introDialogue = {
+        "Welcome to the Realm of Allyria.",
         "Before your travels begin adventurer...",
         "What is your name?"};
-    String[] chooseClassDialogue = {"Before you begin your adventure, you must choose your affinity.",
+    String[] chooseClassDialogue = {
+        "Before you begin your adventure, you must choose your affinity.",
         "Affinities determine the boost you will receive a certain attribute.",
         "Everytime you level up, you will receive an automatic addition to the attribute of your affinity.",
         "Those who have an affinity to Sanitas have a boost in health.",
@@ -989,13 +1095,17 @@ public class Game extends javax.swing.JFrame {
         "Those who have an affinity to Tutela have a boost in defense.",
         "Those who have an affinity to Virtus have a boost in strength.",
         "Now choose your affinity wisely. Your affinity will be permanent."};
-    String[] editAttributesDialogue = {"Now adjust your attributes wisely. (Click to continue)"};
-    String[] chooseGearDialogue = {"The world out there is dangerous.",
+    String[] editAttributesDialogue = {
+        "Now adjust your attributes wisely. (Click to continue)"};
+    String[] chooseGearDialogue = {
+        "The world out there is dangerous.",
         "You will need something to defend yourself.",
         "Choose any of the following weapons to your liking..."};
-    String[] bonusArmorDialogue = {"This weapon is not much.",
+    String[] bonusArmorDialogue = {
+        "This weapon is not much.",
         "So I will provide you a full set of leather armor along with it."};
-    String[] adventureBeginsDialogue = {"Once again, welcome to the Realm of Allyria.",
+    String[] adventureBeginsDialogue = {
+        "Once again, welcome to the Realm of Allyria.",
         "Your journey begins in a quiet village in the peaceful grasslands.",
         "Word has spread that the nefarious Demon Lord {UNDERWORLDPRINCE} of the Nether Realm has launched an invasion.",
         "Along the way they kidnapped the kingdom's own {PRINCESS}.",
@@ -1005,7 +1115,8 @@ public class Game extends javax.swing.JFrame {
         "All adventures begin with humble beginnings...",
         "I am the Village Elder of the village in which you reside.",
         "Come talk to me so that you may learn how to fight."};
-    String[] startingVillageElderDialogue = {"Greetings, {PLAYER}.",
+    String[] startingVillageElderDialogue = {
+        "Greetings, {PLAYER}.",
         "As you know, the world is in peril as of now.",
         "The kingdom's forces are engaged in a fierce war againts the demons of the Nether Continent.",
         "Most importantly {PRINCESS} has been captured.",
@@ -1032,9 +1143,11 @@ public class Game extends javax.swing.JFrame {
         "I cannot let you flee combat.",
         "You must either defeat it or be defeated.",
         "Defeat the slime and complete your training.",};
-    String[] tutorialDefeat = {"You were defeated by a mere slime?",
+    String[] tutorialDefeat = {
+        "You were defeated by a mere slime?",
         "Fret not, {PLAYER}."};
-    String[] tutorialVictory = {"Good work on defeating that slime.",
+    String[] tutorialVictory = {
+        "Good work on defeating that slime.",
         "You have done excellently, {PLAYER}."};
     String[] tutorialEnd = {
         "Take this as a learning experience.",
@@ -1054,6 +1167,42 @@ public class Game extends javax.swing.JFrame {
         "Save {PRINCESS}.",
         "Defeat {UNDERWORLDPRINCE}.",
         "Safe travels and may the gods be with you, {PLAYER}."};
+    String[] slimeQuest = {
+        "Greetings, {PLAYER}.",
+        "All great quests begin small.",
+        "So for your first quest I have a request for you.",
+        "The wilderness past the walls of this village are dangerous and riddled with monsters lurking about.",
+        "These monsters instill fear within the hearts of my citizens.",
+        "That's why I request you to rid these lands of these monsters.",
+        "Not only will my citizens feel safer, you will be recognized as a hero soon enough",
+        "Besides, I will pay heft.",
+        "Even for the task at hand.",
+        "The task being kill 3 slimes from the grassland land wilderness."};
+    String[] goblinQuest = {
+        "Greetings, {PLAYER}.",
+        "You have done excellently once again, {PLAYER}.",
+        "As promised you will be compensated for your efforts.",
+        "But as you have probably guessed, that first task was simply a test.",
+        "And you passed it with flying colors.",
+        "Now we have to escalate.",
+        "You must grow stronger now that you have a true taste in combat.",
+        "That is why you will continue your quest to rid the grasslands of such wretched monsters.",
+        "In your adventures into the grasslands you may have encountered a few pecular green mongrels already.",
+        "Goblins is what they're usually called.",
+        "And pests is all they're worth.",
+        "The grasslands will be better off without them.",
+        "Kill 2 of the pests from the grasslands."};
+    String[] wolfQuest = {
+        "Greetings, {PLAYER}.",
+        "I extend myself and my people's utmost gratitue to you for your previous work, {PLAYER}.",
+        "Once again we ask something of you subjugator of the grasslands.",
+        "You have done excellent work clearing pests and keeping this land safe.",
+        "However, another threat arises in our peaceful settlement.",
+        "Locals have sighted a lone wolf lurking around, often attacking livestock.",
+        "And in some cases villagers.",
+        "You may or may not have encountered it yourself in your travels to the grasslands.",
+        "This lone wolf has become a pest for long enough.",
+        "Rid this place of that troublesome monster."};
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
 
@@ -1061,29 +1210,31 @@ public class Game extends javax.swing.JFrame {
     Mob enemy;
     Battle battle;
     Wilderness wilderness;
+    Quest quest;
 
     String currentLocation = "";
-
-    boolean introSequenceFinished = false;
 
     // indicates whether the dialogue menu is opened.
     Random gameRandomizer = new Random();
 
-    // format: <"title", {"fullname", "gender"}>
-    HashMap<String, String[]> characterNames = new HashMap<>();
+    // format: <character index, {"first name", "last name", "title", "gender"}>
+    HashMap<Integer, String[]> characterNames = new HashMap<>();
 
     // </editor-fold>
-    // -----------------------------------------------------------------------------------------------------------
+    // --+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
     public Game() {
 
         // debugging stuff (0 for normal)
         // 6 for testing dialogue menu
         // 8 for skipping tutorial
-        storylineIndex = 0;
+        storylineIndex = 9;
         // -----------------------------------------------------------------------------------------------------------
         // <editor-fold desc="debugging/ QA testing stuff">
+        player = new Mob();
+        quest = new Quest();
+        characterNames.put(0, new String[]{"Meme Bashame", "", "Player", "m"});
+
         // debug characters
-//        player = new Mob();
 //        player.generateMob("Noko Shikanoko",
 //                "Virtus", 1,
 //                "Leather Armor", 1,
@@ -1096,11 +1247,11 @@ public class Game extends javax.swing.JFrame {
 //                "Virtus", 1,
 //                "Leather Armor", 1,
 //                "Iron Sword", 100);
-//        player.generateMob("Meme Bashame",
-//                "Celeritas", 1,
-//                "Leather Armor", 1,
-//                "Simple Bow", 100);
-//        player.attributePoints += 1000;
+        player.generateMob("Meme Bashame",
+                "Celeritas", 1,
+                "Leather Armor", 1,
+                "Simple Bow", 100);
+        player.attributePoints += 1000;
 //        player.currentHP = 1;
         // </editor-fold>
         // -----------------------------------------------------------------------------------------------------------
@@ -1108,68 +1259,13 @@ public class Game extends javax.swing.JFrame {
         hideScreens();
         generateNPCNames();
 
-        // enable these along with putting storylineIndex to 9 to skip tutorial
-//        openGameScreen();
-//        travelToLocation("Village");
+        // enable these along with putting storylineIndex to 8 to skip tutorial
+        openGameScreen();
+        travelToLocation("Village");
     }
 
-    private String formatText(String textToBeFormatted) {
-
-        /*
-        NPC name tags:
-        player: {PLAYER}
-        princess: {PRINCESS}
-
-        ALLIES
-        village elder: {VILLAGEELDER}
-        lord/ lady: {LORD}
-        duke/ duchess: {DUKE}
-        commander: {COMMANDER}
-        king/ queen: {KING}
-
-        DEMONS
-        baron/ baroness: {BARON}
-        general:  {GENERAL}
-        lesser lord/ lady: {LESSERLORD}
-        arch demon: {ARCH}
-        prince/ princess of the underworld: {UNDERWORLDPRINCE}
-         */
-        Map<String, List<String>> placeholderToKeys = new LinkedHashMap<>();
-
-        placeholderToKeys.put("{PLAYER}", Collections.singletonList("Player"));
-        placeholderToKeys.put("{PRINCESS}", Collections.singletonList("Princess"));
-        placeholderToKeys.put("{VILLAGEELDER}", Collections.singletonList("Village Elder"));
-        placeholderToKeys.put("{COMMANDER}", Collections.singletonList("Player"));
-        placeholderToKeys.put("{GENERAL}", Collections.singletonList("Player"));
-
-        // Fallback roles (e.g., Lord → Lady if Lord is missing)
-        placeholderToKeys.put("{LORD}", Arrays.asList("Lord", "Lady"));
-        placeholderToKeys.put("{DUKE}", Arrays.asList("Duke", "Duchess"));
-        placeholderToKeys.put("{KING}", Arrays.asList("King", "Queen"));
-        placeholderToKeys.put("{BARON}", Arrays.asList("Baron", "Baroness"));
-        placeholderToKeys.put("{LESSERLORD}", Arrays.asList("Lesser Lord", "Lesser Lady"));
-        placeholderToKeys.put("{ARCH}", Arrays.asList("Arch Demon", "Arch Demoness"));
-        placeholderToKeys.put("{UNDERWORLDPRINCE}", Arrays.asList("Prince of the Underworld", "Princess of the Underworld"));
-
-        for (Map.Entry<String, List<String>> entry : placeholderToKeys.entrySet()) {
-            String placeholder = entry.getKey();
-            if (textToBeFormatted.contains(placeholder)) {
-                for (String key : entry.getValue()) {
-                    if (characterNames.containsKey(key)) {
-                        String replacement = key.equals("Player") ? characterNames.get(key)[0] : String.format("%s %s", key, characterNames.get(key)[0]);
-                        textToBeFormatted = textToBeFormatted.replace(placeholder, replacement);
-                        break; // stop after first valid replacement
-                    }
-                }
-            }
-        }
-
-        textToBeFormatted = "<html><p align=\"center\">" + textToBeFormatted + "</p></html>";
-
-        return textToBeFormatted;
-
-    }
-
+    // -----------------------------------------------------------------------------------------------------------
+    // <editor-fold desc="screen visibility stuff">
     private void openGameScreen() {
 
         if (player.attributePoints > 0) {
@@ -1217,294 +1313,11 @@ public class Game extends javax.swing.JFrame {
         panel_Combat.setVisible(false);
         panel_Warning.setVisible(false);
         panel_Wilderness.setVisible(false);
+        panel_Quest.setVisible(false);
     }
 
-    private void generateNPCNames() {
-
-        Random nameRandomizer = new Random();
-
-        // ------------------------------------------------------------------------------------------------------------
-        // <editor-fold desc="Array lists of names">
-        // ------------------------------------------------------------------------------------------------------------
-        // <editor-fold desc="princess first names">
-        ArrayList<String> listOfPrincessFirstNames = new ArrayList<>();
-        listOfPrincessFirstNames.add("Evelyn");
-        listOfPrincessFirstNames.add("Rosamont");
-        listOfPrincessFirstNames.add("Elowen");
-        listOfPrincessFirstNames.add("Cecilia");
-        listOfPrincessFirstNames.add("Gwendolyn");
-        listOfPrincessFirstNames.add("Leonora");
-        listOfPrincessFirstNames.add("Theodora");
-        listOfPrincessFirstNames.add("Marianne");
-        listOfPrincessFirstNames.add("Beatrix");
-        listOfPrincessFirstNames.add("Emilia");
-        listOfPrincessFirstNames.add("Lorelei");
-        listOfPrincessFirstNames.add("Anneliese");
-        listOfPrincessFirstNames.add("Eléonore");
-        listOfPrincessFirstNames.add("Carmilla");
-        listOfPrincessFirstNames.add("Genevieve");
-        listOfPrincessFirstNames.add("Celestina");
-        listOfPrincessFirstNames.add("Evangeline");
-        listOfPrincessFirstNames.add("Giselle");
-        listOfPrincessFirstNames.add("Lysandra");
-        listOfPrincessFirstNames.add("Delphina");
-        listOfPrincessFirstNames.add("Esmeralda");
-        // </editor-fold>
-        // ------------------------------------------------------------------------------------------------------------
-        // ------------------------------------------------------------------------------------------------------------
-        // <editor-fold desc="royalty first names">
-        ArrayList<String[]> listOfRoyalFirstNames = new ArrayList<>();
-        listOfRoyalFirstNames.add(new String[]{"William", "m"});
-        listOfRoyalFirstNames.add(new String[]{"Charles", "m"});
-        listOfRoyalFirstNames.add(new String[]{"George", "m"});
-        listOfRoyalFirstNames.add(new String[]{"Connor", "m"});
-        listOfRoyalFirstNames.add(new String[]{"Nicholas", "m"});
-        listOfRoyalFirstNames.add(new String[]{"Wulfric", "m"});
-        listOfRoyalFirstNames.add(new String[]{"Bartholomew", "m"});
-        listOfRoyalFirstNames.add(new String[]{"Benedict", "m"});
-        listOfRoyalFirstNames.add(new String[]{"Alexander", "m"});
-        listOfRoyalFirstNames.add(new String[]{"Alaric", "m"});
-        listOfRoyalFirstNames.add(new String[]{"Hadrian", "m"});
-        listOfRoyalFirstNames.add(new String[]{"Thelric", "m"});
-        listOfRoyalFirstNames.add(new String[]{"Lucas", "m"});
-        listOfRoyalFirstNames.add(new String[]{"Sebastian", "m"});
-        listOfRoyalFirstNames.add(new String[]{"Arthur", "m"});
-        listOfRoyalFirstNames.add(new String[]{"Seraphina", "f"});
-        listOfRoyalFirstNames.add(new String[]{"Maerith", "f"});
-        listOfRoyalFirstNames.add(new String[]{"Adelindra", "f"});
-        listOfRoyalFirstNames.add(new String[]{"Alinora", "f"});
-        listOfRoyalFirstNames.add(new String[]{"Eveline", "f"});
-        listOfRoyalFirstNames.add(new String[]{"Melaina", "f"});
-        listOfRoyalFirstNames.add(new String[]{"Marigold", "f"});
-        listOfRoyalFirstNames.add(new String[]{"Miranda", "f"});
-        listOfRoyalFirstNames.add(new String[]{"Katharina", "f"});
-        listOfRoyalFirstNames.add(new String[]{"Ophelia", "f"});
-        listOfRoyalFirstNames.add(new String[]{"Beatrice", "f"});
-        listOfRoyalFirstNames.add(new String[]{"Rosalina", "f"});
-        listOfRoyalFirstNames.add(new String[]{"Isabella", "f"});
-        listOfRoyalFirstNames.add(new String[]{"Elizabeth", "f"});
-        listOfRoyalFirstNames.add(new String[]{"Margaret", "f"});
-        // </editor-fold>
-        // ------------------------------------------------------------------------------------------------------------
-        // ------------------------------------------------------------------------------------------------------------
-        // <editor-fold desc="royalty surnames">
-        ArrayList<String> listOfRoyalSurames = new ArrayList<>();
-        listOfRoyalSurames.add("Valenfort");
-        listOfRoyalSurames.add("Lionhart");
-        listOfRoyalSurames.add("Alderwynd");
-        listOfRoyalSurames.add("Kaisereich");
-        listOfRoyalSurames.add("Eichenwald");
-        listOfRoyalSurames.add("Grimsburg");
-        listOfRoyalSurames.add("Eastershire");
-        listOfRoyalSurames.add("Ravenwell");
-        listOfRoyalSurames.add("Hearthsvale");
-        listOfRoyalSurames.add("Drachtenfeld");
-        listOfRoyalSurames.add("Falkenford");
-        listOfRoyalSurames.add("Shwarzeholdt");
-        listOfRoyalSurames.add("Himmelfurt");
-        listOfRoyalSurames.add("Montrevaux");
-        listOfRoyalSurames.add("Duclaret");
-        listOfRoyalSurames.add("Wolfsheim");
-        listOfRoyalSurames.add("Steinwulf");
-        listOfRoyalSurames.add("Montclaire");
-        listOfRoyalSurames.add("Clermontaine");
-        listOfRoyalSurames.add("Florandis");
-        listOfRoyalSurames.add("Belleroix");
-        listOfRoyalSurames.add("Clermontaine");
-        listOfRoyalSurames.add("Rousselique");
-        listOfRoyalSurames.add("Laurevigne");
-        listOfRoyalSurames.add("Duvallon");
-        listOfRoyalSurames.add("Carmichael");
-        listOfRoyalSurames.add("Bradfort");
-        listOfRoyalSurames.add("Bonavich");
-        listOfRoyalSurames.add("Harrington");
-        listOfRoyalSurames.add("Barkshire");
-        listOfRoyalSurames.add("Aldereich");
-        listOfRoyalSurames.add("Astor");
-        listOfRoyalSurames.add("Lorraine");
-        listOfRoyalSurames.add("Ellington");
-        listOfRoyalSurames.add("Castleton");
-        listOfRoyalSurames.add("Davenport");
-        listOfRoyalSurames.add("Delacroix");
-        listOfRoyalSurames.add("Havilland");
-        listOfRoyalSurames.add("Greenwood");
-        // </editor-fold>
-        // ------------------------------------------------------------------------------------------------------------
-        // ------------------------------------------------------------------------------------------------------------
-        // <editor-fold desc="demonic first names">
-        ArrayList<String[]> listOfDemonicFirstNames = new ArrayList<>();
-        listOfDemonicFirstNames.add(new String[]{"Setaroth", "m"});
-        listOfDemonicFirstNames.add(new String[]{"Satanir", "m"});
-        listOfDemonicFirstNames.add(new String[]{"Maddon", "m"});
-        listOfDemonicFirstNames.add(new String[]{"Belphegon", "m"});
-        listOfDemonicFirstNames.add(new String[]{"Asmodenus", "m"});
-        listOfDemonicFirstNames.add(new String[]{"Beelzus", "m"});
-        listOfDemonicFirstNames.add(new String[]{"Remiael", "m"});
-        listOfDemonicFirstNames.add(new String[]{"Begemoth", "m"});
-        listOfDemonicFirstNames.add(new String[]{"Baeloth", "m"});
-        listOfDemonicFirstNames.add(new String[]{"Vareximon", "m"});
-        listOfDemonicFirstNames.add(new String[]{"Obrithiel", "m"});
-        listOfDemonicFirstNames.add(new String[]{"Zekarion", "m"});
-        listOfDemonicFirstNames.add(new String[]{"Samaqel", "m"});
-        listOfDemonicFirstNames.add(new String[]{"Belzahir", "m"});
-        listOfDemonicFirstNames.add(new String[]{"Azrakael", "m"});
-
-        listOfDemonicFirstNames.add(new String[]{"Malgrith", "f"});
-        listOfDemonicFirstNames.add(new String[]{"Loravael", "f"});
-        listOfDemonicFirstNames.add(new String[]{"Lucifera", "f"});
-        listOfDemonicFirstNames.add(new String[]{"Lilith", "f"});
-        listOfDemonicFirstNames.add(new String[]{"Nameenah", "f"});
-        listOfDemonicFirstNames.add(new String[]{"Ashtera", "f"});
-        listOfDemonicFirstNames.add(new String[]{"Uriela", "f"});
-        listOfDemonicFirstNames.add(new String[]{"Zahreh", "f"});
-        listOfDemonicFirstNames.add(new String[]{"Belphevra", "f"});
-        listOfDemonicFirstNames.add(new String[]{"Drevaelah", "f"});
-        listOfDemonicFirstNames.add(new String[]{"Malithra", "f"});
-        listOfDemonicFirstNames.add(new String[]{"Ezkireth", "f"});
-        listOfDemonicFirstNames.add(new String[]{"Ysmar", "f"});
-        listOfDemonicFirstNames.add(new String[]{"Helviatha", "f"});
-        listOfDemonicFirstNames.add(new String[]{"Ophiriel", "f"});
-        // </editor-fold>
-        // ------------------------------------------------------------------------------------------------------------
-        // ------------------------------------------------------------------------------------------------------------
-        // <editor-fold desc="demonic surnames">
-        ArrayList<String> listOfDemonicSurnames = new ArrayList<>();
-        listOfDemonicSurnames.add("Blackthorn");
-        listOfDemonicSurnames.add("Shadowmere");
-        listOfDemonicSurnames.add("Grimshaw");
-        listOfDemonicSurnames.add("Darkweaver");
-        listOfDemonicSurnames.add("Hellstrom");
-        listOfDemonicSurnames.add("Nightshade");
-        listOfDemonicSurnames.add("Dreadmore");
-        listOfDemonicSurnames.add("Gravecourt");
-        listOfDemonicSurnames.add("Harrowfell");
-        listOfDemonicSurnames.add("Crimsonreach");
-        listOfDemonicSurnames.add("Blutkreig");
-        listOfDemonicSurnames.add("Hexenwaldt");
-        listOfDemonicSurnames.add("Eisenwraith");
-        listOfDemonicSurnames.add("Malrevoir");
-        listOfDemonicSurnames.add("Charnoire");
-        listOfDemonicSurnames.add("Sangversé");
-        listOfDemonicSurnames.add("Bellombre");
-        listOfDemonicSurnames.add("Vaulremort");
-        listOfDemonicSurnames.add("Infernus");
-        listOfDemonicSurnames.add("Malachai");
-        listOfDemonicSurnames.add("Grimharrow");
-        listOfDemonicSurnames.add("Nightbramble");
-        listOfDemonicSurnames.add("Ruinmarsh");
-        listOfDemonicSurnames.add("Kriegfaust");
-        listOfDemonicSurnames.add("Blutnacht");
-        listOfDemonicSurnames.add("Flammenriss");
-        listOfDemonicSurnames.add("Totensee");
-        listOfDemonicSurnames.add("Noireclat");
-        listOfDemonicSurnames.add("Vallombreux");
-        listOfDemonicSurnames.add("Belleschain");
-        listOfDemonicSurnames.add("Faucheval");
-        listOfDemonicSurnames.add("Morvelain");
-        listOfDemonicSurnames.add("Revenoir");
-        listOfDemonicSurnames.add("Darkenveil");
-        listOfDemonicSurnames.add("Hellhammer");
-        listOfDemonicSurnames.add("Hellscream");
-        listOfDemonicSurnames.add("Hexmourne");
-        listOfDemonicSurnames.add("Umbramist");
-        listOfDemonicSurnames.add("Gloomwraith");
-        // </editor-fold>
-        // ------------------------------------------------------------------------------------------------------------
-        // </editor-fold>
-        // ------------------------------------------------------------------------------------------------------------
-        // ------------------------------------------------------------------------------------------------------------
-        // <editor-fold desc="generates npc names">
-        int randomizedPrincessName = nameRandomizer.nextInt(listOfPrincessFirstNames.size());
-        int randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
-        characterNames.put("Princess",
-                new String[]{String.format("%s %s", listOfPrincessFirstNames.get(randomizedPrincessName),
-                            listOfRoyalSurames.remove(randomizedLastName)),
-                    "f"});
-
-        int randomizedFirstName = nameRandomizer.nextInt(listOfRoyalFirstNames.size());
-        randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
-        characterNames.put("Village Elder",
-                new String[]{String.format("%s %s", listOfRoyalFirstNames.get(randomizedFirstName)[0],
-                            listOfRoyalSurames.remove(randomizedLastName)),
-                    listOfRoyalFirstNames.remove(randomizedFirstName)[1]});
-
-        randomizedFirstName = nameRandomizer.nextInt(listOfRoyalFirstNames.size());
-        randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
-        characterNames.put(listOfRoyalFirstNames.get(randomizedFirstName)[1].equals("f") ? "Lady" : "Lord",
-                new String[]{String.format("%s %s", listOfRoyalFirstNames.get(randomizedFirstName)[0],
-                            listOfRoyalSurames.remove(randomizedLastName)),
-                    listOfRoyalFirstNames.remove(randomizedFirstName)[1]});
-
-        randomizedFirstName = nameRandomizer.nextInt(listOfRoyalFirstNames.size());
-        randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
-        characterNames.put(listOfRoyalFirstNames.get(randomizedFirstName)[1].equals("f") ? "Duchess" : "Duke",
-                new String[]{String.format("%s %s", listOfRoyalFirstNames.get(randomizedFirstName)[0],
-                            listOfRoyalSurames.remove(randomizedLastName)),
-                    listOfRoyalFirstNames.remove(randomizedFirstName)[1]});
-
-        randomizedFirstName = nameRandomizer.nextInt(listOfRoyalFirstNames.size());
-        randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
-        characterNames.put(listOfRoyalFirstNames.get(randomizedFirstName)[1].equals("f") ? "Duchess" : "Duke",
-                new String[]{String.format("%s %s", listOfRoyalFirstNames.get(randomizedFirstName)[0],
-                            listOfRoyalSurames.remove(randomizedLastName)),
-                    listOfRoyalFirstNames.remove(randomizedFirstName)[1]});
-
-        randomizedFirstName = nameRandomizer.nextInt(listOfRoyalFirstNames.size());
-        randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
-        characterNames.put("Commander",
-                new String[]{String.format("%s %s", listOfRoyalFirstNames.get(randomizedFirstName)[0],
-                            listOfRoyalSurames.remove(randomizedLastName)),
-                    listOfRoyalFirstNames.remove(randomizedFirstName)[1]});
-
-        randomizedFirstName = nameRandomizer.nextInt(listOfRoyalFirstNames.size());
-        randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
-        characterNames.put(listOfRoyalFirstNames.get(randomizedFirstName)[1].equals("f") ? "Queen" : "King",
-                new String[]{String.format("%s %s", listOfRoyalFirstNames.get(randomizedFirstName)[0],
-                            listOfRoyalSurames.remove(randomizedLastName)),
-                    listOfRoyalFirstNames.remove(randomizedFirstName)[1]});
-        // </editor-fold>
-        // ------------------------------------------------------------------------------------------------------------
-        // ------------------------------------------------------------------------------------------------------------
-        // <editor-fold desc="generates boss names">
-        int randomizedDemonFirstName = nameRandomizer.nextInt(listOfDemonicFirstNames.size());
-        int randomizedDemonLastName = nameRandomizer.nextInt(listOfDemonicSurnames.size());
-        characterNames.put(listOfDemonicFirstNames.get(randomizedDemonFirstName)[1].equals("f") ? "Baroness" : "Baron",
-                new String[]{String.format("%s %s", listOfDemonicFirstNames.get(randomizedDemonFirstName)[0],
-                            listOfDemonicSurnames.remove(randomizedDemonLastName)),
-                    listOfDemonicFirstNames.remove(randomizedDemonFirstName)[1]});
-
-        randomizedDemonFirstName = nameRandomizer.nextInt(listOfDemonicFirstNames.size());
-        randomizedDemonLastName = nameRandomizer.nextInt(listOfDemonicSurnames.size());
-        characterNames.put("General",
-                new String[]{String.format("%s %s", listOfDemonicFirstNames.get(randomizedDemonFirstName)[0],
-                            listOfDemonicSurnames.remove(randomizedDemonLastName)),
-                    listOfDemonicFirstNames.remove(randomizedDemonFirstName)[1]});
-
-        randomizedDemonFirstName = nameRandomizer.nextInt(listOfDemonicFirstNames.size());
-        randomizedDemonLastName = nameRandomizer.nextInt(listOfDemonicSurnames.size());
-        characterNames.put(listOfDemonicFirstNames.get(randomizedDemonFirstName)[1].equals("f") ? "Lesser Lady" : "Lesser Lord",
-                new String[]{String.format("%s %s", listOfDemonicFirstNames.get(randomizedDemonFirstName)[0],
-                            listOfDemonicSurnames.remove(randomizedDemonLastName)),
-                    listOfDemonicFirstNames.remove(randomizedDemonFirstName)[1]});
-
-        randomizedDemonFirstName = nameRandomizer.nextInt(listOfDemonicFirstNames.size());
-        randomizedDemonLastName = nameRandomizer.nextInt(listOfDemonicSurnames.size());
-        characterNames.put(listOfDemonicFirstNames.get(randomizedDemonFirstName)[1].equals("f") ? "Arch Demoness" : "Arch Demon",
-                new String[]{String.format("%s %s", listOfDemonicFirstNames.get(randomizedDemonFirstName)[0],
-                            listOfDemonicSurnames.remove(randomizedDemonLastName)),
-                    listOfDemonicFirstNames.remove(randomizedDemonFirstName)[1]});
-
-        randomizedDemonFirstName = nameRandomizer.nextInt(listOfDemonicFirstNames.size());
-        randomizedDemonLastName = nameRandomizer.nextInt(listOfDemonicSurnames.size());
-        characterNames.put(listOfDemonicFirstNames.get(randomizedDemonFirstName)[1].equals("f") ? "Princess of the Underworld" : "Prince of the Underworld",
-                new String[]{String.format("%s %s", listOfDemonicFirstNames.get(randomizedDemonFirstName)[0],
-                            listOfDemonicSurnames.remove(randomizedDemonLastName)),
-                    listOfDemonicFirstNames.remove(randomizedDemonFirstName)[1]});
-        // </editor-fold>
-        // ------------------------------------------------------------------------------------------------------------
-
-    }
-
+    // </editor-fold>
+    // -----------------------------------------------------------------------------------------------------------
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -1512,6 +1325,12 @@ public class Game extends javax.swing.JFrame {
         panel_Main = new javax.swing.JPanel();
         button_Return = new javax.swing.JButton();
         label_Header = new javax.swing.JLabel();
+        panel_Wilderness = new javax.swing.JPanel();
+        label_WildernessLocation = new javax.swing.JLabel();
+        label_EncounterLog = new javax.swing.JLabel();
+        button_WildernessAttack = new javax.swing.JButton();
+        button_WildernessFlee = new javax.swing.JButton();
+        label_WildernessBackground = new javax.swing.JLabel();
         panel_Game = new javax.swing.JPanel();
         label_GameCurrency = new javax.swing.JLabel();
         label_GameXP = new javax.swing.JLabel();
@@ -1526,6 +1345,9 @@ public class Game extends javax.swing.JFrame {
         button_Place1 = new javax.swing.JButton();
         button_Place2 = new javax.swing.JButton();
         button_Place3 = new javax.swing.JButton();
+        label_GameBackground = new javax.swing.JLabel();
+        panel_Quest = new javax.swing.JPanel();
+        label_MainQuest = new javax.swing.JLabel();
         panel_Storyline = new javax.swing.JPanel();
         label_Talker = new javax.swing.JLabel();
         label_StorylineText = new javax.swing.JLabel();
@@ -1579,11 +1401,6 @@ public class Game extends javax.swing.JFrame {
         button_DPAddition = new javax.swing.JButton();
         button_IPAddition = new javax.swing.JButton();
         button_APAddition = new javax.swing.JButton();
-        panel_Wilderness = new javax.swing.JPanel();
-        label_WildernessLocation = new javax.swing.JLabel();
-        label_EncounterLog = new javax.swing.JLabel();
-        button_WildernessAttack = new javax.swing.JButton();
-        button_WildernessFlee = new javax.swing.JButton();
         panel_Combat = new javax.swing.JPanel();
         label_CombatPlayer = new javax.swing.JLabel();
         label_CombatHP = new javax.swing.JLabel();
@@ -1661,6 +1478,7 @@ public class Game extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        panel_Main.setOpaque(false);
         panel_Main.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 panel_MainMouseClicked(evt);
@@ -1683,38 +1501,103 @@ public class Game extends javax.swing.JFrame {
         panel_Main.add(label_Header);
         label_Header.setBounds(6, 6, 520, 47);
 
+        panel_Wilderness.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Wilderness.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                panel_WildernessMouseClicked(evt);
+            }
+        });
+        panel_Wilderness.setLayout(null);
+
+        label_WildernessLocation.setBackground(new java.awt.Color(65, 65, 65, 225));
+        label_WildernessLocation.setForeground(new java.awt.Color(221, 221, 222));
+        label_WildernessLocation.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_WildernessLocation.setText("Location");
+        label_WildernessLocation.setOpaque(true);
+        panel_Wilderness.add(label_WildernessLocation);
+        label_WildernessLocation.setBounds(150, 10, 220, 40);
+
+        label_EncounterLog.setBackground(new java.awt.Color(65, 65, 65, 225));
+        label_EncounterLog.setForeground(new java.awt.Color(221, 221, 222));
+        label_EncounterLog.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_EncounterLog.setText("Encounter Log");
+        label_EncounterLog.setOpaque(true);
+        panel_Wilderness.add(label_EncounterLog);
+        label_EncounterLog.setBounds(10, 60, 500, 160);
+
+        button_WildernessAttack.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_WildernessAttack.setText("Attack");
+        button_WildernessAttack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_WildernessAttackActionPerformed(evt);
+            }
+        });
+        panel_Wilderness.add(button_WildernessAttack);
+        button_WildernessAttack.setBounds(100, 240, 150, 40);
+
+        button_WildernessFlee.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_WildernessFlee.setText("Flee");
+        button_WildernessFlee.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_WildernessFleeActionPerformed(evt);
+            }
+        });
+        panel_Wilderness.add(button_WildernessFlee);
+        button_WildernessFlee.setBounds(280, 240, 150, 40);
+        panel_Wilderness.add(label_WildernessBackground);
+        label_WildernessBackground.setBounds(-3, 0, 530, 380);
+
+        panel_Main.add(panel_Wilderness);
+        panel_Wilderness.setBounds(5, 60, 520, 370);
+
         panel_Game.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Game.setOpaque(false);
         panel_Game.setLayout(null);
 
+        label_GameCurrency.setBackground(new java.awt.Color(65, 65, 65, 225));
         label_GameCurrency.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_GameCurrency.setForeground(new java.awt.Color(221, 221, 222));
+        label_GameCurrency.setForeground(new java.awt.Color(222, 222, 222));
+        label_GameCurrency.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         label_GameCurrency.setText("Coins: ");
+        label_GameCurrency.setOpaque(true);
         panel_Game.add(label_GameCurrency);
-        label_GameCurrency.setBounds(10, 240, 240, 40);
+        label_GameCurrency.setBounds(10, 260, 240, 40);
 
+        label_GameXP.setBackground(new java.awt.Color(65, 65, 65, 225));
         label_GameXP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_GameXP.setForeground(new java.awt.Color(221, 221, 222));
+        label_GameXP.setForeground(new java.awt.Color(222, 222, 222));
+        label_GameXP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         label_GameXP.setText("XP:");
+        label_GameXP.setOpaque(true);
         panel_Game.add(label_GameXP);
-        label_GameXP.setBounds(10, 200, 240, 40);
+        label_GameXP.setBounds(10, 210, 240, 40);
 
+        label_GameMP.setBackground(new java.awt.Color(65, 65, 65, 225));
         label_GameMP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_GameMP.setForeground(new java.awt.Color(221, 221, 222));
+        label_GameMP.setForeground(new java.awt.Color(222, 222, 222));
+        label_GameMP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         label_GameMP.setText("MP:");
+        label_GameMP.setOpaque(true);
         panel_Game.add(label_GameMP);
         label_GameMP.setBounds(10, 160, 240, 40);
 
+        label_GameHP.setBackground(new java.awt.Color(65, 65, 65, 225));
         label_GameHP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_GameHP.setForeground(new java.awt.Color(221, 221, 222));
+        label_GameHP.setForeground(new java.awt.Color(222, 222, 222));
+        label_GameHP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         label_GameHP.setText("HP:");
+        label_GameHP.setOpaque(true);
         panel_Game.add(label_GameHP);
-        label_GameHP.setBounds(10, 120, 240, 40);
+        label_GameHP.setBounds(10, 110, 240, 40);
 
+        label_Location.setBackground(new java.awt.Color(65, 65, 65, 225));
         label_Location.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_Location.setForeground(new java.awt.Color(221, 221, 222));
+        label_Location.setForeground(new java.awt.Color(222, 222, 222));
+        label_Location.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         label_Location.setText("Location: ");
+        label_Location.setOpaque(true);
         panel_Game.add(label_Location);
-        label_Location.setBounds(10, 70, 240, 40);
+        label_Location.setBounds(10, 60, 240, 40);
 
         button_Quest.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         button_Quest.setText("Quest");
@@ -1756,7 +1639,7 @@ public class Game extends javax.swing.JFrame {
         panel_Game.add(button_Status);
         button_Status.setBounds(360, 320, 150, 40);
 
-        panel_LocationPanel.setBackground(new java.awt.Color(63, 63, 63));
+        panel_LocationPanel.setBackground(new java.awt.Color(60, 63, 63, 225));
         panel_LocationPanel.setLayout(null);
 
         button_Place1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -1790,10 +1673,24 @@ public class Game extends javax.swing.JFrame {
         button_Place3.setBounds(10, 90, 220, 30);
 
         panel_Game.add(panel_LocationPanel);
-        panel_LocationPanel.setBounds(270, 60, 240, 230);
+        panel_LocationPanel.setBounds(270, 60, 240, 240);
+        panel_Game.add(label_GameBackground);
+        label_GameBackground.setBounds(-3, 0, 530, 380);
 
         panel_Main.add(panel_Game);
         panel_Game.setBounds(5, 60, 520, 370);
+
+        panel_Quest.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Quest.setLayout(null);
+
+        label_MainQuest.setForeground(new java.awt.Color(187, 187, 186));
+        label_MainQuest.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_MainQuest.setText(" ");
+        panel_Quest.add(label_MainQuest);
+        label_MainQuest.setBounds(20, 40, 480, 320);
+
+        panel_Main.add(panel_Quest);
+        panel_Quest.setBounds(5, 60, 520, 370);
 
         panel_Storyline.setBackground(new java.awt.Color(69, 69, 69));
         panel_Storyline.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -2176,49 +2073,6 @@ public class Game extends javax.swing.JFrame {
 
         panel_Main.add(panel_Attributes);
         panel_Attributes.setBounds(5, 60, 520, 370);
-
-        panel_Wilderness.setBackground(new java.awt.Color(69, 69, 69));
-        panel_Wilderness.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                panel_WildernessMouseClicked(evt);
-            }
-        });
-        panel_Wilderness.setLayout(null);
-
-        label_WildernessLocation.setForeground(new java.awt.Color(221, 221, 222));
-        label_WildernessLocation.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_WildernessLocation.setText("Location");
-        panel_Wilderness.add(label_WildernessLocation);
-        label_WildernessLocation.setBounds(150, 10, 220, 40);
-
-        label_EncounterLog.setForeground(new java.awt.Color(221, 221, 222));
-        label_EncounterLog.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_EncounterLog.setText("Encounter Log");
-        panel_Wilderness.add(label_EncounterLog);
-        label_EncounterLog.setBounds(10, 60, 500, 160);
-
-        button_WildernessAttack.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_WildernessAttack.setText("Attack");
-        button_WildernessAttack.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_WildernessAttackActionPerformed(evt);
-            }
-        });
-        panel_Wilderness.add(button_WildernessAttack);
-        button_WildernessAttack.setBounds(100, 240, 150, 40);
-
-        button_WildernessFlee.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_WildernessFlee.setText("Flee");
-        button_WildernessFlee.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_WildernessFleeActionPerformed(evt);
-            }
-        });
-        panel_Wilderness.add(button_WildernessFlee);
-        button_WildernessFlee.setBounds(280, 240, 150, 40);
-
-        panel_Main.add(panel_Wilderness);
-        panel_Wilderness.setBounds(5, 60, 520, 370);
 
         panel_Combat.setBackground(new java.awt.Color(69, 69, 69));
         panel_Combat.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -2765,12 +2619,11 @@ public class Game extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(panel_Main, javax.swing.GroupLayout.PREFERRED_SIZE, 432, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(panel_Main, javax.swing.GroupLayout.PREFERRED_SIZE, 432, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     // -----------------------------------------------------------------------------------------------------------
@@ -2780,7 +2633,8 @@ public class Game extends javax.swing.JFrame {
 
         if (storylineIndex == 0) {
 
-            speakToNPC("Village Elder");
+            // starts the game proper
+            speakToNPC(2);
             label_Header.setText("REALM OF ALLYRIA (v0.8)");
 
         }
@@ -2827,6 +2681,16 @@ public class Game extends javax.swing.JFrame {
             case 8 -> {
                 loadedStorylineText = tutorialEnd;
             }
+            case 9 -> {
+                loadedStorylineText = slimeQuest;
+            }
+            case 10 -> {
+                loadedStorylineText = goblinQuest;
+            }
+            case 11 -> {
+                loadedStorylineText = wolfQuest;
+            }
+
         }
 
         label_StorylineText.setText(formatText(loadedStorylineText[textIndex]));
@@ -2842,6 +2706,7 @@ public class Game extends javax.swing.JFrame {
 
             // entering affinity sequence
             player = new Mob();
+            quest = new Quest();
             player.name = textField_NameField.getText();
             button_Yes.setVisible(true);
 
@@ -2871,16 +2736,34 @@ public class Game extends javax.swing.JFrame {
 
         } else if (storylineIndex == 6 && textIndex >= 26) {
 
+            // slime combat sequence
             button_Yes.setVisible(true);
 
         } else if (storylineIndex == 7 && textIndex >= 1) {
 
+            // post slime combat sequence
             button_Yes.setVisible(true);
 
         } else if (storylineIndex == 8 && textIndex >= 16) {
 
+            // tutorial end sequence
             button_Yes.setVisible(true);
             button_Yes.setText("End Tutorial");
+
+        } else if (storylineIndex == 9 && textIndex >= 9) {
+
+            // slime quest sequence
+            button_Yes.setVisible(true);
+
+        } else if (storylineIndex == 10 && textIndex >= 12) {
+
+            // goblin quest sequence
+            button_Yes.setVisible(true);
+
+        } else if (storylineIndex == 11 && textIndex >= 9) {
+
+            // wolf quest sequence
+            button_Yes.setVisible(true);
 
         }
 
@@ -2902,6 +2785,365 @@ public class Game extends javax.swing.JFrame {
 
     }
 
+    private String formatText(String textToBeFormatted) {
+
+        /*
+        character name tags:
+        player: {PLAYER}
+        princess: {PRINCESS}
+
+        ALLIES
+        village elder: {VILLAGEELDER}
+        lord/ lady: {LORD}
+        duke/ duchess: {DUKE}
+        commander: {COMMANDER}
+        king/ queen: {KING}
+
+        DEMONS
+        baron/ baroness: {BARON}
+        general:  {GENERAL}
+        lesser lord/ lady: {LESSERLORD}
+        arch demon: {ARCH}
+        prince/ princess of the underworld: {UNDERWORLDPRINCE}
+         */
+        HashMap<Integer, String> characterIndexeMap = new HashMap<Integer, String>() {
+
+            {
+                put(0, "{PLAYER}");
+                put(1, "{PRINCESS}");
+                put(2, "{VILLAGEELDER}");
+                put(3, "{LORD}");
+                put(4, "{DUKE}");
+                put(5, "{COMMANDER}");
+                put(6, "{KING}");
+                put(7, "{BARON}");
+                put(8, "{GENERAL}");
+                put(9, "{LESSERLORD}");
+                put(10, "{ARCH}");
+                put(11, "{UNDERWORLDPRINCE}");
+            }
+
+        };
+
+        for (int characterFormatIndex : characterIndexeMap.keySet()) {
+
+            if (textToBeFormatted.contains(characterIndexeMap.get(characterFormatIndex))) {
+                String fullName = String.format("%s %s", characterNames.get(characterFormatIndex)[0], characterNames.get(characterFormatIndex)[1]);
+                textToBeFormatted = textToBeFormatted.replace(characterIndexeMap.get(characterFormatIndex), fullName);
+            }
+
+        }
+
+        textToBeFormatted = "<html><p align=\"center\">" + textToBeFormatted + "</p></html>";
+
+        return textToBeFormatted;
+
+    }
+
+    private void generateNPCNames() {
+
+        Random nameRandomizer = new Random();
+
+        /*
+            player = 0
+            princess = 1
+            village elder = 2
+            lord/ lady = 3
+            duke/ duchess = 4
+            commander = 5
+            king/ queen = 6
+            baroness/ baron = 7
+            general = 8
+            lesser lord/ lady = 9
+            arch demon/ demoness = 10
+            prince/ princess of the underworld = 11
+         */
+        // ------------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="Array lists of names">
+        // ------------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="princess first names">
+        ArrayList<String> listOfPrincessFirstNames = new ArrayList<>();
+        listOfPrincessFirstNames.add("Evelyn");
+        listOfPrincessFirstNames.add("Rosamont");
+        listOfPrincessFirstNames.add("Elowen");
+        listOfPrincessFirstNames.add("Cecilia");
+        listOfPrincessFirstNames.add("Gwendolyn");
+        listOfPrincessFirstNames.add("Leonora");
+        listOfPrincessFirstNames.add("Theodora");
+        listOfPrincessFirstNames.add("Marianne");
+        listOfPrincessFirstNames.add("Beatrix");
+        listOfPrincessFirstNames.add("Emilia");
+        listOfPrincessFirstNames.add("Lorelei");
+        listOfPrincessFirstNames.add("Anneliese");
+        listOfPrincessFirstNames.add("Eléonore");
+        listOfPrincessFirstNames.add("Carmilla");
+        listOfPrincessFirstNames.add("Genevieve");
+        listOfPrincessFirstNames.add("Celestina");
+        listOfPrincessFirstNames.add("Evangeline");
+        listOfPrincessFirstNames.add("Giselle");
+        listOfPrincessFirstNames.add("Lysandra");
+        listOfPrincessFirstNames.add("Delphina");
+        listOfPrincessFirstNames.add("Esmeralda");
+        // </editor-fold>
+        // ------------------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="royalty first names">
+        ArrayList<String[]> listOfRoyalFirstNames = new ArrayList<>();
+        listOfRoyalFirstNames.add(new String[]{"William", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Charles", "m"});
+        listOfRoyalFirstNames.add(new String[]{"George", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Connor", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Nicholas", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Wulfric", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Bartholomew", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Benedict", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Alexander", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Alaric", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Hadrian", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Thelric", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Lucas", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Sebastian", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Arthur", "m"});
+        listOfRoyalFirstNames.add(new String[]{"Seraphina", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Maerith", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Adelindra", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Alinora", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Eveline", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Melaina", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Marigold", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Miranda", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Katharina", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Ophelia", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Beatrice", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Rosalina", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Isabella", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Elizabeth", "f"});
+        listOfRoyalFirstNames.add(new String[]{"Margaret", "f"});
+        // </editor-fold>
+        // ------------------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="royalty surnames">
+        ArrayList<String> listOfRoyalSurames = new ArrayList<>();
+        listOfRoyalSurames.add("Valenfort");
+        listOfRoyalSurames.add("Lionhart");
+        listOfRoyalSurames.add("Alderwynd");
+        listOfRoyalSurames.add("Kaisereich");
+        listOfRoyalSurames.add("Eichenwald");
+        listOfRoyalSurames.add("Grimsburg");
+        listOfRoyalSurames.add("Eastershire");
+        listOfRoyalSurames.add("Ravenwell");
+        listOfRoyalSurames.add("Hearthsvale");
+        listOfRoyalSurames.add("Drachtenfeld");
+        listOfRoyalSurames.add("Falkenford");
+        listOfRoyalSurames.add("Shwarzeholdt");
+        listOfRoyalSurames.add("Himmelfurt");
+        listOfRoyalSurames.add("Montrevaux");
+        listOfRoyalSurames.add("Duclaret");
+        listOfRoyalSurames.add("Wolfsheim");
+        listOfRoyalSurames.add("Steinwulf");
+        listOfRoyalSurames.add("Montclaire");
+        listOfRoyalSurames.add("Clermontaine");
+        listOfRoyalSurames.add("Florandis");
+        listOfRoyalSurames.add("Belleroix");
+        listOfRoyalSurames.add("Clermontaine");
+        listOfRoyalSurames.add("Rousselique");
+        listOfRoyalSurames.add("Laurevigne");
+        listOfRoyalSurames.add("Duvallon");
+        listOfRoyalSurames.add("Carmichael");
+        listOfRoyalSurames.add("Bradfort");
+        listOfRoyalSurames.add("Bonavich");
+        listOfRoyalSurames.add("Harrington");
+        listOfRoyalSurames.add("Barkshire");
+        listOfRoyalSurames.add("Aldereich");
+        listOfRoyalSurames.add("Astor");
+        listOfRoyalSurames.add("Lorraine");
+        listOfRoyalSurames.add("Ellington");
+        listOfRoyalSurames.add("Castleton");
+        listOfRoyalSurames.add("Davenport");
+        listOfRoyalSurames.add("Delacroix");
+        listOfRoyalSurames.add("Havilland");
+        listOfRoyalSurames.add("Greenwood");
+        // </editor-fold>
+        // ------------------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="demonic first names">
+        ArrayList<String[]> listOfDemonicFirstNames = new ArrayList<>();
+        listOfDemonicFirstNames.add(new String[]{"Setaroth", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Satanir", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Maddon", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Belphegon", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Asmodenus", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Beelzus", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Remiael", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Begemoth", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Baeloth", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Vareximon", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Obrithiel", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Zekarion", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Samaqel", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Belzahir", "m"});
+        listOfDemonicFirstNames.add(new String[]{"Azrakael", "m"});
+
+        listOfDemonicFirstNames.add(new String[]{"Malgrith", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Loravael", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Lucifera", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Lilith", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Nameenah", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Ashtera", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Uriela", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Zahreh", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Belphevra", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Drevaelah", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Malithra", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Ezkireth", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Ysmar", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Helviatha", "f"});
+        listOfDemonicFirstNames.add(new String[]{"Ophiriel", "f"});
+        // </editor-fold>
+        // ------------------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="demonic surnames">
+        ArrayList<String> listOfDemonicSurnames = new ArrayList<>();
+        listOfDemonicSurnames.add("Blackthorn");
+        listOfDemonicSurnames.add("Shadowmere");
+        listOfDemonicSurnames.add("Grimshaw");
+        listOfDemonicSurnames.add("Darkweaver");
+        listOfDemonicSurnames.add("Hellstrom");
+        listOfDemonicSurnames.add("Nightshade");
+        listOfDemonicSurnames.add("Dreadmore");
+        listOfDemonicSurnames.add("Gravecourt");
+        listOfDemonicSurnames.add("Harrowfell");
+        listOfDemonicSurnames.add("Crimsonreach");
+        listOfDemonicSurnames.add("Blutkreig");
+        listOfDemonicSurnames.add("Hexenwaldt");
+        listOfDemonicSurnames.add("Eisenwraith");
+        listOfDemonicSurnames.add("Malrevoir");
+        listOfDemonicSurnames.add("Charnoire");
+        listOfDemonicSurnames.add("Sangversé");
+        listOfDemonicSurnames.add("Bellombre");
+        listOfDemonicSurnames.add("Vaulremort");
+        listOfDemonicSurnames.add("Infernus");
+        listOfDemonicSurnames.add("Malachai");
+        listOfDemonicSurnames.add("Grimharrow");
+        listOfDemonicSurnames.add("Nightbramble");
+        listOfDemonicSurnames.add("Ruinmarsh");
+        listOfDemonicSurnames.add("Kriegfaust");
+        listOfDemonicSurnames.add("Blutnacht");
+        listOfDemonicSurnames.add("Flammenriss");
+        listOfDemonicSurnames.add("Totensee");
+        listOfDemonicSurnames.add("Noireclat");
+        listOfDemonicSurnames.add("Vallombreux");
+        listOfDemonicSurnames.add("Belleschain");
+        listOfDemonicSurnames.add("Faucheval");
+        listOfDemonicSurnames.add("Morvelain");
+        listOfDemonicSurnames.add("Revenoir");
+        listOfDemonicSurnames.add("Darkenveil");
+        listOfDemonicSurnames.add("Hellhammer");
+        listOfDemonicSurnames.add("Hellscream");
+        listOfDemonicSurnames.add("Hexmourne");
+        listOfDemonicSurnames.add("Umbramist");
+        listOfDemonicSurnames.add("Gloomwraith");
+        // </editor-fold>
+        // ------------------------------------------------------------------------------------------------------------
+        // </editor-fold>
+        // ------------------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="generates npc names">
+        int randomizedPrincessName = nameRandomizer.nextInt(listOfPrincessFirstNames.size());
+        int randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
+        characterNames.put(1,
+                new String[]{listOfPrincessFirstNames.get(randomizedPrincessName),
+                    listOfRoyalSurames.remove(randomizedLastName),
+                    "Princess",
+                    "f"});
+
+        int randomizedFirstName = nameRandomizer.nextInt(listOfRoyalFirstNames.size());
+        randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
+        characterNames.put(2,
+                new String[]{listOfRoyalFirstNames.get(randomizedFirstName)[0],
+                    listOfRoyalSurames.remove(randomizedLastName),
+                    "Village Elder",
+                    listOfRoyalFirstNames.remove(randomizedFirstName)[1]});
+
+        // lord lady
+        randomizedFirstName = nameRandomizer.nextInt(listOfRoyalFirstNames.size());
+        randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
+        characterNames.put(3,
+                new String[]{listOfRoyalFirstNames.get(randomizedFirstName)[0],
+                    listOfRoyalSurames.remove(randomizedLastName),
+                    listOfRoyalFirstNames.get(randomizedFirstName)[1].equals("f") ? "Lady" : "Lord",
+                    listOfRoyalFirstNames.remove(randomizedFirstName)[1]});
+
+        randomizedFirstName = nameRandomizer.nextInt(listOfRoyalFirstNames.size());
+        randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
+        characterNames.put(4,
+                new String[]{listOfRoyalFirstNames.get(randomizedFirstName)[0],
+                    listOfRoyalSurames.remove(randomizedLastName),
+                    listOfRoyalFirstNames.get(randomizedFirstName)[1].equals("f") ? "Duchess" : "Duke",
+                    listOfRoyalFirstNames.remove(randomizedFirstName)[1]});
+
+        randomizedFirstName = nameRandomizer.nextInt(listOfRoyalFirstNames.size());
+        randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
+        characterNames.put(5,
+                new String[]{listOfRoyalFirstNames.get(randomizedFirstName)[0],
+                    listOfRoyalSurames.remove(randomizedLastName),
+                    "Commander",
+                    listOfRoyalFirstNames.remove(randomizedFirstName)[1]});
+
+        randomizedFirstName = nameRandomizer.nextInt(listOfRoyalFirstNames.size());
+        randomizedLastName = nameRandomizer.nextInt(listOfRoyalSurames.size());
+        characterNames.put(6,
+                new String[]{listOfRoyalFirstNames.get(randomizedFirstName)[0],
+                    listOfRoyalSurames.remove(randomizedLastName),
+                    listOfRoyalFirstNames.get(randomizedFirstName)[1].equals("f") ? "Queen" : "King",
+                    listOfRoyalFirstNames.remove(randomizedFirstName)[1]});
+        // </editor-fold>
+        // ------------------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="generates boss names">
+        int randomizedDemonFirstName = nameRandomizer.nextInt(listOfDemonicFirstNames.size());
+        int randomizedDemonLastName = nameRandomizer.nextInt(listOfDemonicSurnames.size());
+        characterNames.put(7,
+                new String[]{listOfDemonicFirstNames.get(randomizedDemonFirstName)[0],
+                    listOfDemonicSurnames.remove(randomizedDemonLastName),
+                    listOfDemonicFirstNames.get(randomizedDemonFirstName)[1].equals("f") ? "Baroness" : "Baron",
+                    listOfDemonicFirstNames.remove(randomizedDemonFirstName)[1]});
+
+        randomizedDemonFirstName = nameRandomizer.nextInt(listOfDemonicFirstNames.size());
+        randomizedDemonLastName = nameRandomizer.nextInt(listOfDemonicSurnames.size());
+        characterNames.put(8,
+                new String[]{listOfDemonicFirstNames.get(randomizedDemonFirstName)[0],
+                    listOfDemonicSurnames.remove(randomizedDemonLastName),
+                    "General",
+                    listOfDemonicFirstNames.remove(randomizedDemonFirstName)[1]});
+
+        randomizedDemonFirstName = nameRandomizer.nextInt(listOfDemonicFirstNames.size());
+        randomizedDemonLastName = nameRandomizer.nextInt(listOfDemonicSurnames.size());
+        characterNames.put(9,
+                new String[]{listOfDemonicFirstNames.get(randomizedDemonFirstName)[0],
+                    listOfDemonicSurnames.remove(randomizedDemonLastName),
+                    listOfDemonicFirstNames.get(randomizedDemonFirstName)[1].equals("f") ? "Lesser Lady" : "Lesser Lord",
+                    listOfDemonicFirstNames.remove(randomizedDemonFirstName)[1]});
+
+        randomizedDemonFirstName = nameRandomizer.nextInt(listOfDemonicFirstNames.size());
+        randomizedDemonLastName = nameRandomizer.nextInt(listOfDemonicSurnames.size());
+        characterNames.put(10,
+                new String[]{listOfDemonicFirstNames.get(randomizedDemonFirstName)[0],
+                    listOfDemonicSurnames.remove(randomizedDemonLastName),
+                    listOfDemonicFirstNames.get(randomizedDemonFirstName)[1].equals("f") ? "Arch Demoness" : "Arch Demon",
+                    listOfDemonicFirstNames.remove(randomizedDemonFirstName)[1]});
+
+        randomizedDemonFirstName = nameRandomizer.nextInt(listOfDemonicFirstNames.size());
+        randomizedDemonLastName = nameRandomizer.nextInt(listOfDemonicSurnames.size());
+        characterNames.put(11,
+                new String[]{listOfDemonicFirstNames.get(randomizedDemonFirstName)[0],
+                    listOfDemonicSurnames.remove(randomizedDemonLastName),
+                    listOfDemonicFirstNames.get(randomizedDemonFirstName)[1].equals("f") ? "Princess of the Underworld" : "Prince of the Underworld",
+                    listOfDemonicFirstNames.remove(randomizedDemonFirstName)[1]});
+        // </editor-fold>
+        // ------------------------------------------------------------------------------------------------------------
+
+    }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------
@@ -3285,7 +3527,35 @@ public class Game extends javax.swing.JFrame {
 
                     if (storylineIndex <= 6) {
 
-                        speakToNPC("Village Elder");
+                        speakToNPC(2);
+
+                    } else if (storylineIndex <= 9) {
+
+                        speakToNPC(2);
+
+                    } else if (storylineIndex <= 10) {
+
+                        if (quest.isQuestCompleted()) {
+
+                            speakToNPC(2);
+
+                        } else {
+
+                            messagePopup("Quest Incomplete");
+
+                        }
+
+                    } else if (storylineIndex <= 11) {
+
+                        if (quest.isQuestCompleted()) {
+
+                            speakToNPC(2);
+
+                        } else {
+
+                            messagePopup("Quest Incomplete");
+
+                        }
 
                     }
 
@@ -3303,7 +3573,7 @@ public class Game extends javax.swing.JFrame {
 
                     if (storylineIndex == 6) {
 
-                        messagePopup("Talk to the Village Elder first.");
+                        messagePopup("Talk to the Village Elder first");
 
                     }
 
@@ -3365,16 +3635,19 @@ public class Game extends javax.swing.JFrame {
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------
-    // <editor-fold desc="travel & home rest stuff">
+    // <editor-fold desc="travel stuff">
     private void travelToLocation(String locationTravelledTo) {
 
         button_Place1.setVisible(false);
         button_Place2.setVisible(false);
         button_Place3.setVisible(false);
 
+        ImageIcon ii = new ImageIcon();
+
         // put the locations here
         switch (locationTravelledTo) {
             case "Village" -> {
+                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/village.jpg"));
                 button_Place1.setText("Village Elder");
                 button_Place1.setVisible(true);
                 button_Place2.setText("Travelling Merchat");
@@ -3383,10 +3656,17 @@ public class Game extends javax.swing.JFrame {
                 button_Place3.setVisible(true);
             }
             case "Grasslands" -> {
+                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/grasslands.jpg"));
                 button_Place1.setText("Explore");
                 button_Place1.setVisible(true);
             }
         }
+
+        Image image = (ii).getImage().getScaledInstance(label_GameBackground.getWidth(),
+                label_GameBackground.getHeight(), Image.SCALE_SMOOTH);
+        ii = new ImageIcon(image);
+        label_WildernessBackground.setIcon(ii);
+        label_GameBackground.setIcon(ii);
 
         currentLocation = locationTravelledTo;
 
@@ -3427,7 +3707,7 @@ public class Game extends javax.swing.JFrame {
     // -----------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------
     // <editor-fold desc="dialogue menu stuff">
-    private void speakToNPC(String nameNPC) {
+    private void speakToNPC(int npcIndex) {
 
         hideScreens();
 
@@ -3437,7 +3717,7 @@ public class Game extends javax.swing.JFrame {
 
                                                 <head>
                                                 <h2 align="center">
-                                                %s
+                                                %s %s
                                                 </h2>
                                                 </head>
 
@@ -3448,7 +3728,9 @@ public class Game extends javax.swing.JFrame {
                                                 </body>
 
                                                 </html>
-                                                """, characterNames.get(nameNPC)[0], nameNPC));
+                                                """, characterNames.get(npcIndex)[0],
+                characterNames.get(npcIndex)[1],
+                characterNames.get(npcIndex)[2]));
         label_StorylineText.setText("[CLICK TO START]");
 
         button_Yes.setVisible(false);
@@ -3473,7 +3755,7 @@ public class Game extends javax.swing.JFrame {
                 player.chooseAffinity();
 
                 // puts the player name in the characterNames hashmap
-                characterNames.put("Player", new String[]{textField_NameField.getText(), "m"});
+                characterNames.put(0, new String[]{textField_NameField.getText(), "", "Player", "m"});
                 panel_Storyline.setVisible(false);
                 openAttributesMenu();
                 break;
@@ -3485,10 +3767,25 @@ public class Game extends javax.swing.JFrame {
                 nextDialogueArray();
                 break;
             case 5:
+
                 travelToLocation("Village");
-                introSequenceFinished = true;
                 nextDialogueArray();
                 panel_Storyline.setVisible(false);
+
+                quest.newQuest(new HashMap<String, Integer[]>() {
+
+                    {
+
+                        put(String.format("Talk to %s %s %s in the village.",
+                                characterNames.get(2)[2], characterNames.get(2)[0], characterNames.get(2)[1]),
+                                new Integer[]{0, 1});
+
+                    }
+
+                }, String.format("Talk to %s %s %s",
+                        characterNames.get(2)[2], characterNames.get(2)[0], characterNames.get(2)[1]),
+                        10, 5);
+
                 break;
             case 6:
                 nextDialogueArray();
@@ -3500,12 +3797,97 @@ public class Game extends javax.swing.JFrame {
                 nextDialogueArray();
                 break;
             case 8:
+
                 player.fullHeal();
+
+                travelToLocation("Village");
                 openGameScreen();
                 nextDialogueArray();
                 panel_Storyline.setVisible(false);
-                System.out.println("storylineIndex: " + storylineIndex);
-                System.out.println("textIndex: " + textIndex);
+
+                player.receiveXPCoinsReward(quest.questXPReward, quest.questCoinsReward);
+                messagePopup("Quest Completed");
+
+                quest.newQuest(new HashMap<String, Integer[]>() {
+
+                    {
+
+                        put(String.format("Talk to %s %s %s about your new quest.",
+                                characterNames.get(2)[2], characterNames.get(2)[0], characterNames.get(2)[1]),
+                                new Integer[]{0, 1});
+
+                    }
+
+                }, String.format("Talk to %s %s %s",
+                        characterNames.get(2)[2], characterNames.get(2)[0], characterNames.get(2)[1]),
+                        10, 5);
+
+                break;
+            case 9:
+
+                travelToLocation("Village");
+                openGameScreen();
+                nextDialogueArray();
+                panel_Storyline.setVisible(false);
+
+                player.receiveXPCoinsReward(quest.questXPReward, quest.questCoinsReward);
+                messagePopup("Quest Completed");
+
+                quest.newQuest(new HashMap<String, Integer[]>() {
+
+                    {
+
+                        put("Slime", new Integer[]{0, 3});
+
+                    }
+
+                }, "Kill slimes from the grasslands.",
+                        quest.generateReward(new int[]{2}, new int[]{3})[0], quest.generateReward(new int[]{2}, new int[]{3})[1]);
+
+                break;
+            case 10:
+
+                travelToLocation("Village");
+                openGameScreen();
+                nextDialogueArray();
+                panel_Storyline.setVisible(false);
+
+                player.receiveXPCoinsReward(quest.questXPReward, quest.questCoinsReward);
+                messagePopup("Quest Completed");
+
+                quest.newQuest(new HashMap<String, Integer[]>() {
+
+                    {
+
+                        put("Goblin", new Integer[]{0, 2});
+
+                    }
+
+                }, "Kill goblins from the grasslands.",
+                        quest.generateReward(new int[]{4}, new int[]{2})[0], quest.generateReward(new int[]{6}, new int[]{2})[1]);
+
+                break;
+            case 11:
+
+                travelToLocation("Village");
+                openGameScreen();
+                nextDialogueArray();
+                panel_Storyline.setVisible(false);
+
+                player.receiveXPCoinsReward(quest.questXPReward, quest.questCoinsReward);
+                messagePopup("Quest Completed");
+
+                quest.newQuest(new HashMap<String, Integer[]>() {
+
+                    {
+
+                        put("Wolf", new Integer[]{0, 1});
+
+                    }
+
+                }, "Kill the lone wolf from the grasslands.",
+                        quest.generateReward(new int[]{6}, new int[]{1})[0], quest.generateReward(new int[]{6}, new int[]{1})[1]);
+
                 break;
             default:
                 break;
@@ -3641,10 +4023,12 @@ public class Game extends javax.swing.JFrame {
         if (battle.battleEnded) {
 
             player.receiveXPCoinsReward(battle.battleXPGain, battle.battleCoinGain);
+            quest.updateTask(battle.enemy.name);
 
             if (storylineIndex == 7) {
 
-                speakToNPC("Village Elder");
+                // post slime combat sequence
+                speakToNPC(2);
 
             } else {
 
@@ -3768,34 +4152,49 @@ public class Game extends javax.swing.JFrame {
         String warningLabel = "";
 
         switch (type) {
-            case "Talk to the Village Elder first." -> {
+            case "Talk to the Village Elder first" -> {
                 warningLabel = "You are not ready.";
             }
             case "Level increased!" -> {
                 warningLabel = String.format("""
-                                             <html>
                                              <p>
                                              %s %s %s
                                              </p>
-                                             </html>
                                              """, String.format("<br> %s >> %s", (player.level - player.accumulatedLVL), player.level),
                         String.format("<br> +%.2f XP gained.", battle.battleXPGain),
                         String.format("<br> You have acquired (+%s) attribute point(s).", player.attributePoints));
+                openGameScreen();
             }
             case "Full HP and MP" -> {
                 warningLabel = "Your HP and MP are both full.";
             }
             case "Low HP and MP" -> {
-                warningLabel = "<html>You are on the brink of death and your magic power stores are nearly exhausted. Going back into the wilderness at this state is utterly unadvisable.";
+                warningLabel = "You are on the brink of death and your magic power stores are nearly exhausted. Going back into the wilderness at this state is utterly unadvisable.";
             }
             case "Low HP" -> {
-                warningLabel = "<html>You are on the brink of death. Going back into the wilderness at this state is utterly unadvisable.";
+                warningLabel = "You are on the brink of death. Going back into the wilderness at this state is utterly unadvisable.";
             }
             case "Low MP" -> {
-                warningLabel = "<html>Your magic power stores are nearly exhausted. Going back into the wilderness at this state is utterly unadvisable.";
+                warningLabel = "Your magic power stores are nearly exhausted. Going back into the wilderness at this state is utterly unadvisable.";
             }
+            case "Quest Incomplete" -> {
+                warningLabel = "You must complete your quest before continuing.";
+            }
+            case "Quest Completed" -> {
+                warningLabel = String.format("""
+                                             <p align="center">
+                                             %s %s
+                                             </p>
+                                             """, quest.questName,
+                        String.format("<br>Rewards Received: +%.2f XP +%s", quest.questXPReward, quest.generateCoinsRewardString()));
+                openGameScreen();
+            }
+
+            // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+            // unused for now
+            // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
             case "You have encountered Baron %s's encampment." -> {
-                warningLabel = "<html>You may attack and bring their reign of terror down whenever you are ready.";
+                warningLabel = "You may attack and bring their reign of terror down whenever you are ready.";
             }
         }
 
@@ -3812,7 +4211,7 @@ public class Game extends javax.swing.JFrame {
         panel_Warning.setVisible(true);
 
         label_WarningTitle.setText(type);
-        label_WarningBody.setText(warningLabel);
+        label_WarningBody.setText("<html>" + warningLabel + "</html>");
 
     }
 
@@ -3869,7 +4268,28 @@ public class Game extends javax.swing.JFrame {
                         "A powerful gust of wind bursts across the plains.",
                         "A flock of wild sheep graze in the open field.",
                         "A swallow drifts across the sky.",
-                        "A shallow creek runs along your pathway."
+                        "A shallow creek runs along your pathway.",
+                        "A lone hawk circles high above.",
+                        "A breeze carries the scent of wild herbs.",
+                        "The sun peeks through scattered clouds.",
+                        "A butterfly flits between wildflowers.",
+                        "A trail of ants marches through the dirt.",
+                        "A cloud drifts lazily overhead.",
+                        "The grass crunches beneath your steps.",
+                        "A beetle flips onto its back, struggling.",
+                        "A pair of birds chase each other midair.",
+                        "Tiny yellow flowers dot the ground.",
+                        "You notice paw prints in the dirt.",
+                        "A warm breeze tickles your face.",
+                        "The sun casts long shadows over the field.",
+                        "An old, twisted root snakes along the surface.",
+                        "A small hill rises gently ahead.",
+                        "Distant mountains loom on the horizon.",
+                        "A puddle reflects the passing clouds.",
+                        "A snail crawls slowly along a blade of grass.",
+                        "A gust of wind sends a swirl of dust skyward.",
+                        "You see a worn path cutting through the field.",
+                        "A dandelion’s seeds float through the air."
                     };
 
                     wilderness = new Wilderness(0,
@@ -3988,7 +4408,7 @@ public class Game extends javax.swing.JFrame {
 
     }//GEN-LAST:event_button_WildernessFleeActionPerformed
 
-        private void fleeAttempt() {
+    private void fleeAttempt() {
 
         panel_Combat.setVisible(false);
 
@@ -4027,15 +4447,58 @@ public class Game extends javax.swing.JFrame {
 
         }
     }
+
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
-    
+    // -----------------------------------------------------------------------------------------------------------
+    // <editor-fold desc="quest stuff">
     private void button_QuestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_QuestActionPerformed
 
-        
+        panel_Game.setVisible(false);
+        button_Return.setVisible(true);
+        panel_Quest.setVisible(true);
+
+        // used to generate the task string
+        String tasksString = "";
+
+        for (String questTaskUpdateKey : quest.QuestTasks.keySet()) {
+
+            if (!questTaskUpdateKey.equals("Completed")) {
+
+                tasksString += String.format("<br>%s (%s/ %s)",
+                        questTaskUpdateKey,
+                        quest.QuestTasks.get(questTaskUpdateKey)[0],
+                        quest.QuestTasks.get(questTaskUpdateKey)[1]);
+
+            }
+
+        }
+
+        label_MainQuest.setText(String.format("""
+            <html>
+
+            <head>
+            <h2 align="center">
+            %s
+            </h2>
+            </head>
+
+            <body>
+            <p align="center">
+            %s %s %s
+            </p>
+            </body>
+
+            </html>
+            """, quest.questName,
+                tasksString,
+                String.format("<br>Rewards: %.2f XP, %s", quest.questXPReward, quest.generateCoinsRewardString()),
+                quest.isQuestCompleted() == true ? "<br>(Completed)" : "<br>(Incomplete)")
+        );
 
     }//GEN-LAST:event_button_QuestActionPerformed
-
+    // </editor-fold>
+    // -----------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------
     // <editor-fold desc="html stuff (making labels)">
 
@@ -4139,6 +4602,7 @@ Sanitas blesses the holders of her affinity by improving their overall constitut
     private javax.swing.JLabel label_EncounterLog;
     private javax.swing.JLabel label_EnemyHP;
     private javax.swing.JLabel label_EnemyMP;
+    private javax.swing.JLabel label_GameBackground;
     private javax.swing.JLabel label_GameCurrency;
     private javax.swing.JLabel label_GameHP;
     private javax.swing.JLabel label_GameMP;
@@ -4165,6 +4629,7 @@ Sanitas blesses the holders of her affinity by improving their overall constitut
     private javax.swing.JLabel label_MDef;
     private javax.swing.JLabel label_MDmg;
     private javax.swing.JLabel label_Madeis;
+    private javax.swing.JLabel label_MainQuest;
     private javax.swing.JLabel label_PDef;
     private javax.swing.JLabel label_PDmg;
     private javax.swing.JLabel label_PlayerAffinity;
@@ -4191,6 +4656,7 @@ Sanitas blesses the holders of her affinity by improving their overall constitut
     private javax.swing.JLabel label_WarningTitle;
     private javax.swing.JLabel label_Weapon;
     private javax.swing.JLabel label_Wilderness;
+    private javax.swing.JLabel label_WildernessBackground;
     private javax.swing.JLabel label_WildernessLocation;
     private javax.swing.JPanel panel_AffinitiesMenu;
     private javax.swing.JPanel panel_Attributes;
@@ -4208,6 +4674,7 @@ Sanitas blesses the holders of her affinity by improving their overall constitut
     private javax.swing.JPanel panel_Inventory;
     private javax.swing.JPanel panel_LocationPanel;
     private javax.swing.JPanel panel_Main;
+    private javax.swing.JPanel panel_Quest;
     private javax.swing.JPanel panel_Skills;
     private javax.swing.JPanel panel_StartingGear;
     private javax.swing.JPanel panel_Storyline;

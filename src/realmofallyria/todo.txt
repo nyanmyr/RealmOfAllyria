@@ -1,13 +1,8 @@
 menial things;
-- replace dialogue
-- clicking the home panel should return to the game panel automatically
-- fixed villlage elder dialogue
 - warning menu bug (buttons not ordered porperly) : os issue?
 - mix class constructor with generateMob?
 
 to do:
-- replace opening sequence panel with dialogue panel
-- village elder quest (3 slimes, 2 goblins, 1 wolf)
 - boss battle
 - monster skills
 - shop
@@ -18,6 +13,8 @@ to do:
 
 bug fixing:
 - unsuccessful escape should be considered as combat turn
+- after battle in wilderness should move auto. next (it should say the type of monster killed)
+- at the 20/20 turn in the wilderness you can simply click to escape a mob
 
 future:
 - update opening sequence text (mention the boss's minnions)
@@ -33,6 +30,7 @@ future:
 
 consider:
 - shiny monsters??
+- clicking the home panel should return to the game panel automatically
 
 lore stuff:
 named characters:
@@ -48,7 +46,7 @@ settlements (named characters):
 wilderness (and boss lair):
 • grasslands (encampment): Baron
 • forest (camp): General 
-• mountains (castle): Lesser Lord
+• dungeon (castle): Lesser Lord
 • hell plains (fort hell): Arch Demon
 • mount hell (hell palace): Prince of the Underworld
 

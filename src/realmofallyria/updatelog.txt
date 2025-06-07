@@ -1,5 +1,6 @@
 // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 // ------------------------------------------------------------------------------------------------------------
+// --+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 
 version 0.0.3 (prototype)
 progress (5/26/2025)
@@ -85,3 +86,15 @@ progress (6/06/2025)
 • NPC names will now be replaced in text
 • NPC names will now be displayed in the dialogue panel
 • intro sequence now uses the storyline panel
+
+version 0.0.12 (prototype)
+progress (7/06/2025)
+• revamp characters hashmap
+• revamped format text method
+• created quest class
+• finished quest panel
+• finished first set of quests
+• quest rewards
+• (copper, silver, gold) coins are not stored in an array
+• added background to the game menu
+• expanded the grasslands scenery
