@@ -1,20 +1,22 @@
 menial things;
-- warning menu bug (buttons not ordered porperly) : os issue?
 - mix class constructor with generateMob?
 
 to do:
-- boss battle
+- no mana for skill use
+- effects queue (stores status changes): found in mob class
 - monster skills
 - shop
+- choose skill
 - defeat xp reward, coin reduction penalties
 - other locations
-- max out content
-- change gender
+- finish content
 
 bug fixing:
+- defeating baron does not have coins reward
+- dying does travels to village but does not end wilderness
 - unsuccessful escape should be considered as combat turn
 - after battle in wilderness should move auto. next (it should say the type of monster killed)
-- at the 20/20 turn in the wilderness you can simply click to escape a mob
+- warning menu bug (buttons not ordered porperly) : os issue?
 
 future:
 - update opening sequence text (mention the boss's minnions)
@@ -31,6 +33,7 @@ future:
 consider:
 - shiny monsters??
 - clicking the home panel should return to the game panel automatically
+- change gender
 
 lore stuff:
 named characters:

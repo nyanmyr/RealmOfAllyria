@@ -88,7 +88,7 @@ progress (6/06/2025)
 • intro sequence now uses the storyline panel
 
 version 0.0.12 (prototype)
-progress (7/06/2025)
+progress (7/07/2025)
 • revamp characters hashmap
 • revamped format text method
 • created quest class
@@ -98,3 +98,15 @@ progress (7/06/2025)
 • (copper, silver, gold) coins are not stored in an array
 • added background to the game menu
 • expanded the grasslands scenery
+
+version 0.0.13 (prototype)
+progress (7/08/2025)
+• implemented abstraction to mob class: player, hostile
+• fixed compounding max HP and MP bug
+• combat panel now shows affinity of both attacker/ defesnde
+• fixed bug in wilderness: now cant escape by clicking at turn 20
+• wilderness has now been abstracted: dungeon, and bossLair
+• boss battles
+• started work on skills
+• added equation to get available uses (needs rework)
+• added test place class (temporary)
