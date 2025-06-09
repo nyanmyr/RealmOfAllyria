@@ -110,3 +110,17 @@ progress (7/08/2025)
 • started work on skills
 • added equation to get available uses (needs rework)
 • added test place class (temporary)
+
+version 0.0.14 (prototype)
+progress (7/09/2025)
+• tweaked coin rewards
+• started work on store
+
+version 0.0.15 (prototype)
+progress (7/10/2025)
+
+version 0.0.16 (prototype)
+progress (7/11/2025)
+
+version 0.1.0 (release version)
+progress (7/12/2025)
