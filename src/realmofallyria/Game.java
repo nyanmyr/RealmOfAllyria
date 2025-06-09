@@ -1,8 +1,8 @@
+
 package realmofallyria;
 
 import java.awt.Image;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -508,14 +508,8 @@ class Player extends Mob {
     double xp;
     double xpNeeded;
     int accumulatedLVL;
-    // -----------------------------------------------------------------------------------------------------------
-    // <editor-fold desc="currency variables">
+
     int totalCoins;
-    int copperCoins;
-    int silverCoins;
-    int goldCoins;
-    // </editor-fold>
-    // -----------------------------------------------------------------------------------------------------------
 
     public Player() {
 
@@ -523,17 +517,15 @@ class Player extends Mob {
 
     }
 
-    private void updateXPNeeded() {
+    public void takeCoins(int amountTaken) {
 
-        xpNeeded = (level + 1) * 12;
+        totalCoins = totalCoins - amountTaken < 0 ? 0 : totalCoins - amountTaken;
 
     }
 
-    // <editor-fold desc="xp, coins, level mechanics stuff">
     public void receiveXPCoinsReward(double xpGained, double coinsGained) {
 
         totalCoins += coinsGained;
-        convertCoins();
 
         accumulatedLVL = 0;
 
@@ -556,6 +548,12 @@ class Player extends Mob {
         if (accumulatedLVL > 0) {
             levelUp();
         }
+
+    }
+
+    private void updateXPNeeded() {
+
+        xpNeeded = (level + 1) * 12;
 
     }
 
@@ -604,23 +602,6 @@ class Player extends Mob {
         accumulatedLVL = 0;
 
     }
-
-    private void convertCoins() {
-
-        // 50 bronze coins == 1 silver coin, 2500 bronze coins = 1 gold coin
-        goldCoins = totalCoins / 2500;
-        int remainingAfterGold = totalCoins % 2500;
-
-        silverCoins = remainingAfterGold / 50;
-        copperCoins = remainingAfterGold % 50;
-
-//        System.out.println("Total Coins: " + totalCoins);
-//        System.out.println("Gold Coins: " + goldCoins);
-//        System.out.println("Silver Coins: " + silverCoins);
-//        System.out.println("Bronze Coins: " + copperCoins);
-    }
-    // </editor-fold>
-    // -----------------------------------------------------------------------------------------------------------
 
 }
 // </editor-fold>
@@ -1150,7 +1131,7 @@ class Quest {
     HashMap<String, Integer[]> QuestTasks = new HashMap<>();
     String questName = "";
     double questXPReward;
-    double questCoinsReward;
+    int questCoinsReward;
 
     /*
     
@@ -1172,7 +1153,7 @@ class Quest {
         this.questName = givenQuestName;
         this.QuestTasks.putAll(newQuest);
         this.questXPReward = givenXPReward;
-        this.questCoinsReward = givenCoinsReward;
+        this.questCoinsReward = (int) givenCoinsReward;
 
         QuestTasks.put("Completed", new Integer[]{0, 1});
 
@@ -1182,7 +1163,7 @@ class Quest {
     public double[] generateReward(int[] enemyLevels, int[] enemyCount) {
 
         double generatedXPReward = 0;
-        double generatedCoinsReward = 0;
+        int generatedCoinsReward = 0;
 
         for (int i = 0; i < enemyLevels.length; i++) {
 
@@ -1192,21 +1173,6 @@ class Quest {
         }
 
         return new double[]{generatedXPReward, generatedCoinsReward};
-
-    }
-
-    public String generateCoinsRewardString() {
-
-        int battleGoldCoins = (int) questCoinsReward / 2500;
-        int battleRemainingAfterGold = (int) questCoinsReward % 2500;
-        int battleSilverCoins = battleRemainingAfterGold / 50;
-        int battleCopperCoins = battleRemainingAfterGold % 50;
-
-        return String.format(String.format(
-                battleCopperCoins > 0 ? String.format("%s (Copper) ", battleCopperCoins) : "",
-                battleSilverCoins > 0 ? String.format(" %s (Silver) ", battleSilverCoins) : "",
-                battleGoldCoins > 0 ? String.format(" %s (Gold) ", battleGoldCoins) : "",
-                " coins acquired "));
 
     }
 
@@ -1284,26 +1250,52 @@ class Store {
          */
         storeMerchandise.put(givenStoreLocation, merchandiseHashMap);
         merchandiseInfo.put(givenStoreLocation, new HashMap<String, int[]>() {
+
             {
 
                 for (String str : merchandiseHashMap.keySet()) {
-                    put(str, new int[]{1, 100});
+                    put(str, new int[]{1, (50 * storeLevel)});
                 }
 
             }
+
         });
 
     }
 
-    public void canBuyMerchandise(String buyLocation, String merchandiseToBuy, int currency) {
+    public int canBuyMerchandise(String buyLocation, String merchandiseType) {
 
-        System.out.println("Item: " + storeMerchandise.get(buyLocation).get(merchandiseToBuy)[merchandiseInfo.get(buyLocation).get(merchandiseToBuy)[0] < 4 ? 0 : 1]);
-        System.out.println("LVL: " + merchandiseInfo.get(buyLocation).get(merchandiseToBuy)[0]);
-        System.out.println("Cost: " + merchandiseInfo.get(buyLocation).get(merchandiseToBuy)[1]);
+        System.out.println("Item: " + storeMerchandise.get(buyLocation).get(merchandiseType)[merchandiseInfo.get(buyLocation).get(merchandiseType)[0] < 4 ? 0 : 1]);
+        System.out.println("LVL: " + merchandiseInfo.get(buyLocation).get(merchandiseType)[0]);
+        System.out.println("Cost: " + merchandiseInfo.get(buyLocation).get(merchandiseType)[1]);
+
+//            System.out.println("Afforded");
+        purchaseMerchandise(merchandiseType,
+                storeMerchandise.get(buyLocation).get(merchandiseType)[merchandiseInfo.get(buyLocation).get(merchandiseType)[0] < 4 ? 0 : 1],
+                merchandiseInfo.get(buyLocation).get(merchandiseType)[0]);
+        merchandiseInfo.get(buyLocation).get(merchandiseType)[0] += 1;
+        merchandiseInfo.get(buyLocation).get(merchandiseType)[1] *= 1.2;
+
+//            System.out.println("New Level: " + merchandiseInfo.get(buyLocation).get(merchandiseToBuy)[0]);
+//            System.out.println("Cost: " + merchandiseInfo.get(buyLocation).get(merchandiseToBuy)[1]);
+        // returns the cost value
+        return merchandiseInfo.get(buyLocation).get(merchandiseType)[1];
 
     }
 
-    private void purchaseMerchandise(String purchasedMerchandise) {
+    private void purchaseMerchandise(String purchasedMerchandiseType, String merchandiseName, int merchandiseLVL) {
+
+        HashMap<String, Integer> upgradedMerchandise = new HashMap<>() {
+
+            {
+
+                put(merchandiseName, merchandiseLVL);
+
+            }
+
+        };
+        boughtMerchandise.put(purchasedMerchandiseType, upgradedMerchandise);
+        System.out.println("boughtMerchandise: " + boughtMerchandise);
 
     }
 
@@ -1537,6 +1529,7 @@ public class Game extends javax.swing.JFrame {
         player.equipGear("Leather Armor", 20, "Iron Sword", 20);
 
         player.attributePoints += 1000;
+        player.totalCoins += 1000;
 //        battlePlayer.currentHP = 1;
         // </editor-fold>
         // -----------------------------------------------------------------------------------------------------------
@@ -1552,7 +1545,7 @@ public class Game extends javax.swing.JFrame {
     }
 
     // -----------------------------------------------------------------------------------------------------------
-    // <editor-fold desc="screen visibility stuff">
+    // <editor-fold desc="screen visibility & convert coin method stuff">
     private void openGameScreen() {
 
         if (player.attributePoints > 0) {
@@ -1574,12 +1567,10 @@ public class Game extends javax.swing.JFrame {
         label_GameCurrency.setText(String.format("""
                                                  <html>
                                                  <p>
-                                                 Coins:%s %s %s
+                                                 Coins:%s
                                                  </p>
                                                  </html>
-                                                 """, player.copperCoins > 0 ? String.format(" %s [Copper]", player.copperCoins) : "",
-                player.silverCoins > 0 ? String.format(" %s [Silver]", player.silverCoins) : "",
-                player.goldCoins > 0 ? String.format(" %s [Gold]", player.goldCoins) : ""));
+                                                 """, convertCoins(player.totalCoins)));
 
         hideScreens();
 
@@ -1605,6 +1596,26 @@ public class Game extends javax.swing.JFrame {
         panel_Shop.setVisible(false);
     }
 
+    public String convertCoins(int givenCoins) {
+
+        int goldCoins = (int) givenCoins / 2500;
+        int remainingCoins = (int) givenCoins % 2500;
+        int silverCoins = remainingCoins / 50;
+        int copperCoins = remainingCoins % 50;
+
+//        System.out.println("givenCoins: " + givenCoins);
+//        System.out.println("goldCoins: " + goldCoins);
+//        System.out.println("remainingCoins: " + remainingCoins);
+//        System.out.println("silverCoins: " + silverCoins);
+//        System.out.println("copperCoins: " + copperCoins);
+//        System.out.println();
+        return String.format("%s%s%s",
+                copperCoins > 0 ? String.format("%s [Copper] ", copperCoins) : "",
+                silverCoins > 0 ? String.format(" %s [Silver] ", silverCoins) : "",
+                goldCoins > 0 ? String.format(" %s [Gold] ", goldCoins) : "");
+
+    }
+
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
     @SuppressWarnings("unchecked")
@@ -1616,6 +1627,7 @@ public class Game extends javax.swing.JFrame {
         label_Header = new javax.swing.JLabel();
         panel_Shop = new javax.swing.JPanel();
         label_ShopLocation = new javax.swing.JLabel();
+        label_ShopCurrency = new javax.swing.JLabel();
         button_BuySword = new javax.swing.JButton();
         button_BuyBow = new javax.swing.JButton();
         button_BuyWand = new javax.swing.JButton();
@@ -1829,6 +1841,15 @@ public class Game extends javax.swing.JFrame {
         panel_Shop.add(label_ShopLocation);
         label_ShopLocation.setBounds(150, 10, 220, 40);
 
+        label_ShopCurrency.setBackground(new java.awt.Color(65, 65, 65, 225));
+        label_ShopCurrency.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_ShopCurrency.setForeground(new java.awt.Color(222, 222, 222));
+        label_ShopCurrency.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_ShopCurrency.setText("Coins: ");
+        label_ShopCurrency.setOpaque(true);
+        panel_Shop.add(label_ShopCurrency);
+        label_ShopCurrency.setBounds(90, 70, 350, 40);
+
         button_BuySword.setText("Sword");
         button_BuySword.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1836,7 +1857,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_Shop.add(button_BuySword);
-        button_BuySword.setBounds(90, 70, 160, 60);
+        button_BuySword.setBounds(20, 120, 230, 50);
 
         button_BuyBow.setText("Bow");
         button_BuyBow.addActionListener(new java.awt.event.ActionListener() {
@@ -1845,7 +1866,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_Shop.add(button_BuyBow);
-        button_BuyBow.setBounds(90, 140, 160, 60);
+        button_BuyBow.setBounds(20, 180, 230, 50);
 
         button_BuyWand.setText("Wand");
         button_BuyWand.setToolTipText("");
@@ -1855,7 +1876,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_Shop.add(button_BuyWand);
-        button_BuyWand.setBounds(90, 210, 160, 60);
+        button_BuyWand.setBounds(20, 240, 230, 50);
 
         button_BuyArmor.setText("Armor");
         button_BuyArmor.setToolTipText("");
@@ -1865,7 +1886,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_Shop.add(button_BuyArmor);
-        button_BuyArmor.setBounds(90, 280, 160, 60);
+        button_BuyArmor.setBounds(20, 300, 230, 50);
 
         button_EquipSword.setText("Sword");
         button_EquipSword.addActionListener(new java.awt.event.ActionListener() {
@@ -1874,7 +1895,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_Shop.add(button_EquipSword);
-        button_EquipSword.setBounds(280, 70, 160, 60);
+        button_EquipSword.setBounds(260, 120, 230, 50);
 
         button_EquipBow.setText("Bow");
         button_EquipBow.addActionListener(new java.awt.event.ActionListener() {
@@ -1883,7 +1904,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_Shop.add(button_EquipBow);
-        button_EquipBow.setBounds(280, 140, 160, 60);
+        button_EquipBow.setBounds(260, 180, 230, 50);
 
         button_EquipWand.setText("Wand");
         button_EquipWand.setToolTipText("");
@@ -1893,7 +1914,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_Shop.add(button_EquipWand);
-        button_EquipWand.setBounds(280, 210, 160, 60);
+        button_EquipWand.setBounds(260, 240, 230, 50);
 
         button_EquipArmor.setText("Armor");
         button_EquipArmor.setToolTipText("");
@@ -1903,7 +1924,7 @@ public class Game extends javax.swing.JFrame {
             }
         });
         panel_Shop.add(button_EquipArmor);
-        button_EquipArmor.setBounds(280, 280, 160, 60);
+        button_EquipArmor.setBounds(260, 300, 230, 50);
 
         panel_Main.add(panel_Shop);
         panel_Shop.setBounds(5, 60, 520, 370);
@@ -4208,11 +4229,11 @@ public class Game extends javax.swing.JFrame {
         button_Place2.setVisible(false);
         button_Place3.setVisible(false);
 
-//        ImageIcon ii = new ImageIcon();
+        ImageIcon ii = new ImageIcon();
         // put the locations here
         switch (locationTravelledTo) {
             case "Village" -> {
-//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/village.png"));
+                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/village.png"));
                 button_Place1.setText("Village Elder");
                 button_Place1.setVisible(true);
                 button_Place2.setText("Travelling Merchant");
@@ -4221,7 +4242,7 @@ public class Game extends javax.swing.JFrame {
                 button_Place3.setVisible(true);
             }
             case "Grasslands" -> {
-//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/grasslands.jpg"));
+                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/grasslands.png"));
                 button_Place1.setText("Explore");
                 button_Place1.setVisible(true);
                 if (storylineIndex == 13) {
@@ -4230,44 +4251,44 @@ public class Game extends javax.swing.JFrame {
                 }
             }
             case "Town" -> {
-//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/town.jpg"));
+                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/town.png"));
             }
             case "Forest" -> {
-//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/forest.jpg"));
+                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/forest.png"));
 
             }
             case "City" -> {
-//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/city.jpg"));
+                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/city.png"));
 
             }
             case "Dungeon" -> {
-//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/dungeon.jpg"));
+                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/dungeon.png"));
 
             }
             case "Fortress" -> {
-//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/fortress.jpg"));
+                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/fortress.png"));
 
             }
             case "Scorched Plains" -> {
-//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/scorchedplains.jpg"));
+                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/scorchedplains.png"));
 
             }
             case "Capital" -> {
-//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/capital.jpg"));
+                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/capital.png"));
 
             }
             case "Gates of Hell" -> {
-//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/gatesofhell.jpg"));
+                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/gatesofhell.png"));
 
             }
 
         }
 
-//        Image image = (ii).getImage().getScaledInstance(label_GameBackground.getWidth(),
-//                label_GameBackground.getHeight(), Image.SCALE_SMOOTH);
-//        ii = new ImageIcon(image);
-//        label_WildernessBackground.setIcon(ii);
-//        label_GameBackground.setIcon(ii);
+        Image image = (ii).getImage().getScaledInstance(label_GameBackground.getWidth(),
+                label_GameBackground.getHeight(), Image.SCALE_SMOOTH);
+        ii = new ImageIcon(image);
+        label_WildernessBackground.setIcon(ii);
+        label_GameBackground.setIcon(ii);
         currentLocation = locationTravelledTo;
 
         label_Location.setText(String.format("Location: %s", locationTravelledTo));
@@ -4424,6 +4445,7 @@ public class Game extends javax.swing.JFrame {
 
                 store = new Store("Travelling Merchant");
                 store.generateMerchandiseInfo("Travelling Merchant", new HashMap<String, String[]>() {
+
                     {
 
                         put("Sword", new String[]{"Iron Sword", "Steel Sword"});
@@ -4816,7 +4838,7 @@ public class Game extends javax.swing.JFrame {
                                              %s %s
                                              </p>
                                              """, quest.questName,
-                        String.format("<br>Rewards Received: +%.2f XP +%s", quest.questXPReward, quest.generateCoinsRewardString()));
+                        String.format("<br>Rewards Received: +%.2f XP +%s", quest.questXPReward, convertCoins(quest.questCoinsReward)));
                 openGameScreen();
             }
             case "Boss Defeated" -> {
@@ -4825,24 +4847,43 @@ public class Game extends javax.swing.JFrame {
                                              %s %s
                                              </p>
                                              """, "<br>Your actions have brought the Realm of Allyria closer to peace.",
-                        String.format("<br>You may claim the following rewards: %.2f XP %s", quest.questXPReward, quest.generateCoinsRewardString()));
+                        String.format("<br>You may claim the following rewards: %.2f XP %s", quest.questXPReward, convertCoins(quest.questCoinsReward)));
                 openGameScreen();
+            }
+            case "Insufficient Coins" -> {
+                warningLabel = "You do not have enough coins to purchase this item.";
             }
         }
 
-        button_Place1.setEnabled(false);
-        button_Place2.setEnabled(false);
-        button_Place3.setEnabled(false);
-        button_Travel.setEnabled(false);
-        button_Inventory.setEnabled(false);
-        button_Status.setEnabled(false);
-        button_DungeonAttack.setEnabled(false);
-        button_DungeonFlee.setEnabled(false);
-        button_Quest.setEnabled(false);
-        button_UseBasicAttack.setEnabled(false);
-        button_UseSkill1.setEnabled(false);
-        button_UseSkill2.setEnabled(false);
-        button_UseSkill3.setEnabled(false);
+        button_Place1.setVisible(false);
+        button_Place2.setVisible(false);
+        button_Place3.setVisible(false);
+        button_Travel.setVisible(false);
+
+        button_Inventory.setVisible(false);
+        button_Status.setVisible(false);
+
+        button_DungeonAttack.setVisible(false);
+        button_DungeonFlee.setVisible(false);
+
+        button_Quest.setVisible(false);
+
+        button_UseBasicAttack.setVisible(false);
+        button_UseSkill1.setVisible(false);
+        button_UseSkill2.setVisible(false);
+        button_UseSkill3.setVisible(false);
+        button_UseSkill3.setVisible(false);
+
+        button_BuySword.setVisible(false);
+        button_BuyBow.setVisible(false);
+        button_BuyWand.setVisible(false);
+        button_BuyArmor.setVisible(false);
+        button_EquipSword.setVisible(false);
+        button_EquipBow.setVisible(false);
+        button_EquipWand.setVisible(false);
+        button_EquipArmor.setVisible(false);
+
+        button_Return.setVisible(false);
 
         panel_Main.setComponentZOrder(panel_Warning, 0);
         panel_Warning.setVisible(true);
@@ -4856,20 +4897,34 @@ public class Game extends javax.swing.JFrame {
 
         panel_Warning.setVisible(false);
 
-        button_Place1.setEnabled(true);
-        button_Place2.setEnabled(true);
-        button_Place3.setEnabled(true);
-        button_Travel.setEnabled(true);
-        button_Inventory.setEnabled(true);
-        button_Status.setEnabled(true);
-        button_DungeonAttack.setEnabled(true);
-        button_DungeonFlee.setEnabled(true);
-        button_Quest.setEnabled(true);
-        button_UseBasicAttack.setEnabled(true);
-        button_UseSkill1.setEnabled(true);
-        button_UseSkill2.setEnabled(true);
-        button_UseSkill3.setEnabled(true);
+        button_Place1.setVisible(true);
+        button_Place2.setVisible(true);
+        button_Place3.setVisible(true);
+        button_Travel.setVisible(true);
 
+        button_Inventory.setVisible(true);
+        button_Status.setVisible(true);
+
+        button_DungeonAttack.setVisible(true);
+        button_DungeonFlee.setVisible(true);
+
+        button_Quest.setVisible(true);
+
+        button_UseBasicAttack.setVisible(true);
+        button_UseSkill1.setVisible(true);
+        button_UseSkill2.setVisible(true);
+        button_UseSkill3.setVisible(true);
+
+        button_BuySword.setVisible(true);
+        button_BuyBow.setVisible(true);
+        button_BuyWand.setVisible(true);
+        button_BuyArmor.setVisible(true);
+        button_EquipSword.setVisible(true);
+        button_EquipBow.setVisible(true);
+        button_EquipWand.setVisible(true);
+        button_EquipArmor.setVisible(true);
+
+        button_Return.setVisible(true);
 
     }//GEN-LAST:event_button_CloseWarningMouseClicked
     // </editor-fold>
@@ -5297,7 +5352,7 @@ public class Game extends javax.swing.JFrame {
             </html>
             """, quest.questName,
                 tasksString,
-                String.format("<br>Rewards: %.2f XP, %s", quest.questXPReward, quest.generateCoinsRewardString()),
+                String.format("<br>Rewards: %.2f XP, %s", quest.questXPReward, convertCoins(quest.questCoinsReward)),
                 quest.isQuestCompleted() == true ? "<br>(Completed)" : "<br>(Incomplete)")
         );
 
@@ -5397,11 +5452,18 @@ public class Game extends javax.swing.JFrame {
         panel_Shop.setVisible(true);
         label_ShopLocation.setText(storeEntered);
 
+        label_ShopCurrency.setText(String.format("""
+                                                 <html>
+                                                 <p>
+                                                 Coins:%s
+                                                 </p>
+                                                 </html>
+                                                 """, convertCoins(player.totalCoins)));
+
         currentStore = storeEntered;
 
-        System.out.println(store.storeMerchandise.get(storeEntered));
-        System.out.println(store.merchandiseInfo.get(storeEntered));
-
+//        System.out.println(store.storeMerchandise.get(storeEntered));
+//        System.out.println(store.merchandiseInfo.get(storeEntered));
         // <editor-fold desc="buy sword button">
         button_BuySword.setText(String.format("""
                 <html>
@@ -5415,7 +5477,7 @@ public class Game extends javax.swing.JFrame {
                 """,
                 store.storeMerchandise.get(storeEntered).get("Sword")[store.merchandiseInfo.get(storeEntered).get("Sword")[0] < 4 ? 0 : 1],
                 store.merchandiseInfo.get(storeEntered).get("Sword")[0],
-                store.merchandiseInfo.get(storeEntered).get("Sword")[1]));
+                convertCoins(store.merchandiseInfo.get(storeEntered).get("Sword")[1])));
         // </editor-fold>
         // <editor-fold desc="buy bow button">
         button_BuyBow.setText(String.format("""
@@ -5430,7 +5492,7 @@ public class Game extends javax.swing.JFrame {
                 """,
                 store.storeMerchandise.get(storeEntered).get("Bow")[store.merchandiseInfo.get(storeEntered).get("Bow")[0] < 4 ? 0 : 1],
                 store.merchandiseInfo.get(storeEntered).get("Bow")[0],
-                store.merchandiseInfo.get(storeEntered).get("Bow")[1]));
+                convertCoins(store.merchandiseInfo.get(storeEntered).get("Bow")[1])));
         // </editor-fold>
         // <editor-fold desc="buy wand button">
         button_BuyWand.setText(String.format("""
@@ -5445,7 +5507,7 @@ public class Game extends javax.swing.JFrame {
                 """,
                 store.storeMerchandise.get(storeEntered).get("Wand")[store.merchandiseInfo.get(storeEntered).get("Wand")[0] < 4 ? 0 : 1],
                 store.merchandiseInfo.get(storeEntered).get("Wand")[0],
-                store.merchandiseInfo.get(storeEntered).get("Wand")[1]));
+                convertCoins(store.merchandiseInfo.get(storeEntered).get("Wand")[1])));
         // </editor-fold>
         // <editor-fold desc="buy armor button">
         button_BuyArmor.setText(String.format("""
@@ -5460,38 +5522,47 @@ public class Game extends javax.swing.JFrame {
                 """,
                 store.storeMerchandise.get(storeEntered).get("Armor")[store.merchandiseInfo.get(storeEntered).get("Armor")[0] < 4 ? 0 : 1],
                 store.merchandiseInfo.get(storeEntered).get("Armor")[0],
-                store.merchandiseInfo.get(storeEntered).get("Armor")[1]));
+                convertCoins(store.merchandiseInfo.get(storeEntered).get("Armor")[1])));
         // </editor-fold>
 
     }
-    
+
     // <editor-fold desc="buy buttons">
     private void button_BuySwordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_BuySwordActionPerformed
 
-        store.canBuyMerchandise(currentStore, "Sword", player.totalCoins);
+        buyAction("Sword");
 
     }//GEN-LAST:event_button_BuySwordActionPerformed
 
     private void button_BuyWandActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_BuyWandActionPerformed
 
-        store.canBuyMerchandise(currentStore, "Sword", player.totalCoins);
-
+        buyAction("Wand");
 
     }//GEN-LAST:event_button_BuyWandActionPerformed
 
     private void button_BuyBowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_BuyBowActionPerformed
 
-        store.canBuyMerchandise(currentStore, "Bow", player.totalCoins);
-
+        buyAction("Bow");
 
     }//GEN-LAST:event_button_BuyBowActionPerformed
 
     private void button_BuyArmorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_BuyArmorActionPerformed
 
-        store.canBuyMerchandise(currentStore, "Armor", player.totalCoins);
-
+        buyAction("Armor");
 
     }//GEN-LAST:event_button_BuyArmorActionPerformed
+
+    private void buyAction(String equipmentType) {
+
+        if (player.totalCoins > store.merchandiseInfo.get(currentStore).get(equipmentType)[1]) {
+            player.takeCoins(store.canBuyMerchandise(currentStore, equipmentType));
+            enterStore(currentStore);
+        } else {
+            messagePopup("Insufficient Coins");
+        }
+
+    }
+
     // </editor-fold>
     // <editor-fold desc="equip buttons">
     private void button_EquipSwordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_EquipSwordActionPerformed
@@ -5672,6 +5743,7 @@ Sanitas blesses the holders of her affinity by improving their overall constitut
     private javax.swing.JLabel label_PlayerName;
     private javax.swing.JLabel label_SPAddition;
     private javax.swing.JLabel label_Sanitas;
+    private javax.swing.JLabel label_ShopCurrency;
     private javax.swing.JLabel label_ShopLocation;
     private javax.swing.JLabel label_SimpleBow;
     private javax.swing.JLabel label_Skill1;

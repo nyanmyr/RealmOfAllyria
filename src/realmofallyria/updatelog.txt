@@ -115,6 +115,7 @@ version 0.0.14 (prototype)
 progress (7/09/2025)
 • tweaked coin rewards
 • started work on store
+• created global convert coins method
 
 version 0.0.15 (prototype)
 progress (7/10/2025)

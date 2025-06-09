@@ -2,7 +2,6 @@ menial things;
 - mix class constructor with generateMob?
 
 to do:
-- make a seperate method that takes in coins total and returns coins in copper, silver, gold
 - turn jpg images to png
 - no mana for skill use
 - effects queue (stores status changes): found in mob class
