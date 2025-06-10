@@ -1,3 +1,4 @@
+
 package realmofallyria;
 
 import java.awt.Image;
@@ -86,25 +87,17 @@ abstract class Mob {
     // -----------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------
     // <editor-fold desc="dungeonMonsterEquipment variables">
-    Weapon equippedWeapon;
-    Armor equippedArmor;
+    Equipment equippedWeapon;
+    Equipment equippedArmor;
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------
     // <editor-fold desc="skills variables">
-    String basicAttackSkill;
+    Skill basicAttackSkill;
 
-    String skill1;
-    int skill1LVL;
-    double skill1Cost;
-
-    String skill2;
-    int skill2LVL;
-    double skill2Cost;
-
-    String skill3;
-    int skill3LVL;
-    double skill3Cost;
+    Skill skill1;
+    Skill skill2;
+    Skill skill3;
 
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
@@ -203,7 +196,7 @@ abstract class Mob {
 
     }
 
-    public void equipGear(Weapon givenWeapon, Armor givenArmor) {
+    public void equipGear(Equipment givenWeapon, Equipment givenArmor) {
 
         equippedWeapon = givenWeapon;
         equippedArmor = givenArmor;
@@ -339,19 +332,19 @@ abstract class Mob {
         addHP = negative ? addHP * -1 : addHP;
         addMP = negative ? addMP * -1 : addMP;
 
-        currentHP += addHP * 5;
-        currentMP += addMP * 2.5;
+        currentHP += addHP * 3;
+        currentMP += addMP * 1;
 
-        maxHP += addHP * 5;
-        maxMP += addMP * 2.5;
+        maxHP += addHP * 3;
+        maxMP += addMP * 1.5;
     }
 
     public void setSubAttributes() {
 
-        physicalDefense = defensePoints * 0.75;
-        magicalDefense = intelligencePoints * 0.375;
-        physicalDamage = strengthPoints * 1.5;
-        magicalDamage = intelligencePoints * 0.75;
+        physicalDefense = defensePoints * 0.5;
+        magicalDefense = intelligencePoints * 0.25;
+        physicalDamage = strengthPoints * 1;
+        magicalDamage = intelligencePoints * 0.5;
         scaleCritChance();
 
     }
@@ -401,54 +394,46 @@ abstract class Mob {
     // -----------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------
     // <editor-fold desc="combat mechanics stuff">
-    public double[] useSkill(String skillUsed) {
+    public double[] useSkill(Skill skillUsed) {
 
         // index 0 is for pdmg, and 1 is for mdmg
-        double[] damageDealt = new double[10];
+        double[] damageDealt = new double[8];
 
-        switch (skillUsed) {
-            // <editor-fold desc="basic attack skills">
-            case "Bite":
-            case "Club":
-            case "Tackle":
-            case "Punch":
-            case "Slash": {
-                damageDealt[0] = physicalDamage;
-                break;
+        damageDealt[0] = skillUsed.skillPDmg * physicalDamage;
+        damageDealt[1] = skillUsed.skillMDmg * magicalDamage;
+        damageDealt[7] = skillUsed.selfInflict == true ? 1 : 0;
+
+        if (damageDealt[7] == 0) {
+
+            // randomizes the damage dealt, for variation
+            if (damageDealt[0] > 0) {
+                damageDealt[0] += mobRandomizer.nextDouble((physicalDamage * 0.25) * -1, (physicalDamage * 0.25));
             }
-            case "Shoot": {
-                damageDealt[0] = physicalDamage * 0.75;
-                break;
+            if (damageDealt[1] > 0) {
+                damageDealt[1] += mobRandomizer.nextDouble((magicalDamage * 0.25) * -1, (magicalDamage * 0.25));
             }
-            case "Magic Missile": {
-                damageDealt[1] = magicalDamage;
-                break;
+
+            // third index indicates if the hit is a crit (0 for false, 1 for true)
+            damageDealt[2] = 0;
+
+            if (critChance > mobRandomizer.nextDouble(1, 101)) {
+                damageDealt[0] *= 2;
+                damageDealt[1] *= 2;
+                damageDealt[2] = 1;
             }
-            // </editor-fold>
-            // <editor-fold desc="proper skills">
-            case "Heal":
-                damageDealt[7] = 1;
-                damageDealt[8] = intelligencePoints;
-            // </editor-fold>
+
+        } else {
+
+            damageDealt[0] = (maxHP * 0.25);
+
+            currentHP = currentHP + damageDealt[0] > maxHP ? maxHP : currentHP + damageDealt[0];
+
+            // returns a blank dmg array which determines the attack as harmless or self-inglicted
+            return damageDealt;
 
         }
 
-        // randomizes the damage dealt, for variation
-        if (damageDealt[0] > 0) {
-            damageDealt[0] += mobRandomizer.nextDouble((physicalDamage * 0.25) * -1, (physicalDamage * 0.25));
-        }
-        if (damageDealt[1] > 0) {
-            damageDealt[1] += mobRandomizer.nextDouble((magicalDamage * 0.25) * -1, (magicalDamage * 0.25));
-        }
-
-        // third index indicates if the hit is a crit (0 for false, 1 for true)
-        damageDealt[2] = 0;
-
-        if (critChance > mobRandomizer.nextDouble(1, 101)) {
-            damageDealt[0] *= 2;
-            damageDealt[1] *= 2;
-            damageDealt[2] = 1;
-        }
+        currentMP = currentMP - skillUsed.skillCost < 0 ? 0 : currentMP - skillUsed.skillCost;
 
         return damageDealt;
 
@@ -466,38 +451,40 @@ abstract class Mob {
         // [5] - physical damage (from attacker): without defense reductions
         // [6] - magical damage (from attacker): without defense reductions
         // [7] - determines if attack is self-inflicted or harmless to the defender (1 for harmless, 0 for not)
-        // [8] - HP increase (not used here: only used in useSkill method)
-        // [9] - MP increase (not used here: only used in useSkill method)
         // </editor-fold>
         // saves the total damaged suffered
         damageTaken[5] = damageTaken[0];
         damageTaken[6] = damageTaken[1];
 
-        // calculates actual dmg taken, taking into account physical defense
-        damageTaken[0] = (damageTaken[0] > 0
-                ? (damageTaken[0] - physicalDefense < 0
-                        ? (damageTaken[0] * 0.1) : damageTaken[0] * 0.9 - physicalDefense)
-                : 0);
-        damageTaken[1] = (damageTaken[1] > 0
-                ? (damageTaken[1] - magicalDefense < 0
-                        ? (damageTaken[1] * 0.1) : damageTaken[1] * 0.9 - magicalDefense)
-                : 0);
+        // checks if the damage was self inflicted by the attacker, hence no damage will be defended/ registered
+        if (damageTaken[7] == 0) {
+            // calculates actual dmg taken, taking into account physical defense
+            // if statement checks if the skill used is self inflicted or not
+            damageTaken[0] = (damageTaken[0] > 0
+                    ? (damageTaken[0] - physicalDefense < 0
+                            ? (damageTaken[0] * 0.1) : damageTaken[0] * 0.9 - physicalDefense)
+                    : 0);
+            damageTaken[1] = (damageTaken[1] > 0
+                    ? (damageTaken[1] - magicalDefense < 0
+                            ? (damageTaken[1] * 0.1) : damageTaken[1] * 0.9 - magicalDefense)
+                    : 0);
 
-        // saves the dmg defended
-        damageTaken[3] = physicalDefense;
-        damageTaken[4] = physicalDefense;
+            // saves the dmg defended
+            damageTaken[3] = physicalDefense;
+            damageTaken[4] = physicalDefense;
 
-        // ensures that there is no way of increasing health from attack
-        damageTaken[0] = damageTaken[0] < 0 ? 0 : damageTaken[0];
-        damageTaken[1] = damageTaken[1] < 0 ? 0 : damageTaken[1];
+            // ensures that there is no way of increasing health from attack
+            damageTaken[0] = damageTaken[0] < 0 ? 0 : damageTaken[0];
+            damageTaken[1] = damageTaken[1] < 0 ? 0 : damageTaken[1];
 
 //        System.out.println();
 //        System.out.println("PDmg: " + damageTaken[5]);
 //        System.out.println("PDmg Defended: " + damageTaken[3]);
 //        System.out.println("PDmg Total: " + damageTaken[0]);
-        // reduces the health by the damage suffered
-        currentHP -= damageTaken[0];
-        currentHP -= damageTaken[1];
+            // reduces the health by the damage suffered
+            currentHP -= damageTaken[0];
+            currentHP -= damageTaken[1];
+        }
 
         return damageTaken;
 
@@ -545,7 +532,7 @@ class Player extends Mob {
                 xpGained -= xpToLevelUp;
                 accumulatedLVL++;
                 xp = 0;
-                xpNeeded += 12;
+                xpNeeded += 14;
             } else {
                 // Not enough XP to level up
                 xp += xpGained;
@@ -561,7 +548,7 @@ class Player extends Mob {
 
     private void updateXPNeeded() {
 
-        xpNeeded = (level + 1) * 12;
+        xpNeeded = (level + 1) * 14;
 
     }
 
@@ -739,7 +726,7 @@ class Battle {
         totalTurns++;
     }
 
-    public String takeTurn(String battleSkillUsed, Mob defendingMob, Mob attackingMob) {
+    public String takeTurn(Skill battleSkillUsed, Mob defendingMob, Mob attackingMob) {
 
         // <editor-fold desc="uses a queue data structure to determine turns.">
         if (turns.peek().equals(battlePlayer.name)) {
@@ -756,7 +743,7 @@ class Battle {
 
         String skilluseString = "";
 
-        switch (battleSkillUsed) {
+        switch (battleSkillUsed.skillName) {
 
             // <editor-fold desc="hostile attacks">
             case "Tackle" -> {
@@ -780,6 +767,12 @@ class Battle {
             case "Club" -> {
                 skilluseString = "%s bonked %s";
             }
+            case "Fireball" -> {
+                skilluseString = "%s fired a fireball at %s";
+            }
+            case "Ice Shards" -> {
+                skilluseString = "%s fired shards of ice at %s";
+            }
             // </editor-fold>
             // <editor-fold desc="non-hostile attacks">
             case "Heal" -> {
@@ -789,8 +782,10 @@ class Battle {
 
         }
 
-        // no such thing as blocked damage
-        String attackString = String.format(""" 
+        String attackString = "";
+
+        if (battleSkillUsed.selfInflict) {
+            attackString = String.format(""" 
                                             <html>
 
                                             <head>
@@ -801,17 +796,41 @@ class Battle {
 
                                             <body>
                                             <p align="center">
-                                            %s %s %s %s %s
+                                            %s %s
                                             </p>
                                             </body>
 
                                             </html>
                                             """, String.format(skilluseString, attackingMob.name, defendingMob.name),
-                (battleDamageTaken[0] > 0 ? String.format("<br> PDmg inflicted (-%.2f HP)", battleDamageTaken[0]) : battleDamageTaken[5] > 0 ? "<br> Attacked completely blocked!" : ""),
-                (battleDamageTaken[0] > 0 ? String.format("<br> PDmg defended (%.2f HP)", battleDamageTaken[3]) : ""),
-                (battleDamageTaken[1] > 0 ? String.format("<br> MDmg inflicted (-%.2f MP)", battleDamageTaken[1]) : battleDamageTaken[6] > 0 ? "<br> Attacked completely resisted!" : ""),
-                (battleDamageTaken[1] > 0 ? String.format("<br> MDmg defended (%.2f MP)", battleDamageTaken[4]) : ""),
-                (battleDamageTaken[2] > 0 ? String.format("<br> CRITICAL HIT! (2x inflicted dmg)") : ""));
+                    String.format("<br> HP restored (+%.2f HP)", battleDamageTaken[0]),
+                    battleSkillUsed.skillCost > 0 ? String.format("<br> (-%.2f MP)", battleSkillUsed.skillCost) : ""
+            );
+        } else {
+            attackString = String.format(""" 
+                                            <html>
+
+                                            <head>
+                                            <h3 align="center">
+                                            %s
+                                            </h3>
+                                            </head>
+
+                                            <body>
+                                            <p align="center">
+                                            %s %s %s %s %s %s
+                                            </p>
+                                            </body>
+
+                                            </html>
+                                            """, String.format(skilluseString, attackingMob.name, defendingMob.name),
+                    (battleDamageTaken[0] > 0 ? String.format("<br> PDmg inflicted (-%.2f HP)", battleDamageTaken[0]) : battleDamageTaken[5] > 0 ? "<br> Attacked completely blocked!" : ""),
+                    (battleDamageTaken[0] > 0 ? String.format("<br> PDmg defended (%.2f HP)", battleDamageTaken[3]) : ""),
+                    (battleDamageTaken[1] > 0 ? String.format("<br> MDmg inflicted (-%.2f MP)", battleDamageTaken[1]) : battleDamageTaken[6] > 0 ? "<br> Attacked completely resisted!" : ""),
+                    (battleDamageTaken[1] > 0 ? String.format("<br> MDmg defended (%.2f MP)", battleDamageTaken[4]) : ""),
+                    (battleDamageTaken[2] > 0 ? String.format("<br> CRITICAL HIT! (2x inflicted dmg)") : ""),
+                    battleSkillUsed.skillCost > 0 ? String.format("<br> (-%.2f MP)", battleSkillUsed.skillCost) : ""
+            );
+        }
 
 //        System.out.println(attackString);
 //        System.out.println("NEXT TURN:" + turns.peek());
@@ -1020,7 +1039,8 @@ class Wilderness extends Dungeon {
         dungeonMobName = dungeonMonsterNames[chosenMob];
         dungeonMobAffinity = dungeonMonsterAffinities[chosenMob][generatedAffinity];
         dungeonMobLVL = (generatedMobLVL + (dungeonLevel * 10));
-        dungeonMobWeapon = new Weapon(dungeonMonsterEquipment[chosenMob][1], generatedWeaponLVL, dungeonMonsterBasicAttack[chosenMob], 0, 0, 0);
+        dungeonMobWeapon = new Weapon(dungeonMonsterEquipment[chosenMob][1], generatedWeaponLVL, new Skill(dungeonMonsterBasicAttack[chosenMob]),
+                0, 0, 0);
         dungeonMobArmor = new Armor(dungeonMonsterEquipment[chosenMob][0], generatedArmorLVL, 0, 0);
 
 //        System.out.println();
@@ -1094,7 +1114,8 @@ class BossLair extends Dungeon {
         dungeonMobName = dungeonMonsterNames[0];
         dungeonMobAffinity = dungeonMonsterAffinities[0][generatedAffinity];
         dungeonMobLVL = (generatedMobLVL + (dungeonLevel * 10));
-        dungeonMobWeapon = new Weapon(dungeonMonsterEquipment[0][1], generatedWeaponLVL, dungeonMonsterBasicAttack[0], 0, 0, 0);
+        dungeonMobWeapon = new Weapon(dungeonMonsterEquipment[0][1], generatedWeaponLVL, new Skill(dungeonMonsterBasicAttack[0]),
+                0, 0, 0);
         dungeonMobArmor = new Armor(dungeonMonsterEquipment[0][0], generatedArmorLVL, 0, 0);
 
 //        System.out.println();
@@ -1117,7 +1138,8 @@ class BossLair extends Dungeon {
         dungeonMobName = dungeonMonsterNames[1];
         dungeonMobAffinity = dungeonMonsterAffinities[1][generatedAffinity];
         dungeonMobLVL = (bossMobLVL + (dungeonLevel * 10));
-        dungeonMobWeapon = new Weapon(dungeonMonsterEquipment[1][1], generatedWeaponLVL, dungeonMonsterBasicAttack[1], 0, 0, 0);
+        dungeonMobWeapon = new Weapon(dungeonMonsterEquipment[1][1], generatedWeaponLVL, new Skill(dungeonMonsterBasicAttack[1]),
+                0, 0, 0);
         dungeonMobArmor = new Armor(dungeonMonsterEquipment[1][0], generatedArmorLVL, 0, 0);
 
     }
@@ -1255,10 +1277,10 @@ class Store {
             {
 
                 for (String shopEquipmentStr : merchandiseHashMap.keySet()) {
-                    
+
                     Equipment equipmentModified = merchandiseHashMap.get(shopEquipmentStr);
                     equipmentModified.coinsWorth = 50 * storeLevel;
-                    System.out.println(equipmentModified.coinsWorth);
+//                    System.out.println(equipmentModified.coinsWorth);
                     put(shopEquipmentStr, equipmentModified);
 
                 }
@@ -1271,45 +1293,64 @@ class Store {
 
     }
 
-    public int canBuyMerchandise(String buyLocation, String merchandiseType) {
+    public int purchaseMerchandise(String buyLocation, String merchandiseType) {
 
         HashMap<String, Equipment> upgradedMerchandise = new HashMap<>() {
 
             {
 
-                put(storeMerchandise.get(buyLocation).get(merchandiseType).equipmentName,
-                        storeMerchandise.get(buyLocation).get(merchandiseType));
+                Equipment upgradedEquipment;
+
+                if (merchandiseType.equals("Armor")) {
+
+                    upgradedEquipment = new Armor(storeMerchandise.get(buyLocation).get(merchandiseType).equipmentName,
+                            storeMerchandise.get(buyLocation).get(merchandiseType).equipmentLVL,
+                            storeMerchandise.get(buyLocation).get(merchandiseType).arHealthPoints > 0 ? 3 : 0,
+                            storeMerchandise.get(buyLocation).get(merchandiseType).arDefensePoints > 0 ? 3 : 0
+                    );
+
+                } else {
+
+                    upgradedEquipment = new Weapon(storeMerchandise.get(buyLocation).get(merchandiseType).equipmentName,
+                            storeMerchandise.get(buyLocation).get(merchandiseType).equipmentLVL,
+                            storeMerchandise.get(buyLocation).get(merchandiseType).basicAttackSkill,
+                            storeMerchandise.get(buyLocation).get(merchandiseType).wpStrengthPoints > 0 ? 3 : 0,
+                            storeMerchandise.get(buyLocation).get(merchandiseType).wpIntelligencePoints > 0 ? 3 : 0,
+                            storeMerchandise.get(buyLocation).get(merchandiseType).wpAgilityPoints > 0 ? 3 : 0
+                    );
+
+                }
+
+                put(merchandiseType, upgradedEquipment);
 
             }
 
         };
-        boughtMerchandise.put(merchandiseType, upgradedMerchandise);
-//        System.out.println("boughtMerchandise: " + boughtMerchandise);
+        boughtMerchandise.put(buyLocation, upgradedMerchandise);
 
         storeMerchandise.get(buyLocation).get(merchandiseType).equipmentLVL += 1;
-        
-        storeMerchandise.get(buyLocation).get(merchandiseType).wpStrengthPoints = 
-                storeMerchandise.get(buyLocation).get(merchandiseType).wpStrengthPoints > 0 ? 
-                storeMerchandise.get(buyLocation).get(merchandiseType).wpStrengthPoints += 3 : 0;
-                
-        storeMerchandise.get(buyLocation).get(merchandiseType).wpIntelligencePoints = 
-                storeMerchandise.get(buyLocation).get(merchandiseType).wpIntelligencePoints > 0 ? 
-                storeMerchandise.get(buyLocation).get(merchandiseType).wpIntelligencePoints += 3 : 0;
-                
-        storeMerchandise.get(buyLocation).get(merchandiseType).wpAgilityPoints = 
-                storeMerchandise.get(buyLocation).get(merchandiseType).wpAgilityPoints > 0 ? 
-                storeMerchandise.get(buyLocation).get(merchandiseType).wpAgilityPoints += 3 : 0;
-                
-        storeMerchandise.get(buyLocation).get(merchandiseType).arHealthPoints = 
-                storeMerchandise.get(buyLocation).get(merchandiseType).arHealthPoints > 0 ? 
-                storeMerchandise.get(buyLocation).get(merchandiseType).arHealthPoints += 3 : 0;
-                
-        storeMerchandise.get(buyLocation).get(merchandiseType).arDefensePoints = 
-                storeMerchandise.get(buyLocation).get(merchandiseType).arDefensePoints > 0 ? 
-                storeMerchandise.get(buyLocation).get(merchandiseType).arDefensePoints += 3 : 0;
-                
-        
-        storeMerchandise.get(buyLocation).get(merchandiseType).coinsWorth *= 1.5;
+
+        storeMerchandise.get(buyLocation).get(merchandiseType).wpStrengthPoints
+                = storeMerchandise.get(buyLocation).get(merchandiseType).wpStrengthPoints > 0
+                ? storeMerchandise.get(buyLocation).get(merchandiseType).wpStrengthPoints += 3 : 0;
+
+        storeMerchandise.get(buyLocation).get(merchandiseType).wpIntelligencePoints
+                = storeMerchandise.get(buyLocation).get(merchandiseType).wpIntelligencePoints > 0
+                ? storeMerchandise.get(buyLocation).get(merchandiseType).wpIntelligencePoints += 3 : 0;
+
+        storeMerchandise.get(buyLocation).get(merchandiseType).wpAgilityPoints
+                = storeMerchandise.get(buyLocation).get(merchandiseType).wpAgilityPoints > 0
+                ? storeMerchandise.get(buyLocation).get(merchandiseType).wpAgilityPoints += 3 : 0;
+
+        storeMerchandise.get(buyLocation).get(merchandiseType).arHealthPoints
+                = storeMerchandise.get(buyLocation).get(merchandiseType).arHealthPoints > 0
+                ? storeMerchandise.get(buyLocation).get(merchandiseType).arHealthPoints += 3 : 0;
+
+        storeMerchandise.get(buyLocation).get(merchandiseType).arDefensePoints
+                = storeMerchandise.get(buyLocation).get(merchandiseType).arDefensePoints > 0
+                ? storeMerchandise.get(buyLocation).get(merchandiseType).arDefensePoints += 3 : 0;
+
+        storeMerchandise.get(buyLocation).get(merchandiseType).coinsWorth *= 1.25;
 
         return storeMerchandise.get(buyLocation).get(merchandiseType).coinsWorth;
 
@@ -1321,30 +1362,29 @@ class Store {
 // -----------------------------------------------------------------------------------------------------------
 // <editor-fold desc="Equipment class">
 
-abstract class Equipment {
+class Equipment {
 
     int equipmentLVL;
     String equipmentName;
     int coinsWorth;
-    
-        int wpStrengthPoints;
+
+    int wpStrengthPoints;
     int wpIntelligencePoints;
     int wpAgilityPoints;
-    
-        int arHealthPoints;
+
+    int arHealthPoints;
     int arDefensePoints;
+
+    Skill basicAttackSkill;
 
 }
 
 class Weapon extends Equipment {
 
-
-    String basicAttackSkill;
-
     public Weapon(
             String givenName,
             int givenWPLVL,
-            String givenBasicAttackSkill,
+            Skill givenBasicAttackSkill,
             int givenWPStrengthPoints,
             int givenWPIntelligencePoints,
             int givenWPAgilityPoints
@@ -1374,6 +1414,67 @@ class Armor extends Equipment {
         this.equipmentLVL = givenARLVL;
         this.arHealthPoints = givenARHealthPoints * equipmentLVL;
         this.arDefensePoints = givenARDefensePoints * equipmentLVL;
+
+    }
+
+}
+// </editor-fold>
+// -----------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------
+// <editor-fold desc="Skill class">
+
+class Skill {
+
+    String skillName;
+    double skillCost;
+    double skillPDmg;
+    double skillMDmg;
+    boolean selfInflict;
+
+    public Skill(
+            String givenSkillName
+    ) {
+
+        this.skillName = givenSkillName;
+
+        switch (this.skillName) {
+
+            // <editor-fold desc="hostile skills">
+            case "Bite":
+            case "Club":
+            case "Tackle":
+            case "Punch":
+            case "Slash": {
+                this.skillPDmg = 1;
+                break;
+            }
+            case "Shoot": {
+                this.skillPDmg = 0.75;
+                break;
+            }
+            case "Magic Missile": {
+                this.skillMDmg = 0.5;
+                break;
+            }
+            case "Fireball": {
+                this.skillCost = 15;
+                this.skillMDmg = 2.5;
+                break;
+            }
+            case "Ice Shards": {
+                this.skillCost = 15;
+                this.skillMDmg = 2.5;
+                break;
+            }
+            // </editor-fold>
+
+            // <editor-fold desc="self-inflicted skills">
+            case "Heal":
+                this.selfInflict = true;
+                this.skillCost = 10;
+            // </editor-fold>
+
+        }
 
     }
 
@@ -1589,10 +1690,10 @@ public class Game extends javax.swing.JFrame {
 
         // debugging stuff (0 for normal)
         // 6 for testing dialogue menu
-        // 8 for skipping tutorial
+        // 7 for skipping tutorial
         //9 for testing shop
         // 12 for baron boss battle
-        storylineIndex = 9;
+        storylineIndex = 7;
         quest = new Quest();
 
         // -----------------------------------------------------------------------------------------------------------
@@ -1607,13 +1708,15 @@ public class Game extends javax.swing.JFrame {
 
         player.chooseAffinity(6);
         player.confirmAttributeChanges();
-        Weapon debugWeapon = new Weapon("Iron Sword", 1, "Slash", 3, 0, 0);
+        Weapon debugWeapon = new Weapon("Iron Sword", 1, new Skill("Slash"), 3, 0, 0);
         Armor debugArmor = new Armor("Leather Armor", 1, 3, 3);
         player.equipGear(debugWeapon, debugArmor);
 
         player.attributePoints += 1000;
         player.totalCoins += 10000;
-//        battlePlayer.currentHP = 1;
+        player.skill1 = new Skill("Heal");
+        player.skill2 = new Skill("Fireball");
+        player.skill3 = new Skill("Ice Shards");
         // </editor-fold>
         // -----------------------------------------------------------------------------------------------------------
         initComponents();
@@ -1706,6 +1809,33 @@ public class Game extends javax.swing.JFrame {
         panel_Main = new javax.swing.JPanel();
         button_Return = new javax.swing.JButton();
         label_Header = new javax.swing.JLabel();
+        panel_Combat = new javax.swing.JPanel();
+        label_CombatPlayer = new javax.swing.JLabel();
+        label_CombatPlayerAffinity = new javax.swing.JLabel();
+        label_CombatHP = new javax.swing.JLabel();
+        label_CombatMP = new javax.swing.JLabel();
+        label_CombatEnemy = new javax.swing.JLabel();
+        label_CombatEnemyAffinity = new javax.swing.JLabel();
+        label_EnemyHP = new javax.swing.JLabel();
+        label_EnemyMP = new javax.swing.JLabel();
+        button_FleeCombat = new javax.swing.JButton();
+        button_UseAttack = new javax.swing.JButton();
+        panel_Skills = new javax.swing.JPanel();
+        button_UseBasicAttack = new javax.swing.JButton();
+        button_UseSkill1 = new javax.swing.JButton();
+        button_UseSkill2 = new javax.swing.JButton();
+        button_UseSkill3 = new javax.swing.JButton();
+        panel_CombatLog = new javax.swing.JPanel();
+        label_CombatLog = new javax.swing.JLabel();
+        panel_Travel = new javax.swing.JPanel();
+        button_Village = new javax.swing.JButton();
+        button_Grasslands = new javax.swing.JButton();
+        button_Town = new javax.swing.JButton();
+        button_Forest = new javax.swing.JButton();
+        button_City = new javax.swing.JButton();
+        button_Dungeon = new javax.swing.JButton();
+        label_Wilderness = new javax.swing.JLabel();
+        label_Civilization = new javax.swing.JLabel();
         panel_Shop = new javax.swing.JPanel();
         label_ShopLocation = new javax.swing.JLabel();
         label_ShopCurrency = new javax.swing.JLabel();
@@ -1739,38 +1869,6 @@ public class Game extends javax.swing.JFrame {
         button_DungeonFlee = new javax.swing.JButton();
         button_DungeonReturn = new javax.swing.JButton();
         label_WildernessBackground = new javax.swing.JLabel();
-        panel_Combat = new javax.swing.JPanel();
-        label_CombatPlayer = new javax.swing.JLabel();
-        label_CombatPlayerAffinity = new javax.swing.JLabel();
-        label_CombatHP = new javax.swing.JLabel();
-        label_CombatMP = new javax.swing.JLabel();
-        label_CombatEnemy = new javax.swing.JLabel();
-        label_CombatEnemyAffinity = new javax.swing.JLabel();
-        label_EnemyHP = new javax.swing.JLabel();
-        label_EnemyMP = new javax.swing.JLabel();
-        button_UseInventory = new javax.swing.JButton();
-        button_FleeCombat = new javax.swing.JButton();
-        button_UseAttack = new javax.swing.JButton();
-        panel_Skills = new javax.swing.JPanel();
-        button_UseBasicAttack = new javax.swing.JButton();
-        button_UseSkill1 = new javax.swing.JButton();
-        button_UseSkill2 = new javax.swing.JButton();
-        button_UseSkill3 = new javax.swing.JButton();
-        panel_CombatLog = new javax.swing.JPanel();
-        label_CombatLog = new javax.swing.JLabel();
-        panel_Travel = new javax.swing.JPanel();
-        button_Village = new javax.swing.JButton();
-        button_Grasslands = new javax.swing.JButton();
-        button_Town = new javax.swing.JButton();
-        button_Forest = new javax.swing.JButton();
-        button_City = new javax.swing.JButton();
-        button_Dungeon = new javax.swing.JButton();
-        button_Fortress = new javax.swing.JButton();
-        button_ScorchedPlains = new javax.swing.JButton();
-        button_Capital = new javax.swing.JButton();
-        button_GatesOfHell = new javax.swing.JButton();
-        label_Wilderness = new javax.swing.JLabel();
-        label_Civilization = new javax.swing.JLabel();
         panel_ChooseSkill = new javax.swing.JPanel();
         button_Skill1 = new javax.swing.JButton();
         label_Skill1 = new javax.swing.JLabel();
@@ -1911,6 +2009,232 @@ public class Game extends javax.swing.JFrame {
         panel_Main.add(label_Header);
         label_Header.setBounds(6, 6, 520, 47);
 
+        panel_Combat.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Combat.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                panel_CombatMouseClicked(evt);
+            }
+        });
+        panel_Combat.setLayout(null);
+
+        label_CombatPlayer.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        label_CombatPlayer.setForeground(new java.awt.Color(221, 221, 222));
+        label_CombatPlayer.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        label_CombatPlayer.setText("Player (LVL 50)");
+        panel_Combat.add(label_CombatPlayer);
+        label_CombatPlayer.setBounds(10, 50, 250, 40);
+
+        label_CombatPlayerAffinity.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_CombatPlayerAffinity.setForeground(new java.awt.Color(221, 221, 222));
+        label_CombatPlayerAffinity.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        label_CombatPlayerAffinity.setText("Player Affinity");
+        panel_Combat.add(label_CombatPlayerAffinity);
+        label_CombatPlayerAffinity.setBounds(10, 90, 250, 30);
+
+        label_CombatHP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_CombatHP.setForeground(new java.awt.Color(221, 221, 222));
+        label_CombatHP.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        label_CombatHP.setText("HP: 0 / 0");
+        panel_Combat.add(label_CombatHP);
+        label_CombatHP.setBounds(10, 120, 250, 20);
+
+        label_CombatMP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_CombatMP.setForeground(new java.awt.Color(221, 221, 222));
+        label_CombatMP.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        label_CombatMP.setText("MP: 0 / 0");
+        panel_Combat.add(label_CombatMP);
+        label_CombatMP.setBounds(10, 140, 250, 20);
+
+        label_CombatEnemy.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        label_CombatEnemy.setForeground(new java.awt.Color(221, 221, 222));
+        label_CombatEnemy.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        label_CombatEnemy.setText("Enemy (LVL 50)");
+        panel_Combat.add(label_CombatEnemy);
+        label_CombatEnemy.setBounds(270, 50, 240, 40);
+
+        label_CombatEnemyAffinity.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_CombatEnemyAffinity.setForeground(new java.awt.Color(221, 221, 222));
+        label_CombatEnemyAffinity.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        label_CombatEnemyAffinity.setText("Enemy Affinity");
+        panel_Combat.add(label_CombatEnemyAffinity);
+        label_CombatEnemyAffinity.setBounds(270, 90, 240, 30);
+
+        label_EnemyHP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_EnemyHP.setForeground(new java.awt.Color(221, 221, 222));
+        label_EnemyHP.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        label_EnemyHP.setText("HP: 0 / 0");
+        panel_Combat.add(label_EnemyHP);
+        label_EnemyHP.setBounds(270, 120, 240, 20);
+
+        label_EnemyMP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_EnemyMP.setForeground(new java.awt.Color(221, 221, 222));
+        label_EnemyMP.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        label_EnemyMP.setText("MP: 0 / 0");
+        panel_Combat.add(label_EnemyMP);
+        label_EnemyMP.setBounds(270, 140, 240, 20);
+
+        button_FleeCombat.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_FleeCombat.setText("Flee");
+        button_FleeCombat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_FleeCombatActionPerformed(evt);
+            }
+        });
+        panel_Combat.add(button_FleeCombat);
+        button_FleeCombat.setBounds(260, 310, 240, 40);
+
+        button_UseAttack.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_UseAttack.setText("Attack");
+        button_UseAttack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_UseAttackActionPerformed(evt);
+            }
+        });
+        panel_Combat.add(button_UseAttack);
+        button_UseAttack.setBounds(20, 310, 230, 40);
+
+        panel_Skills.setLayout(null);
+
+        button_UseBasicAttack.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_UseBasicAttack.setText("Skill1");
+        button_UseBasicAttack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_UseBasicAttackActionPerformed(evt);
+            }
+        });
+        panel_Skills.add(button_UseBasicAttack);
+        button_UseBasicAttack.setBounds(10, 10, 220, 50);
+
+        button_UseSkill1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_UseSkill1.setText("Skill2");
+        button_UseSkill1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_UseSkill1ActionPerformed(evt);
+            }
+        });
+        panel_Skills.add(button_UseSkill1);
+        button_UseSkill1.setBounds(240, 10, 230, 50);
+
+        button_UseSkill2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_UseSkill2.setText("Skill3");
+        button_UseSkill2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_UseSkill2ActionPerformed(evt);
+            }
+        });
+        panel_Skills.add(button_UseSkill2);
+        button_UseSkill2.setBounds(10, 70, 220, 50);
+
+        button_UseSkill3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_UseSkill3.setText("Skill4");
+        button_UseSkill3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_UseSkill3ActionPerformed(evt);
+            }
+        });
+        panel_Skills.add(button_UseSkill3);
+        button_UseSkill3.setBounds(240, 70, 230, 50);
+
+        panel_Combat.add(panel_Skills);
+        panel_Skills.setBounds(20, 170, 480, 130);
+
+        panel_CombatLog.setLayout(null);
+
+        label_CombatLog.setBackground(new java.awt.Color(99, 99, 99));
+        label_CombatLog.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_CombatLog.setForeground(new java.awt.Color(9, 9, 9));
+        label_CombatLog.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_CombatLog.setText("Actions");
+        label_CombatLog.setOpaque(true);
+        panel_CombatLog.add(label_CombatLog);
+        label_CombatLog.setBounds(0, 0, 480, 130);
+
+        panel_Combat.add(panel_CombatLog);
+        panel_CombatLog.setBounds(20, 170, 480, 130);
+
+        panel_Main.add(panel_Combat);
+        panel_Combat.setBounds(5, 60, 520, 370);
+
+        panel_Travel.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Travel.setLayout(null);
+
+        button_Village.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Village.setText("Village");
+        button_Village.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_VillageActionPerformed(evt);
+            }
+        });
+        panel_Travel.add(button_Village);
+        button_Village.setBounds(90, 60, 150, 60);
+
+        button_Grasslands.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Grasslands.setText("Grasslands");
+        button_Grasslands.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_GrasslandsActionPerformed(evt);
+            }
+        });
+        panel_Travel.add(button_Grasslands);
+        button_Grasslands.setBounds(280, 60, 150, 60);
+
+        button_Town.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Town.setText("Fortress");
+        button_Town.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_TownActionPerformed(evt);
+            }
+        });
+        panel_Travel.add(button_Town);
+        button_Town.setBounds(90, 150, 150, 60);
+
+        button_Forest.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Forest.setText("Forest");
+        button_Forest.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_ForestActionPerformed(evt);
+            }
+        });
+        panel_Travel.add(button_Forest);
+        button_Forest.setBounds(280, 150, 150, 60);
+
+        button_City.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_City.setText("Capital City");
+        button_City.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_CityActionPerformed(evt);
+            }
+        });
+        panel_Travel.add(button_City);
+        button_City.setBounds(90, 240, 150, 60);
+
+        button_Dungeon.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Dungeon.setText("Dungeon");
+        button_Dungeon.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_DungeonActionPerformed(evt);
+            }
+        });
+        panel_Travel.add(button_Dungeon);
+        button_Dungeon.setBounds(280, 240, 150, 60);
+
+        label_Wilderness.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_Wilderness.setForeground(new java.awt.Color(221, 221, 222));
+        label_Wilderness.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Wilderness.setText("Wilderness");
+        panel_Travel.add(label_Wilderness);
+        label_Wilderness.setBounds(280, 10, 150, 40);
+
+        label_Civilization.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_Civilization.setForeground(new java.awt.Color(221, 221, 222));
+        label_Civilization.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Civilization.setText("Civilization");
+        panel_Travel.add(label_Civilization);
+        label_Civilization.setBounds(90, 10, 150, 40);
+
+        panel_Main.add(panel_Travel);
+        panel_Travel.setBounds(5, 60, 520, 370);
+
         panel_Shop.setBackground(new java.awt.Color(69, 69, 69));
         panel_Shop.setLayout(null);
 
@@ -1969,7 +2293,6 @@ public class Game extends javax.swing.JFrame {
         panel_Shop.add(button_BuyArmor);
         button_BuyArmor.setBounds(20, 300, 230, 50);
 
-        button_EquipSword.setText("Sword");
         button_EquipSword.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 button_EquipSwordActionPerformed(evt);
@@ -1978,7 +2301,6 @@ public class Game extends javax.swing.JFrame {
         panel_Shop.add(button_EquipSword);
         button_EquipSword.setBounds(260, 120, 230, 50);
 
-        button_EquipBow.setText("Bow");
         button_EquipBow.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 button_EquipBowActionPerformed(evt);
@@ -1987,7 +2309,6 @@ public class Game extends javax.swing.JFrame {
         panel_Shop.add(button_EquipBow);
         button_EquipBow.setBounds(260, 180, 230, 50);
 
-        button_EquipWand.setText("Wand");
         button_EquipWand.setToolTipText("");
         button_EquipWand.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1997,7 +2318,6 @@ public class Game extends javax.swing.JFrame {
         panel_Shop.add(button_EquipWand);
         button_EquipWand.setBounds(260, 240, 230, 50);
 
-        button_EquipArmor.setText("Armor");
         button_EquipArmor.setToolTipText("");
         button_EquipArmor.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -2197,282 +2517,6 @@ public class Game extends javax.swing.JFrame {
 
         panel_Main.add(panel_Dungeon);
         panel_Dungeon.setBounds(5, 60, 520, 370);
-
-        panel_Combat.setBackground(new java.awt.Color(69, 69, 69));
-        panel_Combat.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                panel_CombatMouseClicked(evt);
-            }
-        });
-        panel_Combat.setLayout(null);
-
-        label_CombatPlayer.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        label_CombatPlayer.setForeground(new java.awt.Color(221, 221, 222));
-        label_CombatPlayer.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        label_CombatPlayer.setText("Player (LVL 50)");
-        panel_Combat.add(label_CombatPlayer);
-        label_CombatPlayer.setBounds(10, 50, 250, 40);
-
-        label_CombatPlayerAffinity.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_CombatPlayerAffinity.setForeground(new java.awt.Color(221, 221, 222));
-        label_CombatPlayerAffinity.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        label_CombatPlayerAffinity.setText("Player Affinity");
-        panel_Combat.add(label_CombatPlayerAffinity);
-        label_CombatPlayerAffinity.setBounds(10, 90, 250, 30);
-
-        label_CombatHP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_CombatHP.setForeground(new java.awt.Color(221, 221, 222));
-        label_CombatHP.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        label_CombatHP.setText("HP: 0 / 0");
-        panel_Combat.add(label_CombatHP);
-        label_CombatHP.setBounds(10, 120, 250, 20);
-
-        label_CombatMP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_CombatMP.setForeground(new java.awt.Color(221, 221, 222));
-        label_CombatMP.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        label_CombatMP.setText("MP: 0 / 0");
-        panel_Combat.add(label_CombatMP);
-        label_CombatMP.setBounds(10, 140, 250, 20);
-
-        label_CombatEnemy.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        label_CombatEnemy.setForeground(new java.awt.Color(221, 221, 222));
-        label_CombatEnemy.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        label_CombatEnemy.setText("Enemy (LVL 50)");
-        panel_Combat.add(label_CombatEnemy);
-        label_CombatEnemy.setBounds(270, 50, 240, 40);
-
-        label_CombatEnemyAffinity.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_CombatEnemyAffinity.setForeground(new java.awt.Color(221, 221, 222));
-        label_CombatEnemyAffinity.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        label_CombatEnemyAffinity.setText("Enemy Affinity");
-        panel_Combat.add(label_CombatEnemyAffinity);
-        label_CombatEnemyAffinity.setBounds(270, 90, 240, 30);
-
-        label_EnemyHP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_EnemyHP.setForeground(new java.awt.Color(221, 221, 222));
-        label_EnemyHP.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        label_EnemyHP.setText("HP: 0 / 0");
-        panel_Combat.add(label_EnemyHP);
-        label_EnemyHP.setBounds(270, 120, 240, 20);
-
-        label_EnemyMP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_EnemyMP.setForeground(new java.awt.Color(221, 221, 222));
-        label_EnemyMP.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        label_EnemyMP.setText("MP: 0 / 0");
-        panel_Combat.add(label_EnemyMP);
-        label_EnemyMP.setBounds(270, 140, 240, 20);
-
-        button_UseInventory.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_UseInventory.setText("Inventory");
-        button_UseInventory.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_UseInventoryActionPerformed(evt);
-            }
-        });
-        panel_Combat.add(button_UseInventory);
-        button_UseInventory.setBounds(180, 310, 160, 40);
-
-        button_FleeCombat.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_FleeCombat.setText("Flee");
-        button_FleeCombat.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_FleeCombatActionPerformed(evt);
-            }
-        });
-        panel_Combat.add(button_FleeCombat);
-        button_FleeCombat.setBounds(350, 310, 150, 40);
-
-        button_UseAttack.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_UseAttack.setText("Attack");
-        button_UseAttack.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_UseAttackActionPerformed(evt);
-            }
-        });
-        panel_Combat.add(button_UseAttack);
-        button_UseAttack.setBounds(20, 310, 150, 40);
-
-        panel_Skills.setLayout(null);
-
-        button_UseBasicAttack.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_UseBasicAttack.setText("Skill1");
-        button_UseBasicAttack.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_UseBasicAttackActionPerformed(evt);
-            }
-        });
-        panel_Skills.add(button_UseBasicAttack);
-        button_UseBasicAttack.setBounds(10, 10, 230, 50);
-
-        button_UseSkill1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_UseSkill1.setText("Skill2");
-        button_UseSkill1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_UseSkill1ActionPerformed(evt);
-            }
-        });
-        panel_Skills.add(button_UseSkill1);
-        button_UseSkill1.setBounds(10, 70, 230, 50);
-
-        button_UseSkill2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_UseSkill2.setText("Skill3");
-        button_UseSkill2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_UseSkill2ActionPerformed(evt);
-            }
-        });
-        panel_Skills.add(button_UseSkill2);
-        button_UseSkill2.setBounds(240, 10, 230, 50);
-
-        button_UseSkill3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_UseSkill3.setText("Skill4");
-        button_UseSkill3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_UseSkill3ActionPerformed(evt);
-            }
-        });
-        panel_Skills.add(button_UseSkill3);
-        button_UseSkill3.setBounds(240, 70, 230, 50);
-
-        panel_Combat.add(panel_Skills);
-        panel_Skills.setBounds(20, 170, 480, 130);
-
-        panel_CombatLog.setLayout(null);
-
-        label_CombatLog.setBackground(new java.awt.Color(99, 99, 99));
-        label_CombatLog.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_CombatLog.setForeground(new java.awt.Color(9, 9, 9));
-        label_CombatLog.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_CombatLog.setText("Actions");
-        label_CombatLog.setOpaque(true);
-        panel_CombatLog.add(label_CombatLog);
-        label_CombatLog.setBounds(0, 0, 480, 130);
-
-        panel_Combat.add(panel_CombatLog);
-        panel_CombatLog.setBounds(20, 170, 480, 130);
-
-        panel_Main.add(panel_Combat);
-        panel_Combat.setBounds(5, 60, 520, 370);
-
-        panel_Travel.setBackground(new java.awt.Color(69, 69, 69));
-        panel_Travel.setLayout(null);
-
-        button_Village.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Village.setText("Village");
-        button_Village.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_VillageActionPerformed(evt);
-            }
-        });
-        panel_Travel.add(button_Village);
-        button_Village.setBounds(90, 60, 150, 40);
-
-        button_Grasslands.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Grasslands.setText("Grasslands");
-        button_Grasslands.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_GrasslandsActionPerformed(evt);
-            }
-        });
-        panel_Travel.add(button_Grasslands);
-        button_Grasslands.setBounds(280, 60, 150, 40);
-
-        button_Town.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Town.setText("Town");
-        button_Town.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_TownActionPerformed(evt);
-            }
-        });
-        panel_Travel.add(button_Town);
-        button_Town.setBounds(90, 120, 150, 40);
-
-        button_Forest.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Forest.setText("Forest");
-        button_Forest.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_ForestActionPerformed(evt);
-            }
-        });
-        panel_Travel.add(button_Forest);
-        button_Forest.setBounds(280, 120, 150, 40);
-
-        button_City.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_City.setText("City");
-        button_City.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_CityActionPerformed(evt);
-            }
-        });
-        panel_Travel.add(button_City);
-        button_City.setBounds(90, 180, 150, 40);
-
-        button_Dungeon.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Dungeon.setText("Dungeon");
-        button_Dungeon.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_DungeonActionPerformed(evt);
-            }
-        });
-        panel_Travel.add(button_Dungeon);
-        button_Dungeon.setBounds(280, 180, 150, 40);
-
-        button_Fortress.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Fortress.setText("Fortress");
-        button_Fortress.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_FortressActionPerformed(evt);
-            }
-        });
-        panel_Travel.add(button_Fortress);
-        button_Fortress.setBounds(90, 240, 150, 40);
-
-        button_ScorchedPlains.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_ScorchedPlains.setText("Scorched Plains");
-        button_ScorchedPlains.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_ScorchedPlainsActionPerformed(evt);
-            }
-        });
-        panel_Travel.add(button_ScorchedPlains);
-        button_ScorchedPlains.setBounds(280, 240, 150, 40);
-
-        button_Capital.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Capital.setText("Capital");
-        button_Capital.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_CapitalActionPerformed(evt);
-            }
-        });
-        panel_Travel.add(button_Capital);
-        button_Capital.setBounds(90, 300, 150, 40);
-
-        button_GatesOfHell.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_GatesOfHell.setText("Gates of Hell");
-        button_GatesOfHell.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_GatesOfHellActionPerformed(evt);
-            }
-        });
-        panel_Travel.add(button_GatesOfHell);
-        button_GatesOfHell.setBounds(280, 300, 150, 40);
-
-        label_Wilderness.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_Wilderness.setForeground(new java.awt.Color(221, 221, 222));
-        label_Wilderness.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Wilderness.setText("Wilderness");
-        panel_Travel.add(label_Wilderness);
-        label_Wilderness.setBounds(280, 10, 150, 40);
-
-        label_Civilization.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_Civilization.setForeground(new java.awt.Color(221, 221, 222));
-        label_Civilization.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Civilization.setText("Civilization");
-        panel_Travel.add(label_Civilization);
-        label_Civilization.setBounds(90, 10, 150, 40);
-
-        panel_Main.add(panel_Travel);
-        panel_Travel.setBounds(5, 60, 520, 370);
 
         panel_ChooseSkill.setBackground(new java.awt.Color(69, 69, 69));
         panel_ChooseSkill.setLayout(null);
@@ -4129,7 +4173,7 @@ public class Game extends javax.swing.JFrame {
 
         Armor startingArmor = new Armor("Leather Armor", 1, 3, 3);
 
-        String startingWeaponBasicAttackSkill = "";
+        Skill startingWeaponBasicAttackSkill = new Skill("");
         int startingWeaponSP = 0;
         int startingWeaponIP = 0;
         int startingWeaponAP = 0;
@@ -4137,16 +4181,16 @@ public class Game extends javax.swing.JFrame {
         switch (chosenWeapon) {
             case "Iron Sword" -> {
                 startingWeaponSP = 3;
-                startingWeaponBasicAttackSkill = "Slash";
+                startingWeaponBasicAttackSkill = new Skill("Slash");
             }
             case "Simple Bow" -> {
                 startingWeaponSP = 1;
                 startingWeaponAP = 2;
-                startingWeaponBasicAttackSkill = "Shoot";
+                startingWeaponBasicAttackSkill = new Skill("Shoot");
             }
             case "Crude Wand" -> {
                 startingWeaponIP = 3;
-                startingWeaponBasicAttackSkill = "Magic Missile";
+                startingWeaponBasicAttackSkill = new Skill("Magic Missile");
             }
         }
 
@@ -4162,7 +4206,7 @@ public class Game extends javax.swing.JFrame {
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------
-    // <editor-fold desc="location places buttons and travel stuff">
+    // <editor-fold desc="travelling and location buttons stuff">
     private void button_Place3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_Place3ActionPerformed
 
         placeButtonAction("place3");
@@ -4357,35 +4401,20 @@ public class Game extends javax.swing.JFrame {
                     button_Place2.setVisible(true);
                 }
             }
-            case "Town" -> {
-//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/town.png"));
-            }
-            case "Forest" -> {
-//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/forest.png"));
-
-            }
-            case "City" -> {
-//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/city.png"));
-
-            }
-            case "Dungeon" -> {
-//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/dungeon.png"));
-
-            }
             case "Fortress" -> {
 //                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/fortress.png"));
 
             }
-            case "Scorched Plains" -> {
-//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/scorchedplains.png"));
+            case "Forest" -> {
+//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/forest.png"));
 
             }
             case "Capital" -> {
 //                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/capital.png"));
 
             }
-            case "Gates of Hell" -> {
-//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/gatesofhell.png"));
+            case "Dungeon" -> {
+//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/dungeon.png"));
 
             }
 
@@ -4512,7 +4541,7 @@ public class Game extends javax.swing.JFrame {
                 nextDialogueArray();
                 panel_Storyline.setVisible(false);
                 generateBattle("Slime", "Madeis", 1,
-                        new Weapon("Body", 1, "Tackle", 0, 0, 0),
+                        new Weapon("Body", 1, new Skill("Tackle"), 0, 0, 0),
                         new Armor("Slime Armor", 1, 0, 2),
                         true);
                 battle.escapeChance = 0;
@@ -4529,6 +4558,24 @@ public class Game extends javax.swing.JFrame {
 
                 player.receiveXPCoinsReward(quest.questXPReward, quest.questCoinsReward);
                 messagePopup("Quest Completed");
+
+                store = new Store("Travelling Merchant");
+                store.generateMerchandiseInfo("Travelling Merchant", new HashMap<String, Equipment>() {
+
+                    {
+
+                        put("Sword", new Weapon("Iron Sword", 1, new Skill("Slash"),
+                                3, 0, 0));
+                        put("Bow", new Weapon("Simple Bow", 1, new Skill("Shoot"),
+                                1, 0, 2));
+                        put("Wand", new Weapon("Crude Wand", 1, new Skill("Magic Missile"),
+                                0, 3, 0));
+                        put("Armor", new Armor("Leather Armor",
+                                1, 3, 3));
+
+                    }
+
+                }, 1);
 
                 quest.newQuest(new HashMap<String, Integer[]>() {
 
@@ -4552,20 +4599,6 @@ public class Game extends javax.swing.JFrame {
 
                 player.receiveXPCoinsReward(quest.questXPReward, quest.questCoinsReward);
                 messagePopup("Quest Completed");
-
-                store = new Store("Travelling Merchant");
-                store.generateMerchandiseInfo("Travelling Merchant", new HashMap<String, Equipment>() {
-
-                    {
-
-                        put("Sword", new Weapon("Iron Sword", 1, "Slash", 3, 0, 0));
-                        put("Bow", new Weapon("Simple Bow", 1, "Shoot", 1, 0, 2));
-                        put("Wand", new Weapon("Crude Wand", 1, "Magic Missile", 0, 3, 0));
-                        put("Armor", new Armor("Leather Armor", 1, 3, 3));
-
-                    }
-
-                }, 1);
 
                 quest.newQuest(new HashMap<String, Integer[]>() {
 
@@ -4716,7 +4749,6 @@ public class Game extends javax.swing.JFrame {
 
         button_UseAttack.setVisible(false);
         button_FleeCombat.setVisible(false);
-        button_UseInventory.setVisible(false);
 
         if (battle.battlePlayer.currentHP > 0 && battle.battleHostile.currentHP > 0) {
 
@@ -4729,7 +4761,6 @@ public class Game extends javax.swing.JFrame {
                 label_CombatLog.setText(battle.battlePlayer.name + "'s turn");
                 button_UseAttack.setVisible(true);
                 button_FleeCombat.setVisible(true);
-                button_UseInventory.setVisible(true);
 
             }
 
@@ -4745,18 +4776,50 @@ public class Game extends javax.swing.JFrame {
 
     private void button_UseBasicAttackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_UseBasicAttackActionPerformed
 
-        label_CombatLog.setText(battle.takeTurn(player.basicAttackSkill, enemy, player));
-        button_UseAttack.setVisible(false);
-        button_FleeCombat.setVisible(false);
-        button_UseInventory.setVisible(false);
-
-        button_UseAttack.setText("Attack");
-        panel_CombatLog.setVisible(true);
-        panel_Skills.setVisible(false);
-
-        updateCombatScreen();
+        skillAction("basicAttackSkill");
 
     }//GEN-LAST:event_button_UseBasicAttackActionPerformed
+
+    private void skillAction(String attackSkillActionType) {
+
+        Skill actionSkill = new Skill("");
+
+        switch (attackSkillActionType) {
+
+            case "basicAttackSkill" -> {
+                actionSkill = player.basicAttackSkill;
+            }
+            case "skill1" -> {
+                actionSkill = player.skill1;
+            }
+            case "skill2" -> {
+                actionSkill = player.skill2;
+            }
+            case "skill3" -> {
+                actionSkill = player.skill3;
+            }
+
+        }
+
+        if (player.currentMP >= actionSkill.skillCost) {
+
+            label_CombatLog.setText(battle.takeTurn(actionSkill, enemy, player));
+            button_UseAttack.setVisible(false);
+            button_FleeCombat.setVisible(false);
+
+            button_UseAttack.setText("Attack");
+            panel_CombatLog.setVisible(true);
+            panel_Skills.setVisible(false);
+
+            updateCombatScreen();
+
+        } else {
+
+            messagePopup("Insufficient MP");
+
+        }
+
+    }
 
     private void button_FleeCombatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_FleeCombatActionPerformed
 
@@ -4784,10 +4847,12 @@ public class Game extends javax.swing.JFrame {
 
             } else {
 
-                if (player.currentHP < (player.maxHP * 0.25)
-                        && player.currentHP > 0
-                        && player.currentMP < (player.maxMP * 0.25)
-                        && player.currentMP > 0) {
+                // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+                // WIP
+                // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+                if (player.currentHP < (player.maxHP * 0.25) && player.currentHP > 0
+                        && player.currentMP < (player.maxMP * 0.25) && player.currentMP > 0) {
 
                     messagePopup("Low HP and MP");
 
@@ -4856,10 +4921,6 @@ public class Game extends javax.swing.JFrame {
 
     }//GEN-LAST:event_panel_CombatMouseClicked
 
-    private void button_UseInventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_UseInventoryActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_button_UseInventoryActionPerformed
-
     private void button_UseAttackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_UseAttackActionPerformed
 
         if (button_UseAttack.getText().equals("Attack")) {
@@ -4869,16 +4930,52 @@ public class Game extends javax.swing.JFrame {
             panel_Skills.setVisible(true);
             // <editor-fold desc="show skill buttons">
             button_UseBasicAttack.setVisible(player.basicAttackSkill != null);
-            button_UseBasicAttack.setText(player.basicAttackSkill);
+            button_UseBasicAttack.setText(player.basicAttackSkill.skillName);
 
             button_UseSkill1.setVisible(player.skill1 != null);
-            button_UseSkill1.setText(player.skill1);
+            button_UseSkill1.setText(player.skill1 != null
+                    ? String.format("""
+                                  <html>
+                                  
+                                  <body>
+                                  <p align="center">
+                                  %s <br>(costs %s MP)
+                                  </p>
+                                  </body>
+                                  
+                                  </html>
+                                  """, player.skill1.skillName, player.skill1.skillCost)
+                    : "");
 
             button_UseSkill2.setVisible(player.skill2 != null);
-            button_UseSkill2.setText(player.skill2);
+            button_UseSkill2.setText(player.skill2 != null
+                    ? String.format("""
+                                  <html>
+                                  
+                                  <body>
+                                  <p align="center">
+                                  %s <br>(costs %s MP)
+                                  </p>
+                                  </body>
+                                  
+                                  </html>
+                                  """, player.skill2.skillName, player.skill2.skillCost)
+                    : "");
 
             button_UseSkill3.setVisible(player.skill3 != null);
-            button_UseSkill3.setText(player.skill3);
+            button_UseSkill3.setText(player.skill3 != null
+                    ? String.format("""
+                                  <html>
+                                  
+                                  <body>
+                                  <p align="center">
+                                  %s <br>(costs %s MP)
+                                  </p>
+                                  </body>
+                                  
+                                  </html>
+                                  """, player.skill3.skillName, player.skill3.skillCost)
+                    : "");
             // </editor-fold>
 
         } else {
@@ -4892,15 +4989,20 @@ public class Game extends javax.swing.JFrame {
     }//GEN-LAST:event_button_UseAttackActionPerformed
 
     private void button_UseSkill2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_UseSkill2ActionPerformed
-        // TODO add your handling code here:
+
+        skillAction("skill2");
+
     }//GEN-LAST:event_button_UseSkill2ActionPerformed
 
     private void button_UseSkill3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_UseSkill3ActionPerformed
-        // TODO add your handling code here:
+
+        skillAction("skill3");
+
     }//GEN-LAST:event_button_UseSkill3ActionPerformed
 
     private void button_UseSkill1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_UseSkill1ActionPerformed
 
+        skillAction("skill1");
 
     }//GEN-LAST:event_button_UseSkill1ActionPerformed
 
@@ -4962,6 +5064,9 @@ public class Game extends javax.swing.JFrame {
             case "Insufficient Coins" -> {
                 warningLabel = "You do not have enough coins to purchase this item.";
             }
+            case "Insufficient MP" -> {
+                warningLabel = "You do not have enough MP left to use this skill.";
+            }
         }
 
         button_Place1.setVisible(false);
@@ -4976,6 +5081,9 @@ public class Game extends javax.swing.JFrame {
         button_DungeonFlee.setVisible(false);
 
         button_Quest.setVisible(false);
+
+        button_FleeCombat.setVisible(false);
+        button_UseAttack.setVisible(false);
 
         button_UseBasicAttack.setVisible(false);
         button_UseSkill1.setVisible(false);
@@ -5019,10 +5127,13 @@ public class Game extends javax.swing.JFrame {
 
         button_Quest.setVisible(true);
 
-        button_UseBasicAttack.setVisible(true);
-        button_UseSkill1.setVisible(true);
-        button_UseSkill2.setVisible(true);
-        button_UseSkill3.setVisible(true);
+        button_FleeCombat.setVisible(true);
+        button_UseAttack.setVisible(true);
+
+        button_UseBasicAttack.setVisible(!(button_UseBasicAttack.getText().isEmpty()));
+        button_UseSkill1.setVisible(!(button_UseSkill1.getText().isEmpty()));
+        button_UseSkill2.setVisible(!(button_UseSkill2.getText().isEmpty()));
+        button_UseSkill3.setVisible(!(button_UseSkill3.getText().isEmpty()));
 
         button_BuySword.setVisible(true);
         button_BuyBow.setVisible(true);
@@ -5531,34 +5642,6 @@ public class Game extends javax.swing.JFrame {
 
     }//GEN-LAST:event_button_DungeonActionPerformed
 
-    private void button_FortressActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_FortressActionPerformed
-
-        travelToLocation("Fortress");
-
-
-    }//GEN-LAST:event_button_FortressActionPerformed
-
-    private void button_ScorchedPlainsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_ScorchedPlainsActionPerformed
-
-        travelToLocation("Scorched Plains");
-
-
-    }//GEN-LAST:event_button_ScorchedPlainsActionPerformed
-
-    private void button_CapitalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_CapitalActionPerformed
-
-        travelToLocation("Capital");
-
-
-    }//GEN-LAST:event_button_CapitalActionPerformed
-
-    private void button_GatesOfHellActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_GatesOfHellActionPerformed
-
-        travelToLocation("Gates of Hell");
-
-
-    }//GEN-LAST:event_button_GatesOfHellActionPerformed
-
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------
@@ -5588,14 +5671,8 @@ public class Game extends javax.swing.JFrame {
         for (String storeMerchandiseStr : storeMerchandiseTypes) {
 
             setBuyWeaponText(storeMerchandiseStr);
-            setEquipWeaponText(storeMerchandiseStr);
 
         }
-
-        button_EquipSword.setVisible(!(button_EquipSword.getText().isEmpty()));
-        button_EquipBow.setVisible(!(button_EquipBow.getText().isEmpty()));
-        button_EquipWand.setVisible(!(button_EquipWand.getText().isEmpty()));
-        button_EquipArmor.setVisible(!(button_EquipArmor.getText().isEmpty()));
 
     }
 
@@ -5603,7 +5680,7 @@ public class Game extends javax.swing.JFrame {
 
         String buyButtonText;
 
-        if (store.storeMerchandise.get(currentStore).get(merchandiseButtonType).equipmentLVL < 11) {
+        if (store.storeMerchandise.get(currentStore).get(merchandiseButtonType).equipmentLVL < 7) {
 
             buyButtonText = String.format("""
                 <html>
@@ -5617,22 +5694,22 @@ public class Game extends javax.swing.JFrame {
                 """,
                     store.storeMerchandise.get(currentStore).get(merchandiseButtonType).equipmentName,
                     store.storeMerchandise.get(currentStore).get(merchandiseButtonType).equipmentLVL,
-                    String.format("<br>(%s %s %s %s %s)", 
-                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpStrengthPoints > 0 ?
-                                    String.format("+%s SP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpStrengthPoints) :
-                                    "",
-                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpIntelligencePoints > 0 ?
-                                    String.format("+%s IP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpIntelligencePoints) :
-                                    "",
-                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpAgilityPoints > 0 ?
-                                    String.format("+%s AP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpAgilityPoints) :
-                                    "",
-                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arHealthPoints > 0 ?
-                                    String.format("+%s HP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arHealthPoints) :
-                                    "",
-                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arDefensePoints > 0 ?
-                                    String.format("+%s DP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arDefensePoints) :
-                                    ""),
+                    String.format("<br>(%s %s %s %s %s)",
+                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpStrengthPoints > 0
+                            ? String.format("+%s SP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpStrengthPoints)
+                            : "",
+                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpIntelligencePoints > 0
+                            ? String.format("+%s IP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpIntelligencePoints)
+                            : "",
+                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpAgilityPoints > 0
+                            ? String.format("+%s AP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpAgilityPoints)
+                            : "",
+                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arHealthPoints > 0
+                            ? String.format("+%s HP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arHealthPoints)
+                            : "",
+                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arDefensePoints > 0
+                            ? String.format("+%s DP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arDefensePoints)
+                            : ""),
                     convertCoins(store.storeMerchandise.get(currentStore).get(merchandiseButtonType).coinsWorth
                     )
             );
@@ -5643,31 +5720,11 @@ public class Game extends javax.swing.JFrame {
                 <html>
                 <body>
                 <p align="center">
-                %s (LVL %s) %s
-                <br> %s
+                %s
                 </p>
                 </body>
                 </html>
-                """,
-                    store.storeMerchandise.get(currentStore).get(merchandiseButtonType).equipmentName,
-                    store.storeMerchandise.get(currentStore).get(merchandiseButtonType).equipmentLVL,
-                    String.format("<br>(%s %s %s %s %s)", 
-                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpStrengthPoints > 0 ?
-                                    String.format("+%s SP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpStrengthPoints) :
-                                    "",
-                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpIntelligencePoints > 0 ?
-                                    String.format("+%s IP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpIntelligencePoints) :
-                                    "",
-                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpAgilityPoints > 0 ?
-                                    String.format("+%s AP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpAgilityPoints) :
-                                    "",
-                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arHealthPoints > 0 ?
-                                    String.format("+%s HP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arHealthPoints) :
-                                    "",
-                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arDefensePoints > 0 ?
-                                    String.format("+%s DP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arDefensePoints) :
-                                    ""),
-                    "(MAX LEVEL REACHED)");
+                """, "(MAX LEVEL REACHED)");
 
         }
 
@@ -5690,120 +5747,40 @@ public class Game extends javax.swing.JFrame {
 
     }
 
-    private void setEquipWeaponText(String merchandiseButtonType) {
-
-        String equipButtonText = "";
-
-        if (store.boughtMerchandise.containsKey(merchandiseButtonType)) {
-
-            equipButtonText = (String.format("""
-                <html>
-                <body>
-                <p align="center">
-                Equip: %s (LVL %s) %s
-                </p>
-                </body>
-                </html>
-                """,
-                    store.boughtMerchandise.get(merchandiseButtonType).keySet().toArray()[0].toString(),
-                    store.boughtMerchandise.get(merchandiseButtonType).get(store.boughtMerchandise.get(merchandiseButtonType).keySet().toArray()[0].toString()).equipmentLVL,
-                    String.format("<br>(%s %s %s %s %s)", 
-                    store.boughtMerchandise.get(merchandiseButtonType)
-                            .get(store.boughtMerchandise.get(merchandiseButtonType)
-                                    .keySet().toArray()[0].toString()).wpStrengthPoints > 0 ? 
-                    String.format("+%s SP", store.boughtMerchandise.get(merchandiseButtonType)
-                            .get(store.boughtMerchandise.get(merchandiseButtonType)
-                                    .keySet().toArray()[0].toString()).wpStrengthPoints) :
-                            "",
-                    
-                    store.boughtMerchandise.get(merchandiseButtonType)
-                            .get(store.boughtMerchandise.get(merchandiseButtonType)
-                                    .keySet().toArray()[0].toString()).wpIntelligencePoints > 0 ? 
-                    String.format("+%s IP", store.boughtMerchandise.get(merchandiseButtonType)
-                            .get(store.boughtMerchandise.get(merchandiseButtonType)
-                                    .keySet().toArray()[0].toString()).wpIntelligencePoints) :
-                            "",
-                    
-                    store.boughtMerchandise.get(merchandiseButtonType)
-                            .get(store.boughtMerchandise.get(merchandiseButtonType)
-                                    .keySet().toArray()[0].toString()).wpAgilityPoints > 0 ? 
-                    String.format("+%s AP", store.boughtMerchandise.get(merchandiseButtonType)
-                            .get(store.boughtMerchandise.get(merchandiseButtonType)
-                                    .keySet().toArray()[0].toString()).wpAgilityPoints) :
-                            "",
-                    
-                    store.boughtMerchandise.get(merchandiseButtonType)
-                            .get(store.boughtMerchandise.get(merchandiseButtonType)
-                                    .keySet().toArray()[0].toString()).arHealthPoints > 0 ? 
-                    String.format("+%s HP", store.boughtMerchandise.get(merchandiseButtonType)
-                            .get(store.boughtMerchandise.get(merchandiseButtonType)
-                                    .keySet().toArray()[0].toString()).arHealthPoints) :
-                            "",
-                    
-                    store.boughtMerchandise.get(merchandiseButtonType)
-                            .get(store.boughtMerchandise.get(merchandiseButtonType)
-                                    .keySet().toArray()[0].toString()).arDefensePoints > 0 ? 
-                    String.format("+%s DP", store.boughtMerchandise.get(merchandiseButtonType)
-                            .get(store.boughtMerchandise.get(merchandiseButtonType)
-                                    .keySet().toArray()[0].toString()).arDefensePoints) :
-                            ""
-                    )
-                    
-            ));
-
-        }
-
-        switch (merchandiseButtonType) {
-
-            case "Sword" -> {
-                button_EquipSword.setText(equipButtonText);
-            }
-            case "Bow" -> {
-                button_EquipBow.setText(equipButtonText);
-            }
-            case "Wand" -> {
-                button_EquipWand.setText(equipButtonText);
-            }
-            case "Armor" -> {
-                button_EquipArmor.setText(equipButtonText);
-            }
-
-        }
-
-    }
-
     // <editor-fold desc="buy buttons">
     private void button_BuySwordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_BuySwordActionPerformed
 
-        buyAction("Sword");
+        buyMerchandiseAction("Sword");
 
     }//GEN-LAST:event_button_BuySwordActionPerformed
 
     private void button_BuyWandActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_BuyWandActionPerformed
 
-        buyAction("Wand");
+        buyMerchandiseAction("Wand");
 
     }//GEN-LAST:event_button_BuyWandActionPerformed
 
     private void button_BuyBowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_BuyBowActionPerformed
 
-        buyAction("Bow");
+        buyMerchandiseAction("Bow");
 
     }//GEN-LAST:event_button_BuyBowActionPerformed
 
     private void button_BuyArmorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_BuyArmorActionPerformed
 
-        buyAction("Armor");
+        buyMerchandiseAction("Armor");
 
     }//GEN-LAST:event_button_BuyArmorActionPerformed
 
-    private void buyAction(String equipmentType) {
+    private void buyMerchandiseAction(String equipmentType) {
 
-        if (store.storeMerchandise.get(currentStore).get(equipmentType).equipmentLVL < 11) {
+        if (store.storeMerchandise.get(currentStore).get(equipmentType).equipmentLVL < 7) {
 
             if (player.totalCoins > store.storeMerchandise.get(currentStore).get(equipmentType).coinsWorth) {
 
-                player.takeCoins(store.canBuyMerchandise(currentStore, equipmentType));
+                player.takeCoins(store.purchaseMerchandise(currentStore, equipmentType));
+                player.equipGear(equipmentType.equals("Armor") ? player.equippedWeapon : store.boughtMerchandise.get(currentStore).get(equipmentType),
+                        equipmentType.equals("Armor") ? store.boughtMerchandise.get(currentStore).get(equipmentType) : player.equippedArmor);
                 enterStore(currentStore);
 
             } else {
@@ -5833,6 +5810,7 @@ public class Game extends javax.swing.JFrame {
     private void button_EquipArmorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_EquipArmorActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_button_EquipArmorActionPerformed
+
     // </editor-fold>    
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
@@ -5877,7 +5855,6 @@ Sanitas blesses the holders of her affinity by improving their overall constitut
     private javax.swing.JButton button_BuyBow;
     private javax.swing.JButton button_BuySword;
     private javax.swing.JButton button_BuyWand;
-    private javax.swing.JButton button_Capital;
     private javax.swing.JButton button_Celeritas;
     private javax.swing.JButton button_City;
     private javax.swing.JButton button_CloseWarning;
@@ -5893,8 +5870,6 @@ Sanitas blesses the holders of her affinity by improving their overall constitut
     private javax.swing.JButton button_EquipWand;
     private javax.swing.JButton button_FleeCombat;
     private javax.swing.JButton button_Forest;
-    private javax.swing.JButton button_Fortress;
-    private javax.swing.JButton button_GatesOfHell;
     private javax.swing.JButton button_Grasslands;
     private javax.swing.JButton button_HPAddition;
     private javax.swing.JButton button_IPAddition;
@@ -5908,7 +5883,6 @@ Sanitas blesses the holders of her affinity by improving their overall constitut
     private javax.swing.JButton button_Return;
     private javax.swing.JButton button_SPAddition;
     private javax.swing.JButton button_Sanitas;
-    private javax.swing.JButton button_ScorchedPlains;
     private javax.swing.JButton button_SimpleBow;
     private javax.swing.JButton button_Skill1;
     private javax.swing.JButton button_Skill2;
@@ -5919,7 +5893,6 @@ Sanitas blesses the holders of her affinity by improving their overall constitut
     private javax.swing.JButton button_Tutela;
     private javax.swing.JButton button_UseAttack;
     private javax.swing.JButton button_UseBasicAttack;
-    private javax.swing.JButton button_UseInventory;
     private javax.swing.JButton button_UseSkill1;
     private javax.swing.JButton button_UseSkill2;
     private javax.swing.JButton button_UseSkill3;

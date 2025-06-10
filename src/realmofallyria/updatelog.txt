@@ -121,9 +121,16 @@ version 0.0.15 (prototype)
 progress (7/10/2025)
 • equipment class (weapon, armor)
 • reworked store system
+• shop system
+• skill system
+• tweaked status (HP, MP, PDmg, Mdmg, PDef, MDef)
 
 version 0.0.16 (prototype)
 progress (7/11/2025)
+- low HP or MP popup
+- other locations
+- finish content
 
 version 0.1.0 (release version)
 progress (7/12/2025)
+- bug fixing

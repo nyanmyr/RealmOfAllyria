@@ -1,17 +1,7 @@
-menial things;
-- mix class constructor with generateMob?
-
 to do:
-- no mana for skill use
-- effects queue (stores status changes): found in mob class
-- monster skills
-- choose skill
-- defeat xp reward, coin reduction penalties
-- other locations
-- finish content
 
 bug fixing:
-- edit when can enter travelling merchant's store
+- edit when can enter travelling merchant's store (should be after tutorial)
 - defeating baron does not have coins reward
 - dying does travels to village but does not end wilderness
 - unsuccessful escape should be considered as combat turn
@@ -47,7 +37,19 @@ settlements (named characters):
 wilderness (and boss lair):
 • grasslands (encampment): Lesser Demon Lord/ Lady
 • forest (camp): Arch Demon Lord/ Lady
-• dungeon (castle): Prince/ Princess of the Underworld
+• dungeon (castle): Demon Lord/ Lady
+
+monsters:
+grasslands:
+slime
+goblin
+wolf
+
+imp
+lesser demon lord
+
+forest: 
+dungeon: 
 
 weapon shop:
 iron sword -> steel sword -> mithril sword
