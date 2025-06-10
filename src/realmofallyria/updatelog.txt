@@ -119,6 +119,8 @@ progress (7/09/2025)
 
 version 0.0.15 (prototype)
 progress (7/10/2025)
+• equipment class (weapon, armor)
+• reworked store system
 
 version 0.0.16 (prototype)
 progress (7/11/2025)

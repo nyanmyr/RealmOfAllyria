@@ -2,11 +2,9 @@ menial things;
 - mix class constructor with generateMob?
 
 to do:
-- turn jpg images to png
 - no mana for skill use
 - effects queue (stores status changes): found in mob class
 - monster skills
-- shop
 - choose skill
 - defeat xp reward, coin reduction penalties
 - other locations
@@ -39,20 +37,22 @@ consider:
 
 lore stuff:
 named characters:
-• princess
+• princess/ pirnce
 
 settlements (named characters):
 • village: village elder
 • town: lord/ lady
-• city: duke/ duchess
-• fort city: commander
 • capital: king/ queen
 
 wilderness (and boss lair):
-• grasslands (encampment): Baron
-• forest (camp): General 
-• dungeon (castle): Lesser Lord
-• hell plains (fort hell): Arch Demon
-• mount hell (hell palace): Prince of the Underworld
+• grasslands (encampment): Lesser Demon Lord/ Lady
+• forest (camp): Arch Demon Lord/ Lady
+• dungeon (castle): Prince/ Princess of the Underworld
+
+weapon shop:
+iron sword -> steel sword -> mithril sword
+simple bow -> short bow -> war bow
+crude wand -> novice wand -> advanced wand
+leather armor -> steel armor -> paladin armor
 
 • defeating the boss does not mean you can no longer attack the lair.

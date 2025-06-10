@@ -1,4 +1,3 @@
-
 package realmofallyria;
 
 import java.awt.Image;
@@ -87,10 +86,8 @@ abstract class Mob {
     // -----------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------
     // <editor-fold desc="dungeonMonsterEquipment variables">
-    String equippedArmor;
-    int equippedArmorLVL;
-    String equippedWeapon;
-    int equippedWeaponLVL;
+    Weapon equippedWeapon;
+    Armor equippedArmor;
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------
@@ -206,12 +203,10 @@ abstract class Mob {
 
     }
 
-    public void equipGear(String chosenArmor, int armorLevel, String chosenWeapon, int weaponLevel) {
+    public void equipGear(Weapon givenWeapon, Armor givenArmor) {
 
-        equippedArmor = chosenArmor;
-        equippedArmorLVL = armorLevel;
-        equippedWeapon = chosenWeapon;
-        equippedWeaponLVL = weaponLevel;
+        equippedWeapon = givenWeapon;
+        equippedArmor = givenArmor;
 
         // -----------------------------------------------------------------------------------------------------------
         // <editor-fold desc="reset any additions done by already equipped gear">
@@ -245,6 +240,9 @@ abstract class Mob {
         // </editor-fold>
         // -----------------------------------------------------------------------------------------------------------
 
+        // -----------------------------------------------------------------------------------------------------------
+        // <editor-fold desc="unused">
+        /*
         switch (chosenArmor) {
             case "Slime Armor": {
                 IPGearAddition += armorLevel * 2;
@@ -304,6 +302,16 @@ abstract class Mob {
                 break;
             }
         }
+         */
+        // </editor-fold>
+        // -----------------------------------------------------------------------------------------------------------
+        SPGearAddition = equippedWeapon.wpStrengthPoints;
+        IPGearAddition = equippedWeapon.wpIntelligencePoints;
+        APGearAddition = equippedWeapon.wpAgilityPoints;
+        basicAttackSkill = equippedWeapon.basicAttackSkill;
+
+        HPGearAddition = equippedArmor.arHealthPoints;
+        DPGearAddition = equippedArmor.arDefensePoints;
 
         pDefGearAddition += DPGearAddition * 0.75;
         mDefGearAddition += IPGearAddition * 0.375;
@@ -617,29 +625,27 @@ class Hostile extends Mob {
     public Hostile(String hostileName,
             String hostileTypeAffinity,
             int hostileLevel,
-            String hostileArmor,
-            int hostileArmorLevel,
-            String hostileWeapon,
-            int hostileWeaponLevel) {
+            Weapon hostileWeapon,
+            Armor hostileArmor
+    ) {
 
         this.name = hostileName;
         this.typeAffinity = hostileTypeAffinity;
         this.level = hostileLevel;
 
-        initialize(hostileArmor, hostileArmorLevel, hostileWeapon, hostileWeaponLevel);
+        initialize(hostileWeapon, hostileArmor);
 
     }
 
     private void initialize(
-            String givenArmor,
-            int givenArmorLevel,
-            String givenWeapon,
-            int givenWeaponLevel) {
+            Weapon givenWeapon,
+            Armor givenArmor
+    ) {
 
         chooseAffinity(6);
         randomizeAttributes();
         confirmAttributeChanges();
-        equipGear(givenArmor, givenArmorLevel, givenWeapon, givenWeaponLevel);
+        equipGear(givenWeapon, givenArmor);
 
     }
 
@@ -907,6 +913,7 @@ abstract class Dungeon {
     String[] dungeonMonsterNames;
     String[][] dungeonMonsterAffinities;
     String[][] dungeonMonsterEquipment;
+    String[] dungeonMonsterBasicAttack;
     String[] scenicViewPrompts;
     int exploreTurns;
     boolean obstructed = false;
@@ -917,10 +924,8 @@ abstract class Dungeon {
     String dungeonMobName = "";
     String dungeonMobAffinity = "";
     int dungeonMobLVL = 0;
-    String dungeonMobArmor = "";
-    int dungeonMobArmorLVL = 0;
-    String dungeonMobWeapon = "";
-    int dungeonMobWeaponLVL = 0;
+    Weapon dungeonMobWeapon;
+    Armor dungeonMobArmor;
 
     Queue dungeonEncounters = new LinkedList<>();
     int recentScenicViewPromptIndex;
@@ -958,6 +963,7 @@ class Wilderness extends Dungeon {
             String[] givenMonsterNames,
             String[][] givenAffinities,
             String[][] givenEquipment,
+            String[] givenBasicAttacks,
             String[] scenicViews,
             int playerLevel) {
 
@@ -965,6 +971,7 @@ class Wilderness extends Dungeon {
         this.dungeonMonsterNames = givenMonsterNames;
         this.dungeonMonsterAffinities = givenAffinities;
         this.dungeonMonsterEquipment = givenEquipment;
+        this.dungeonMonsterBasicAttack = givenBasicAttacks;
         this.scenicViewPrompts = scenicViews;
 
         // must not exceed 100
@@ -1013,10 +1020,8 @@ class Wilderness extends Dungeon {
         dungeonMobName = dungeonMonsterNames[chosenMob];
         dungeonMobAffinity = dungeonMonsterAffinities[chosenMob][generatedAffinity];
         dungeonMobLVL = (generatedMobLVL + (dungeonLevel * 10));
-        dungeonMobArmor = dungeonMonsterEquipment[chosenMob][0];
-        dungeonMobArmorLVL = generatedArmorLVL;
-        dungeonMobWeapon = dungeonMonsterEquipment[chosenMob][1];
-        dungeonMobWeaponLVL = generatedWeaponLVL;
+        dungeonMobWeapon = new Weapon(dungeonMonsterEquipment[chosenMob][1], generatedWeaponLVL, dungeonMonsterBasicAttack[chosenMob], 0, 0, 0);
+        dungeonMobArmor = new Armor(dungeonMonsterEquipment[chosenMob][0], generatedArmorLVL, 0, 0);
 
 //        System.out.println();
 //        System.out.println("Wilderness Player Generated:");
@@ -1035,6 +1040,7 @@ class BossLair extends Dungeon {
             String[] givenMonsterNames,
             String[][] givenAffinities,
             String[][] givenEquipment,
+            String[] givenBasicAttacks,
             String[] scenicViews,
             int playerLevel) {
 
@@ -1042,6 +1048,7 @@ class BossLair extends Dungeon {
         this.dungeonMonsterNames = givenMonsterNames;
         this.dungeonMonsterAffinities = givenAffinities;
         this.dungeonMonsterEquipment = givenEquipment;
+        this.dungeonMonsterBasicAttack = givenBasicAttacks;
         this.scenicViewPrompts = scenicViews;
 
         // must not exceed 100
@@ -1087,10 +1094,8 @@ class BossLair extends Dungeon {
         dungeonMobName = dungeonMonsterNames[0];
         dungeonMobAffinity = dungeonMonsterAffinities[0][generatedAffinity];
         dungeonMobLVL = (generatedMobLVL + (dungeonLevel * 10));
-        dungeonMobArmor = dungeonMonsterEquipment[0][0];
-        dungeonMobArmorLVL = generatedArmorLVL;
-        dungeonMobWeapon = dungeonMonsterEquipment[0][1];
-        dungeonMobWeaponLVL = generatedWeaponLVL;
+        dungeonMobWeapon = new Weapon(dungeonMonsterEquipment[0][1], generatedWeaponLVL, dungeonMonsterBasicAttack[0], 0, 0, 0);
+        dungeonMobArmor = new Armor(dungeonMonsterEquipment[0][0], generatedArmorLVL, 0, 0);
 
 //        System.out.println();
 //        System.out.println("Wilderness Player Generated:");
@@ -1102,7 +1107,7 @@ class BossLair extends Dungeon {
 
     public void generateBossMob() {
 
-        int generatedMobLVL = 12;
+        int bossMobLVL = 12;
         int generatedAffinity = dungeonRandomizer.nextInt(2);
         int generatedArmorLVL = dungeonRandomizer.nextInt(1, 4);
         int generatedWeaponLVL = dungeonRandomizer.nextInt(1, 4);
@@ -1111,11 +1116,9 @@ class BossLair extends Dungeon {
 
         dungeonMobName = dungeonMonsterNames[1];
         dungeonMobAffinity = dungeonMonsterAffinities[1][generatedAffinity];
-        dungeonMobLVL = (generatedMobLVL + (dungeonLevel * 10));
-        dungeonMobArmor = dungeonMonsterEquipment[1][0];
-        dungeonMobArmorLVL = generatedArmorLVL;
-        dungeonMobWeapon = dungeonMonsterEquipment[1][1];
-        dungeonMobWeaponLVL = generatedWeaponLVL;
+        dungeonMobLVL = (bossMobLVL + (dungeonLevel * 10));
+        dungeonMobWeapon = new Weapon(dungeonMonsterEquipment[1][1], generatedWeaponLVL, dungeonMonsterBasicAttack[1], 0, 0, 0);
+        dungeonMobArmor = new Armor(dungeonMonsterEquipment[1][0], generatedArmorLVL, 0, 0);
 
     }
 
@@ -1219,13 +1222,12 @@ class Quest {
 class Store {
 
     // store bought equipment
-    // hashmap for store locations
-    HashMap<String, HashMap<String, String[]>> storeMerchandise = new HashMap<>();
-    HashMap<String, HashMap<String, int[]>> merchandiseInfo = new HashMap<>();
+    // hashmap for store locations and their merchandise (as their pair)
+    HashMap<String, HashMap<String, Equipment>> storeMerchandise = new HashMap<>();
 
     // bought merchandise
     // bought merchandise format: <"storeLocation", HashMap<"item bought", lvlInt>>
-    HashMap<String, HashMap<String, Integer>> boughtMerchandise = new HashMap<>();
+    HashMap<String, HashMap<String, Equipment>> boughtMerchandise = new HashMap<>();
 
     public Store(String firstStoreLocation) {
 
@@ -1234,7 +1236,7 @@ class Store {
     }
 
     public void generateMerchandiseInfo(String givenStoreLocation,
-            HashMap<String, String[]> merchandiseHashMap, int storeLevel) {
+            HashMap<String, Equipment> merchandiseHashMap, int storeLevel) {
 
 //        System.out.println(givenStoreLocation);
 //        System.out.println(merchandiseHashMap);
@@ -1248,54 +1250,130 @@ class Store {
         put("Armor", new String[] {"Leather Armor", "Reinforced Leather Armor"});
         
          */
-        storeMerchandise.put(givenStoreLocation, merchandiseHashMap);
-        merchandiseInfo.put(givenStoreLocation, new HashMap<String, int[]>() {
+        HashMap<String, Equipment> shopMerchandise = new HashMap<>() {
 
             {
 
-                for (String str : merchandiseHashMap.keySet()) {
-                    put(str, new int[]{1, (50 * storeLevel)});
+                for (String shopEquipmentStr : merchandiseHashMap.keySet()) {
+                    
+                    Equipment equipmentModified = merchandiseHashMap.get(shopEquipmentStr);
+                    equipmentModified.coinsWorth = 50 * storeLevel;
+                    System.out.println(equipmentModified.coinsWorth);
+                    put(shopEquipmentStr, equipmentModified);
+
                 }
 
             }
 
-        });
+        };
+
+        storeMerchandise.put(givenStoreLocation, shopMerchandise);
 
     }
 
     public int canBuyMerchandise(String buyLocation, String merchandiseType) {
 
-        System.out.println("Item: " + storeMerchandise.get(buyLocation).get(merchandiseType)[merchandiseInfo.get(buyLocation).get(merchandiseType)[0] < 4 ? 0 : 1]);
-        System.out.println("LVL: " + merchandiseInfo.get(buyLocation).get(merchandiseType)[0]);
-        System.out.println("Cost: " + merchandiseInfo.get(buyLocation).get(merchandiseType)[1]);
-
-//            System.out.println("Afforded");
-        purchaseMerchandise(merchandiseType,
-                storeMerchandise.get(buyLocation).get(merchandiseType)[merchandiseInfo.get(buyLocation).get(merchandiseType)[0] < 4 ? 0 : 1],
-                merchandiseInfo.get(buyLocation).get(merchandiseType)[0]);
-        merchandiseInfo.get(buyLocation).get(merchandiseType)[0] += 1;
-        merchandiseInfo.get(buyLocation).get(merchandiseType)[1] *= 1.2;
-
-//            System.out.println("New Level: " + merchandiseInfo.get(buyLocation).get(merchandiseToBuy)[0]);
-//            System.out.println("Cost: " + merchandiseInfo.get(buyLocation).get(merchandiseToBuy)[1]);
-        // returns the cost value
-        return merchandiseInfo.get(buyLocation).get(merchandiseType)[1];
-
-    }
-
-    private void purchaseMerchandise(String purchasedMerchandiseType, String merchandiseName, int merchandiseLVL) {
-
-        HashMap<String, Integer> upgradedMerchandise = new HashMap<>() {
+        HashMap<String, Equipment> upgradedMerchandise = new HashMap<>() {
 
             {
 
-                put(merchandiseName, merchandiseLVL);
+                put(storeMerchandise.get(buyLocation).get(merchandiseType).equipmentName,
+                        storeMerchandise.get(buyLocation).get(merchandiseType));
 
             }
 
         };
-        boughtMerchandise.put(purchasedMerchandiseType, upgradedMerchandise);
-        System.out.println("boughtMerchandise: " + boughtMerchandise);
+        boughtMerchandise.put(merchandiseType, upgradedMerchandise);
+//        System.out.println("boughtMerchandise: " + boughtMerchandise);
+
+        storeMerchandise.get(buyLocation).get(merchandiseType).equipmentLVL += 1;
+        
+        storeMerchandise.get(buyLocation).get(merchandiseType).wpStrengthPoints = 
+                storeMerchandise.get(buyLocation).get(merchandiseType).wpStrengthPoints > 0 ? 
+                storeMerchandise.get(buyLocation).get(merchandiseType).wpStrengthPoints += 3 : 0;
+                
+        storeMerchandise.get(buyLocation).get(merchandiseType).wpIntelligencePoints = 
+                storeMerchandise.get(buyLocation).get(merchandiseType).wpIntelligencePoints > 0 ? 
+                storeMerchandise.get(buyLocation).get(merchandiseType).wpIntelligencePoints += 3 : 0;
+                
+        storeMerchandise.get(buyLocation).get(merchandiseType).wpAgilityPoints = 
+                storeMerchandise.get(buyLocation).get(merchandiseType).wpAgilityPoints > 0 ? 
+                storeMerchandise.get(buyLocation).get(merchandiseType).wpAgilityPoints += 3 : 0;
+                
+        storeMerchandise.get(buyLocation).get(merchandiseType).arHealthPoints = 
+                storeMerchandise.get(buyLocation).get(merchandiseType).arHealthPoints > 0 ? 
+                storeMerchandise.get(buyLocation).get(merchandiseType).arHealthPoints += 3 : 0;
+                
+        storeMerchandise.get(buyLocation).get(merchandiseType).arDefensePoints = 
+                storeMerchandise.get(buyLocation).get(merchandiseType).arDefensePoints > 0 ? 
+                storeMerchandise.get(buyLocation).get(merchandiseType).arDefensePoints += 3 : 0;
+                
+        
+        storeMerchandise.get(buyLocation).get(merchandiseType).coinsWorth *= 1.5;
+
+        return storeMerchandise.get(buyLocation).get(merchandiseType).coinsWorth;
+
+    }
+
+}
+// </editor-fold>
+// -----------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------
+// <editor-fold desc="Equipment class">
+
+abstract class Equipment {
+
+    int equipmentLVL;
+    String equipmentName;
+    int coinsWorth;
+    
+        int wpStrengthPoints;
+    int wpIntelligencePoints;
+    int wpAgilityPoints;
+    
+        int arHealthPoints;
+    int arDefensePoints;
+
+}
+
+class Weapon extends Equipment {
+
+
+    String basicAttackSkill;
+
+    public Weapon(
+            String givenName,
+            int givenWPLVL,
+            String givenBasicAttackSkill,
+            int givenWPStrengthPoints,
+            int givenWPIntelligencePoints,
+            int givenWPAgilityPoints
+    ) {
+
+        this.equipmentName = givenName;
+        this.equipmentLVL = givenWPLVL;
+        this.basicAttackSkill = givenBasicAttackSkill;
+        this.wpStrengthPoints = givenWPStrengthPoints * equipmentLVL;
+        this.wpIntelligencePoints = givenWPIntelligencePoints * equipmentLVL;
+        this.wpAgilityPoints = givenWPAgilityPoints * equipmentLVL;
+
+    }
+
+}
+
+class Armor extends Equipment {
+
+    public Armor(
+            String givenName,
+            int givenARLVL,
+            int givenARHealthPoints,
+            int givenARDefensePoints
+    ) {
+
+        this.equipmentName = givenName;
+        this.equipmentLVL = givenARLVL;
+        this.arHealthPoints = givenARHealthPoints * equipmentLVL;
+        this.arDefensePoints = givenARDefensePoints * equipmentLVL;
 
     }
 
@@ -1512,8 +1590,11 @@ public class Game extends javax.swing.JFrame {
         // debugging stuff (0 for normal)
         // 6 for testing dialogue menu
         // 8 for skipping tutorial
+        //9 for testing shop
         // 12 for baron boss battle
         storylineIndex = 9;
+        quest = new Quest();
+
         // -----------------------------------------------------------------------------------------------------------
         // <editor-fold desc="debugging/ QA testing stuff">
         player = new Player();
@@ -1526,15 +1607,15 @@ public class Game extends javax.swing.JFrame {
 
         player.chooseAffinity(6);
         player.confirmAttributeChanges();
-        player.equipGear("Leather Armor", 20, "Iron Sword", 20);
+        Weapon debugWeapon = new Weapon("Iron Sword", 1, "Slash", 3, 0, 0);
+        Armor debugArmor = new Armor("Leather Armor", 1, 3, 3);
+        player.equipGear(debugWeapon, debugArmor);
 
         player.attributePoints += 1000;
-        player.totalCoins += 1000;
+        player.totalCoins += 10000;
 //        battlePlayer.currentHP = 1;
         // </editor-fold>
         // -----------------------------------------------------------------------------------------------------------
-        quest = new Quest();
-
         initComponents();
         hideScreens();
         generateNPCNames();
@@ -3300,7 +3381,7 @@ public class Game extends javax.swing.JFrame {
             // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
             // after testing purposes revert 1 back to (loadedStorylineText.length - 1)
             // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        } else if (textIndex >= 1) {
+        } else if (textIndex >= 0) {
 
             // entering affinity sequence
             button_Yes.setVisible(true);
@@ -4003,11 +4084,11 @@ public class Game extends javax.swing.JFrame {
     private void openInventory() {
         panel_Inventory.setVisible(true);
 
-        label_Armor.setText(String.format("Equipped Armor: %s (LVL %s)", player.equippedArmor, player.equippedArmorLVL));
+        label_Armor.setText(String.format("Equipped Armor: %s (LVL %s)", player.equippedArmor.equipmentName, player.equippedArmor.equipmentLVL));
         label_TotalPDef.setText(String.valueOf(player.physicalDefense));
         label_TotalMDef.setText(String.valueOf(player.magicalDefense));
 
-        label_Weapon.setText(String.format("Equipped Armor: %s (LVL %s)", player.equippedWeapon, player.equippedWeaponLVL));
+        label_Weapon.setText(String.format("Equipped Armor: %s (LVL %s)", player.equippedWeapon.equipmentName, player.equippedWeapon.equipmentLVL));
         label_TotalPDmg.setText(String.valueOf(player.physicalDamage));
         label_TotalMDmg.setText(String.valueOf(player.magicalDamage));
         label_TotalCC.setText(String.valueOf(player.critChance));
@@ -4044,9 +4125,35 @@ public class Game extends javax.swing.JFrame {
         }
     }
 
-    private void setPlayerStartingWeapon(String startingWeapon) {
+    private void setPlayerStartingWeapon(String chosenWeapon) {
 
-        player.equipGear("Leather Armor", 1, startingWeapon, 1);
+        Armor startingArmor = new Armor("Leather Armor", 1, 3, 3);
+
+        String startingWeaponBasicAttackSkill = "";
+        int startingWeaponSP = 0;
+        int startingWeaponIP = 0;
+        int startingWeaponAP = 0;
+
+        switch (chosenWeapon) {
+            case "Iron Sword" -> {
+                startingWeaponSP = 3;
+                startingWeaponBasicAttackSkill = "Slash";
+            }
+            case "Simple Bow" -> {
+                startingWeaponSP = 1;
+                startingWeaponAP = 2;
+                startingWeaponBasicAttackSkill = "Shoot";
+            }
+            case "Crude Wand" -> {
+                startingWeaponIP = 3;
+                startingWeaponBasicAttackSkill = "Magic Missile";
+            }
+        }
+
+        Weapon startingWeapon = new Weapon(chosenWeapon, 1, startingWeaponBasicAttackSkill,
+                startingWeaponSP, startingWeaponIP, startingWeaponAP);
+
+        player.equipGear(startingWeapon, startingArmor);
         panel_StartingGear.setVisible(false);
         nextDialogueArray();
 
@@ -4229,11 +4336,11 @@ public class Game extends javax.swing.JFrame {
         button_Place2.setVisible(false);
         button_Place3.setVisible(false);
 
-        ImageIcon ii = new ImageIcon();
+//        ImageIcon ii = new ImageIcon();
         // put the locations here
         switch (locationTravelledTo) {
             case "Village" -> {
-                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/village.png"));
+//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/village.png"));
                 button_Place1.setText("Village Elder");
                 button_Place1.setVisible(true);
                 button_Place2.setText("Travelling Merchant");
@@ -4242,7 +4349,7 @@ public class Game extends javax.swing.JFrame {
                 button_Place3.setVisible(true);
             }
             case "Grasslands" -> {
-                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/grasslands.png"));
+//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/grasslands.png"));
                 button_Place1.setText("Explore");
                 button_Place1.setVisible(true);
                 if (storylineIndex == 13) {
@@ -4251,44 +4358,44 @@ public class Game extends javax.swing.JFrame {
                 }
             }
             case "Town" -> {
-                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/town.png"));
+//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/town.png"));
             }
             case "Forest" -> {
-                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/forest.png"));
+//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/forest.png"));
 
             }
             case "City" -> {
-                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/city.png"));
+//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/city.png"));
 
             }
             case "Dungeon" -> {
-                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/dungeon.png"));
+//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/dungeon.png"));
 
             }
             case "Fortress" -> {
-                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/fortress.png"));
+//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/fortress.png"));
 
             }
             case "Scorched Plains" -> {
-                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/scorchedplains.png"));
+//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/scorchedplains.png"));
 
             }
             case "Capital" -> {
-                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/capital.png"));
+//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/capital.png"));
 
             }
             case "Gates of Hell" -> {
-                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/gatesofhell.png"));
+//                ii = new ImageIcon(getClass().getResource("/realmofallyria/images/gatesofhell.png"));
 
             }
 
         }
 
-        Image image = (ii).getImage().getScaledInstance(label_GameBackground.getWidth(),
-                label_GameBackground.getHeight(), Image.SCALE_SMOOTH);
-        ii = new ImageIcon(image);
-        label_WildernessBackground.setIcon(ii);
-        label_GameBackground.setIcon(ii);
+//        Image image = (ii).getImage().getScaledInstance(label_GameBackground.getWidth(),
+//                label_GameBackground.getHeight(), Image.SCALE_SMOOTH);
+//        ii = new ImageIcon(image);
+//        label_WildernessBackground.setIcon(ii);
+//        label_GameBackground.setIcon(ii);
         currentLocation = locationTravelledTo;
 
         label_Location.setText(String.format("Location: %s", locationTravelledTo));
@@ -4404,7 +4511,10 @@ public class Game extends javax.swing.JFrame {
             case 6 -> {
                 nextDialogueArray();
                 panel_Storyline.setVisible(false);
-                generateBattle("Slime", "Madeis", 1, "Slime Armor", 1, "Body", 1, true);
+                generateBattle("Slime", "Madeis", 1,
+                        new Weapon("Body", 1, "Tackle", 0, 0, 0),
+                        new Armor("Slime Armor", 1, 0, 2),
+                        true);
                 battle.escapeChance = 0;
             }
             case 7 ->
@@ -4444,14 +4554,14 @@ public class Game extends javax.swing.JFrame {
                 messagePopup("Quest Completed");
 
                 store = new Store("Travelling Merchant");
-                store.generateMerchandiseInfo("Travelling Merchant", new HashMap<String, String[]>() {
+                store.generateMerchandiseInfo("Travelling Merchant", new HashMap<String, Equipment>() {
 
                     {
 
-                        put("Sword", new String[]{"Iron Sword", "Steel Sword"});
-                        put("Bow", new String[]{"Simple Bow", "Short Bow"});
-                        put("Wand", new String[]{"Crude Wand", "Novice Wand"});
-                        put("Armor", new String[]{"Leather Armor", "Reinforced Leather Armor"});
+                        put("Sword", new Weapon("Iron Sword", 1, "Slash", 3, 0, 0));
+                        put("Bow", new Weapon("Simple Bow", 1, "Shoot", 1, 0, 2));
+                        put("Wand", new Weapon("Crude Wand", 1, "Magic Missile", 0, 3, 0));
+                        put("Armor", new Armor("Leather Armor", 1, 3, 3));
 
                     }
 
@@ -4552,12 +4662,11 @@ public class Game extends javax.swing.JFrame {
     private void generateBattle(String battleMobName,
             String battleMobAffinity,
             int battleMobLVL,
-            String battleMobArmor,
-            int battleMobArmorLVL,
-            String battleMobWeapon,
-            int battleMobWeaponLVL, boolean forcedEncounter) {
+            Weapon battleMobWeapon,
+            Armor battleMobArmor,
+            boolean forcedEncounter) {
 
-        enemy = new Hostile(battleMobName, battleMobAffinity, battleMobLVL, battleMobArmor, battleMobArmorLVL, battleMobWeapon, battleMobWeaponLVL);
+        enemy = new Hostile(battleMobName, battleMobAffinity, battleMobLVL, battleMobWeapon, battleMobArmor);
         battle = new Battle(player, enemy);
 
         if (forcedEncounter) {
@@ -4919,10 +5028,10 @@ public class Game extends javax.swing.JFrame {
         button_BuyBow.setVisible(true);
         button_BuyWand.setVisible(true);
         button_BuyArmor.setVisible(true);
-        button_EquipSword.setVisible(true);
-        button_EquipBow.setVisible(true);
-        button_EquipWand.setVisible(true);
-        button_EquipArmor.setVisible(true);
+        button_EquipSword.setVisible(!(button_EquipSword.getText().isEmpty()));
+        button_EquipBow.setVisible(!(button_EquipBow.getText().isEmpty()));
+        button_EquipWand.setVisible(!(button_EquipWand.getText().isEmpty()));
+        button_EquipArmor.setVisible(!(button_EquipArmor.getText().isEmpty()));
 
         button_Return.setVisible(true);
 
@@ -4961,6 +5070,10 @@ public class Game extends javax.swing.JFrame {
                             {"Unarmored", "Body"},
                             {"Unarmored", "Body"}
                         };
+                        String[] grasslandBossLairBasicSkills = {
+                            "Tackle",
+                            "Club"
+                        };
                         String[] grasslandBossLairScenicViews = {
                             "You come across a pretty flower.",
                             "You come across a lonesome tree."
@@ -4971,6 +5084,7 @@ public class Game extends javax.swing.JFrame {
                                 grasslandBossLairMonsters,
                                 grasslandBossLairAffinities,
                                 grasslandBossLairEquipment,
+                                grasslandBossLairBasicSkills,
                                 grasslandBossLairScenicViews,
                                 player.level);
 
@@ -4987,6 +5101,11 @@ public class Game extends javax.swing.JFrame {
                             {"Unarmored", "Body"},
                             {"Unarmored", "Club"},
                             {"Unarmored", "Mouth"}
+                        };
+                        String[] grasslandBasicAttacks = {
+                            "Tackle",
+                            "Club",
+                            "Bite"
                         };
                         String[] grasslandScenicViews = {
                             "You come across a pretty flower.",
@@ -5024,6 +5143,7 @@ public class Game extends javax.swing.JFrame {
                                 grasslandMonsters,
                                 grasslandAffinities,
                                 grasslandEquipment,
+                                grasslandBasicAttacks,
                                 grasslandScenicViews,
                                 player.level);
 
@@ -5046,10 +5166,10 @@ public class Game extends javax.swing.JFrame {
                         generateBattle(bossLair.dungeonMobName,
                                 bossLair.dungeonMobAffinity,
                                 bossLair.dungeonMobLVL,
-                                bossLair.dungeonMobArmor,
-                                bossLair.dungeonMobArmorLVL,
                                 bossLair.dungeonMobWeapon,
-                                bossLair.dungeonMobWeaponLVL, false);
+                                bossLair.dungeonMobArmor,
+                                false
+                        );
 
                         label_EncounterLog.setText(String.format(""" 
                                             <html>
@@ -5117,10 +5237,9 @@ public class Game extends javax.swing.JFrame {
                         generateBattle(bossLair.dungeonMobName,
                                 bossLair.dungeonMobAffinity,
                                 bossLair.dungeonMobLVL,
-                                bossLair.dungeonMobArmor,
-                                bossLair.dungeonMobArmorLVL,
                                 bossLair.dungeonMobWeapon,
-                                bossLair.dungeonMobWeaponLVL, false);
+                                bossLair.dungeonMobArmor,
+                                false);
                         battle.escapeChance = 0;
 
                         label_EncounterLog.setText(String.format(""" 
@@ -5163,10 +5282,10 @@ public class Game extends javax.swing.JFrame {
                         generateBattle(wilderness.dungeonMobName,
                                 wilderness.dungeonMobAffinity,
                                 wilderness.dungeonMobLVL,
-                                wilderness.dungeonMobArmor,
-                                wilderness.dungeonMobArmorLVL,
                                 wilderness.dungeonMobWeapon,
-                                wilderness.dungeonMobWeaponLVL, false);
+                                wilderness.dungeonMobArmor,
+                                false
+                        );
 
                         label_EncounterLog.setText(String.format(""" 
                                             <html>
@@ -5464,66 +5583,192 @@ public class Game extends javax.swing.JFrame {
 
 //        System.out.println(store.storeMerchandise.get(storeEntered));
 //        System.out.println(store.merchandiseInfo.get(storeEntered));
-        // <editor-fold desc="buy sword button">
-        button_BuySword.setText(String.format("""
+        String[] storeMerchandiseTypes = {"Sword", "Wand", "Bow", "Armor"};
+
+        for (String storeMerchandiseStr : storeMerchandiseTypes) {
+
+            setBuyWeaponText(storeMerchandiseStr);
+            setEquipWeaponText(storeMerchandiseStr);
+
+        }
+
+        button_EquipSword.setVisible(!(button_EquipSword.getText().isEmpty()));
+        button_EquipBow.setVisible(!(button_EquipBow.getText().isEmpty()));
+        button_EquipWand.setVisible(!(button_EquipWand.getText().isEmpty()));
+        button_EquipArmor.setVisible(!(button_EquipArmor.getText().isEmpty()));
+
+    }
+
+    private void setBuyWeaponText(String merchandiseButtonType) {
+
+        String buyButtonText;
+
+        if (store.storeMerchandise.get(currentStore).get(merchandiseButtonType).equipmentLVL < 11) {
+
+            buyButtonText = String.format("""
                 <html>
                 <body>
                 <p align="center">
-                %s (LVL %s)
+                %s (LVL %s) %s
                 <br> cost: %s
                 </p>
                 </body>
                 </html>
                 """,
-                store.storeMerchandise.get(storeEntered).get("Sword")[store.merchandiseInfo.get(storeEntered).get("Sword")[0] < 4 ? 0 : 1],
-                store.merchandiseInfo.get(storeEntered).get("Sword")[0],
-                convertCoins(store.merchandiseInfo.get(storeEntered).get("Sword")[1])));
-        // </editor-fold>
-        // <editor-fold desc="buy bow button">
-        button_BuyBow.setText(String.format("""
+                    store.storeMerchandise.get(currentStore).get(merchandiseButtonType).equipmentName,
+                    store.storeMerchandise.get(currentStore).get(merchandiseButtonType).equipmentLVL,
+                    String.format("<br>(%s %s %s %s %s)", 
+                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpStrengthPoints > 0 ?
+                                    String.format("+%s SP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpStrengthPoints) :
+                                    "",
+                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpIntelligencePoints > 0 ?
+                                    String.format("+%s IP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpIntelligencePoints) :
+                                    "",
+                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpAgilityPoints > 0 ?
+                                    String.format("+%s AP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpAgilityPoints) :
+                                    "",
+                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arHealthPoints > 0 ?
+                                    String.format("+%s HP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arHealthPoints) :
+                                    "",
+                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arDefensePoints > 0 ?
+                                    String.format("+%s DP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arDefensePoints) :
+                                    ""),
+                    convertCoins(store.storeMerchandise.get(currentStore).get(merchandiseButtonType).coinsWorth
+                    )
+            );
+
+        } else {
+
+            buyButtonText = String.format("""
                 <html>
                 <body>
                 <p align="center">
-                %s (LVL %s)
-                <br> cost: %s
+                %s (LVL %s) %s
+                <br> %s
                 </p>
                 </body>
                 </html>
                 """,
-                store.storeMerchandise.get(storeEntered).get("Bow")[store.merchandiseInfo.get(storeEntered).get("Bow")[0] < 4 ? 0 : 1],
-                store.merchandiseInfo.get(storeEntered).get("Bow")[0],
-                convertCoins(store.merchandiseInfo.get(storeEntered).get("Bow")[1])));
-        // </editor-fold>
-        // <editor-fold desc="buy wand button">
-        button_BuyWand.setText(String.format("""
+                    store.storeMerchandise.get(currentStore).get(merchandiseButtonType).equipmentName,
+                    store.storeMerchandise.get(currentStore).get(merchandiseButtonType).equipmentLVL,
+                    String.format("<br>(%s %s %s %s %s)", 
+                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpStrengthPoints > 0 ?
+                                    String.format("+%s SP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpStrengthPoints) :
+                                    "",
+                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpIntelligencePoints > 0 ?
+                                    String.format("+%s IP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpIntelligencePoints) :
+                                    "",
+                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpAgilityPoints > 0 ?
+                                    String.format("+%s AP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).wpAgilityPoints) :
+                                    "",
+                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arHealthPoints > 0 ?
+                                    String.format("+%s HP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arHealthPoints) :
+                                    "",
+                            store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arDefensePoints > 0 ?
+                                    String.format("+%s DP", store.storeMerchandise.get(currentStore).get(merchandiseButtonType).arDefensePoints) :
+                                    ""),
+                    "(MAX LEVEL REACHED)");
+
+        }
+
+        switch (merchandiseButtonType) {
+
+            case "Sword" -> {
+                button_BuySword.setText(buyButtonText);
+            }
+            case "Bow" -> {
+                button_BuyBow.setText(buyButtonText);
+            }
+            case "Wand" -> {
+                button_BuyWand.setText(buyButtonText);
+            }
+            case "Armor" -> {
+                button_BuyArmor.setText(buyButtonText);
+            }
+
+        }
+
+    }
+
+    private void setEquipWeaponText(String merchandiseButtonType) {
+
+        String equipButtonText = "";
+
+        if (store.boughtMerchandise.containsKey(merchandiseButtonType)) {
+
+            equipButtonText = (String.format("""
                 <html>
                 <body>
                 <p align="center">
-                %s (LVL %s)
-                <br> cost: %s
+                Equip: %s (LVL %s) %s
                 </p>
                 </body>
                 </html>
                 """,
-                store.storeMerchandise.get(storeEntered).get("Wand")[store.merchandiseInfo.get(storeEntered).get("Wand")[0] < 4 ? 0 : 1],
-                store.merchandiseInfo.get(storeEntered).get("Wand")[0],
-                convertCoins(store.merchandiseInfo.get(storeEntered).get("Wand")[1])));
-        // </editor-fold>
-        // <editor-fold desc="buy armor button">
-        button_BuyArmor.setText(String.format("""
-                <html>
-                <body>
-                <p align="center">
-                %s (LVL %s)
-                <br> cost: %s
-                </p>
-                </body>
-                </html>
-                """,
-                store.storeMerchandise.get(storeEntered).get("Armor")[store.merchandiseInfo.get(storeEntered).get("Armor")[0] < 4 ? 0 : 1],
-                store.merchandiseInfo.get(storeEntered).get("Armor")[0],
-                convertCoins(store.merchandiseInfo.get(storeEntered).get("Armor")[1])));
-        // </editor-fold>
+                    store.boughtMerchandise.get(merchandiseButtonType).keySet().toArray()[0].toString(),
+                    store.boughtMerchandise.get(merchandiseButtonType).get(store.boughtMerchandise.get(merchandiseButtonType).keySet().toArray()[0].toString()).equipmentLVL,
+                    String.format("<br>(%s %s %s %s %s)", 
+                    store.boughtMerchandise.get(merchandiseButtonType)
+                            .get(store.boughtMerchandise.get(merchandiseButtonType)
+                                    .keySet().toArray()[0].toString()).wpStrengthPoints > 0 ? 
+                    String.format("+%s SP", store.boughtMerchandise.get(merchandiseButtonType)
+                            .get(store.boughtMerchandise.get(merchandiseButtonType)
+                                    .keySet().toArray()[0].toString()).wpStrengthPoints) :
+                            "",
+                    
+                    store.boughtMerchandise.get(merchandiseButtonType)
+                            .get(store.boughtMerchandise.get(merchandiseButtonType)
+                                    .keySet().toArray()[0].toString()).wpIntelligencePoints > 0 ? 
+                    String.format("+%s IP", store.boughtMerchandise.get(merchandiseButtonType)
+                            .get(store.boughtMerchandise.get(merchandiseButtonType)
+                                    .keySet().toArray()[0].toString()).wpIntelligencePoints) :
+                            "",
+                    
+                    store.boughtMerchandise.get(merchandiseButtonType)
+                            .get(store.boughtMerchandise.get(merchandiseButtonType)
+                                    .keySet().toArray()[0].toString()).wpAgilityPoints > 0 ? 
+                    String.format("+%s AP", store.boughtMerchandise.get(merchandiseButtonType)
+                            .get(store.boughtMerchandise.get(merchandiseButtonType)
+                                    .keySet().toArray()[0].toString()).wpAgilityPoints) :
+                            "",
+                    
+                    store.boughtMerchandise.get(merchandiseButtonType)
+                            .get(store.boughtMerchandise.get(merchandiseButtonType)
+                                    .keySet().toArray()[0].toString()).arHealthPoints > 0 ? 
+                    String.format("+%s HP", store.boughtMerchandise.get(merchandiseButtonType)
+                            .get(store.boughtMerchandise.get(merchandiseButtonType)
+                                    .keySet().toArray()[0].toString()).arHealthPoints) :
+                            "",
+                    
+                    store.boughtMerchandise.get(merchandiseButtonType)
+                            .get(store.boughtMerchandise.get(merchandiseButtonType)
+                                    .keySet().toArray()[0].toString()).arDefensePoints > 0 ? 
+                    String.format("+%s DP", store.boughtMerchandise.get(merchandiseButtonType)
+                            .get(store.boughtMerchandise.get(merchandiseButtonType)
+                                    .keySet().toArray()[0].toString()).arDefensePoints) :
+                            ""
+                    )
+                    
+            ));
+
+        }
+
+        switch (merchandiseButtonType) {
+
+            case "Sword" -> {
+                button_EquipSword.setText(equipButtonText);
+            }
+            case "Bow" -> {
+                button_EquipBow.setText(equipButtonText);
+            }
+            case "Wand" -> {
+                button_EquipWand.setText(equipButtonText);
+            }
+            case "Armor" -> {
+                button_EquipArmor.setText(equipButtonText);
+            }
+
+        }
 
     }
 
@@ -5554,11 +5799,19 @@ public class Game extends javax.swing.JFrame {
 
     private void buyAction(String equipmentType) {
 
-        if (player.totalCoins > store.merchandiseInfo.get(currentStore).get(equipmentType)[1]) {
-            player.takeCoins(store.canBuyMerchandise(currentStore, equipmentType));
-            enterStore(currentStore);
-        } else {
-            messagePopup("Insufficient Coins");
+        if (store.storeMerchandise.get(currentStore).get(equipmentType).equipmentLVL < 11) {
+
+            if (player.totalCoins > store.storeMerchandise.get(currentStore).get(equipmentType).coinsWorth) {
+
+                player.takeCoins(store.canBuyMerchandise(currentStore, equipmentType));
+                enterStore(currentStore);
+
+            } else {
+
+                messagePopup("Insufficient Coins");
+
+            }
+
         }
 
     }
