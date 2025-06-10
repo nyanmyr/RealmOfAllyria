@@ -127,6 +127,7 @@ progress (7/10/2025)
 
 version 0.0.16 (prototype)
 progress (7/11/2025)
+• custom font
 - low HP or MP popup
 - other locations
 - finish content
