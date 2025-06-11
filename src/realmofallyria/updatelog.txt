@@ -127,7 +127,10 @@ progress (7/10/2025)
 
 version 0.0.16 (prototype)
 progress (7/11/2025)
-• custom font
+• unsuccessful escape is now considered a combat turn
+• after a battle has ended it does not immediately takes an auto turn in the dungeon
+
+- custom font
 - low HP or MP popup
 - other locations
 - finish content

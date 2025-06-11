@@ -1,26 +1,18 @@
 to do:
 
 bug fixing:
-- edit when can enter travelling merchant's store (should be after tutorial)
 - defeating baron does not have coins reward
-- dying does travels to village but does not end wilderness
-- unsuccessful escape should be considered as combat turn
-- after battle in wilderness should move auto. next (it should say the type of monster killed)
 - warning menu bug (buttons not ordered porperly) : os issue?
 
 future:
 - update opening sequence text (mention the boss's minnions)
-- revamp fleeing chances
-- make mob class constructor 
-- rebalance for fairer gameplay (enemies should get 5 attribute points per lvl)
-- resize stuff game
 - remove all tool tips using null
-- tips screen between travelling
+
+consider:
 - hardcore or normal difficulty
 - add save/ load feature
 - rework ui
-
-consider:
+- tips screen between travelling
 - shiny monsters??
 - clicking the home panel should return to the game panel automatically
 - change gender

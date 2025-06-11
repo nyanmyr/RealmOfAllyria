@@ -1,13 +1,16 @@
-
 package realmofallyria;
 
-import java.awt.Image;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
-import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 
 // -----------------------------------------------------------------------------------------------------------
 // <editor-fold desc="Mob abstract class and extensions (Player, Hostile)">
@@ -332,19 +335,19 @@ abstract class Mob {
         addHP = negative ? addHP * -1 : addHP;
         addMP = negative ? addMP * -1 : addMP;
 
-        currentHP += addHP * 3;
-        currentMP += addMP * 1;
+        currentHP += addHP * 6;
+        currentMP += addMP * 2;
 
-        maxHP += addHP * 3;
-        maxMP += addMP * 1.5;
+        maxHP += addHP * 6;
+        maxMP += addMP * 2;
     }
 
     public void setSubAttributes() {
 
-        physicalDefense = defensePoints * 0.5;
-        magicalDefense = intelligencePoints * 0.25;
-        physicalDamage = strengthPoints * 1;
-        magicalDamage = intelligencePoints * 0.5;
+        physicalDefense = defensePoints * 1;
+        magicalDefense = intelligencePoints * 0.5;
+        physicalDamage = strengthPoints * 2;
+        magicalDamage = intelligencePoints * 1;
         scaleCritChance();
 
     }
@@ -728,14 +731,7 @@ class Battle {
 
     public String takeTurn(Skill battleSkillUsed, Mob defendingMob, Mob attackingMob) {
 
-        // <editor-fold desc="uses a queue data structure to determine turns.">
-        if (turns.peek().equals(battlePlayer.name)) {
-            turns.add(battleHostile.name);
-        } else {
-            turns.add(battlePlayer.name);
-        }
-        turns.poll();
-        // </editor-fold>
+        moveQueue();
 
         battleXPGain += battleXPTurnIncrease;
         battleCoinGain += battleCoinTurnIncrease;
@@ -840,18 +836,31 @@ class Battle {
 
     }
 
+    public void moveQueue() {
+
+        // <editor-fold desc="uses a queue data structure to determine turns.">
+        if (turns.peek().equals(battlePlayer.name)) {
+            turns.add(battleHostile.name);
+        } else {
+            turns.add(battlePlayer.name);
+        }
+        turns.poll();
+        // </editor-fold>
+
+    }
+
     public boolean attemptFlee() {
 
         int fleeRoll = battleRandomizer.nextInt(1, 101);
 
         if (fleeRoll < escapeChance) {
 
-            System.out.println("Escape Success");
+//            System.out.println("Escape Success");
             return false;
 
         } else {
 
-            System.out.println("Escape Failure");
+//            System.out.println("Escape Failure");
             return true;
 
         }
@@ -864,11 +873,11 @@ class Battle {
         int battleSilverCoins = 0;
         int battleCopperCoins = 0;
 
-        String battleEndString = "";
+        String battleEndString;
 
         if (!fleeing) {
-            String winningMob = "";
-            String defeatedMob = "";
+            String winningMob;
+            String defeatedMob;
             if (battlePlayer.currentHP < 0) {
                 defeatedMob = battlePlayer.name;
                 winningMob = battleHostile.name;
@@ -1693,30 +1702,30 @@ public class Game extends javax.swing.JFrame {
         // 7 for skipping tutorial
         //9 for testing shop
         // 12 for baron boss battle
-        storylineIndex = 7;
+        storylineIndex = 0;
         quest = new Quest();
 
         // -----------------------------------------------------------------------------------------------------------
         // <editor-fold desc="debugging/ QA testing stuff">
-        player = new Player();
-        characterNames.put(0, new String[]{"Meme Bashame", "", "Player", "m"});
-        player.typeAffinity = "Celeritas";
-        player.chooseAffinity(10);
-        player.name = "Meme Bashame";
-        player.typeAffinity = "Celeritas";
-        player.level = 10;
-
-        player.chooseAffinity(6);
-        player.confirmAttributeChanges();
-        Weapon debugWeapon = new Weapon("Iron Sword", 1, new Skill("Slash"), 3, 0, 0);
-        Armor debugArmor = new Armor("Leather Armor", 1, 3, 3);
-        player.equipGear(debugWeapon, debugArmor);
-
-        player.attributePoints += 1000;
-        player.totalCoins += 10000;
-        player.skill1 = new Skill("Heal");
-        player.skill2 = new Skill("Fireball");
-        player.skill3 = new Skill("Ice Shards");
+//        player = new Player();
+//        characterNames.put(0, new String[]{"Meme Bashame", "", "Player", "m"});
+//        player.typeAffinity = "Celeritas";
+//        player.chooseAffinity(10);
+//        player.name = "Meme Bashame";
+//        player.typeAffinity = "Celeritas";
+//        player.level = 1;
+//
+//        player.chooseAffinity(6);
+//        player.confirmAttributeChanges();
+//        Weapon debugWeapon = new Weapon("Iron Sword", 1, new Skill("Slash"), 3, 0, 0);
+//        Armor debugArmor = new Armor("Leather Armor", 1, 3, 3);
+//        player.equipGear(debugWeapon, debugArmor);
+//
+//        player.attributePoints += 1000;
+//        player.totalCoins += 10000;
+//        player.skill1 = new Skill("Heal");
+//        player.skill2 = new Skill("Fireball");
+//        player.skill3 = new Skill("Ice Shards");
         // </editor-fold>
         // -----------------------------------------------------------------------------------------------------------
         initComponents();
@@ -1724,8 +1733,8 @@ public class Game extends javax.swing.JFrame {
         generateNPCNames();
 
         // enable these along with putting storylineIndex to 8 to skip tutorial
-        openGameScreen();
-        travelToLocation("Village");
+//        openGameScreen();
+//        travelToLocation("Village");
     }
 
     // -----------------------------------------------------------------------------------------------------------
@@ -1809,6 +1818,28 @@ public class Game extends javax.swing.JFrame {
         panel_Main = new javax.swing.JPanel();
         button_Return = new javax.swing.JButton();
         label_Header = new javax.swing.JLabel();
+        panel_Dungeon = new javax.swing.JPanel();
+        label_DungeonLocation = new javax.swing.JLabel();
+        label_EncounterLog = new javax.swing.JLabel();
+        button_DungeonAttack = new javax.swing.JButton();
+        button_DungeonFlee = new javax.swing.JButton();
+        button_DungeonReturn = new javax.swing.JButton();
+        label_WildernessBackground = new javax.swing.JLabel();
+        panel_Game = new javax.swing.JPanel();
+        label_GameCurrency = new javax.swing.JLabel();
+        label_GameXP = new javax.swing.JLabel();
+        label_GameMP = new javax.swing.JLabel();
+        label_GameHP = new javax.swing.JLabel();
+        label_Location = new javax.swing.JLabel();
+        button_Quest = new javax.swing.JButton();
+        button_Travel = new javax.swing.JButton();
+        button_Inventory = new javax.swing.JButton();
+        button_Status = new javax.swing.JButton();
+        panel_LocationPanel = new javax.swing.JPanel();
+        button_Place1 = new javax.swing.JButton();
+        button_Place2 = new javax.swing.JButton();
+        button_Place3 = new javax.swing.JButton();
+        label_GameBackground = new javax.swing.JLabel();
         panel_Combat = new javax.swing.JPanel();
         label_CombatPlayer = new javax.swing.JLabel();
         label_CombatPlayerAffinity = new javax.swing.JLabel();
@@ -1847,28 +1878,6 @@ public class Game extends javax.swing.JFrame {
         button_EquipBow = new javax.swing.JButton();
         button_EquipWand = new javax.swing.JButton();
         button_EquipArmor = new javax.swing.JButton();
-        panel_Game = new javax.swing.JPanel();
-        label_GameCurrency = new javax.swing.JLabel();
-        label_GameXP = new javax.swing.JLabel();
-        label_GameMP = new javax.swing.JLabel();
-        label_GameHP = new javax.swing.JLabel();
-        label_Location = new javax.swing.JLabel();
-        button_Quest = new javax.swing.JButton();
-        button_Travel = new javax.swing.JButton();
-        button_Inventory = new javax.swing.JButton();
-        button_Status = new javax.swing.JButton();
-        panel_LocationPanel = new javax.swing.JPanel();
-        button_Place1 = new javax.swing.JButton();
-        button_Place2 = new javax.swing.JButton();
-        button_Place3 = new javax.swing.JButton();
-        label_GameBackground = new javax.swing.JLabel();
-        panel_Dungeon = new javax.swing.JPanel();
-        label_DungeonLocation = new javax.swing.JLabel();
-        label_EncounterLog = new javax.swing.JLabel();
-        button_DungeonAttack = new javax.swing.JButton();
-        button_DungeonFlee = new javax.swing.JButton();
-        button_DungeonReturn = new javax.swing.JButton();
-        label_WildernessBackground = new javax.swing.JLabel();
         panel_ChooseSkill = new javax.swing.JPanel();
         button_Skill1 = new javax.swing.JButton();
         label_Skill1 = new javax.swing.JLabel();
@@ -2003,11 +2012,200 @@ public class Game extends javax.swing.JFrame {
         panel_Main.add(button_Return);
         button_Return.setBounds(420, 63, 100, 30);
 
+        label_Header.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         label_Header.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         label_Header.setText("REALM OF ALLYRIA [CLICK TO START]");
         label_Header.setToolTipText("");
         panel_Main.add(label_Header);
         label_Header.setBounds(6, 6, 520, 47);
+
+        panel_Dungeon.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Dungeon.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                panel_DungeonMouseClicked(evt);
+            }
+        });
+        panel_Dungeon.setLayout(null);
+
+        label_DungeonLocation.setBackground(new java.awt.Color(65, 65, 65, 225));
+        label_DungeonLocation.setForeground(new java.awt.Color(221, 221, 222));
+        label_DungeonLocation.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_DungeonLocation.setText("Location");
+        label_DungeonLocation.setOpaque(true);
+        panel_Dungeon.add(label_DungeonLocation);
+        label_DungeonLocation.setBounds(150, 10, 220, 40);
+
+        label_EncounterLog.setBackground(new java.awt.Color(65, 65, 65, 225));
+        label_EncounterLog.setForeground(new java.awt.Color(221, 221, 222));
+        label_EncounterLog.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_EncounterLog.setText("Encounter Log");
+        label_EncounterLog.setOpaque(true);
+        panel_Dungeon.add(label_EncounterLog);
+        label_EncounterLog.setBounds(10, 60, 500, 160);
+
+        button_DungeonAttack.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_DungeonAttack.setText("Attack");
+        button_DungeonAttack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_DungeonAttackActionPerformed(evt);
+            }
+        });
+        panel_Dungeon.add(button_DungeonAttack);
+        button_DungeonAttack.setBounds(100, 240, 150, 40);
+
+        button_DungeonFlee.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_DungeonFlee.setText("Flee");
+        button_DungeonFlee.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_DungeonFleeActionPerformed(evt);
+            }
+        });
+        panel_Dungeon.add(button_DungeonFlee);
+        button_DungeonFlee.setBounds(280, 240, 150, 40);
+
+        button_DungeonReturn.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_DungeonReturn.setText("Return");
+        panel_Dungeon.add(button_DungeonReturn);
+        button_DungeonReturn.setBounds(190, 300, 150, 40);
+        button_DungeonReturn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_DungeonReturnActionPerformed(evt);
+            }
+        });
+        panel_Dungeon.add(label_WildernessBackground);
+        label_WildernessBackground.setBounds(-3, 0, 530, 380);
+
+        panel_Main.add(panel_Dungeon);
+        panel_Dungeon.setBounds(5, 60, 520, 370);
+
+        panel_Game.setBackground(new java.awt.Color(69, 69, 69));
+        panel_Game.setLayout(null);
+
+        label_GameCurrency.setBackground(new java.awt.Color(65, 65, 65, 225));
+        label_GameCurrency.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_GameCurrency.setForeground(new java.awt.Color(222, 222, 222));
+        label_GameCurrency.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_GameCurrency.setText("Coins: ");
+        label_GameCurrency.setOpaque(true);
+        panel_Game.add(label_GameCurrency);
+        label_GameCurrency.setBounds(10, 260, 240, 40);
+
+        label_GameXP.setBackground(new java.awt.Color(65, 65, 65, 225));
+        label_GameXP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_GameXP.setForeground(new java.awt.Color(222, 222, 222));
+        label_GameXP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_GameXP.setText("XP:");
+        label_GameXP.setOpaque(true);
+        panel_Game.add(label_GameXP);
+        label_GameXP.setBounds(10, 210, 240, 40);
+
+        label_GameMP.setBackground(new java.awt.Color(65, 65, 65, 225));
+        label_GameMP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_GameMP.setForeground(new java.awt.Color(222, 222, 222));
+        label_GameMP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_GameMP.setText("MP:");
+        label_GameMP.setOpaque(true);
+        panel_Game.add(label_GameMP);
+        label_GameMP.setBounds(10, 160, 240, 40);
+
+        label_GameHP.setBackground(new java.awt.Color(65, 65, 65, 225));
+        label_GameHP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_GameHP.setForeground(new java.awt.Color(222, 222, 222));
+        label_GameHP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_GameHP.setText("HP:");
+        label_GameHP.setOpaque(true);
+        panel_Game.add(label_GameHP);
+        label_GameHP.setBounds(10, 110, 240, 40);
+
+        label_Location.setBackground(new java.awt.Color(65, 65, 65, 225));
+        label_Location.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        label_Location.setForeground(new java.awt.Color(222, 222, 222));
+        label_Location.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Location.setText("Location: ");
+        label_Location.setOpaque(true);
+        panel_Game.add(label_Location);
+        label_Location.setBounds(10, 60, 240, 40);
+
+        button_Quest.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Quest.setText("Quest");
+        button_Quest.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_QuestActionPerformed(evt);
+            }
+        });
+        panel_Game.add(button_Quest);
+        button_Quest.setBounds(10, 10, 150, 40);
+
+        button_Travel.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Travel.setText("Travel");
+        button_Travel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_TravelActionPerformed(evt);
+            }
+        });
+        panel_Game.add(button_Travel);
+        button_Travel.setBounds(10, 320, 150, 40);
+
+        button_Inventory.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Inventory.setText("Inventory");
+        button_Inventory.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_InventoryActionPerformed(evt);
+            }
+        });
+        panel_Game.add(button_Inventory);
+        button_Inventory.setBounds(180, 320, 150, 40);
+
+        button_Status.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Status.setText("Status");
+        button_Status.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_StatusActionPerformed(evt);
+            }
+        });
+        panel_Game.add(button_Status);
+        button_Status.setBounds(360, 320, 150, 40);
+
+        panel_LocationPanel.setBackground(new java.awt.Color(60, 63, 63, 225));
+        panel_LocationPanel.setLayout(null);
+
+        button_Place1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Place1.setText("Village Elder");
+        button_Place1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_Place1ActionPerformed(evt);
+            }
+        });
+        panel_LocationPanel.add(button_Place1);
+        button_Place1.setBounds(10, 10, 220, 30);
+
+        button_Place2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Place2.setText("Travelling Merchant");
+        button_Place2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_Place2ActionPerformed(evt);
+            }
+        });
+        panel_LocationPanel.add(button_Place2);
+        button_Place2.setBounds(10, 50, 220, 30);
+
+        button_Place3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        button_Place3.setText("Home");
+        button_Place3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_Place3ActionPerformed(evt);
+            }
+        });
+        panel_LocationPanel.add(button_Place3);
+        button_Place3.setBounds(10, 90, 220, 30);
+
+        panel_Game.add(panel_LocationPanel);
+        panel_LocationPanel.setBounds(270, 60, 240, 240);
+        panel_Game.add(label_GameBackground);
+        label_GameBackground.setBounds(-3, 0, 530, 380);
+
+        panel_Main.add(panel_Game);
+        panel_Game.setBounds(5, 60, 520, 370);
 
         panel_Combat.setBackground(new java.awt.Color(69, 69, 69));
         panel_Combat.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -2329,194 +2527,6 @@ public class Game extends javax.swing.JFrame {
 
         panel_Main.add(panel_Shop);
         panel_Shop.setBounds(5, 60, 520, 370);
-
-        panel_Game.setBackground(new java.awt.Color(69, 69, 69));
-        panel_Game.setLayout(null);
-
-        label_GameCurrency.setBackground(new java.awt.Color(65, 65, 65, 225));
-        label_GameCurrency.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_GameCurrency.setForeground(new java.awt.Color(222, 222, 222));
-        label_GameCurrency.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_GameCurrency.setText("Coins: ");
-        label_GameCurrency.setOpaque(true);
-        panel_Game.add(label_GameCurrency);
-        label_GameCurrency.setBounds(10, 260, 240, 40);
-
-        label_GameXP.setBackground(new java.awt.Color(65, 65, 65, 225));
-        label_GameXP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_GameXP.setForeground(new java.awt.Color(222, 222, 222));
-        label_GameXP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_GameXP.setText("XP:");
-        label_GameXP.setOpaque(true);
-        panel_Game.add(label_GameXP);
-        label_GameXP.setBounds(10, 210, 240, 40);
-
-        label_GameMP.setBackground(new java.awt.Color(65, 65, 65, 225));
-        label_GameMP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_GameMP.setForeground(new java.awt.Color(222, 222, 222));
-        label_GameMP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_GameMP.setText("MP:");
-        label_GameMP.setOpaque(true);
-        panel_Game.add(label_GameMP);
-        label_GameMP.setBounds(10, 160, 240, 40);
-
-        label_GameHP.setBackground(new java.awt.Color(65, 65, 65, 225));
-        label_GameHP.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_GameHP.setForeground(new java.awt.Color(222, 222, 222));
-        label_GameHP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_GameHP.setText("HP:");
-        label_GameHP.setOpaque(true);
-        panel_Game.add(label_GameHP);
-        label_GameHP.setBounds(10, 110, 240, 40);
-
-        label_Location.setBackground(new java.awt.Color(65, 65, 65, 225));
-        label_Location.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        label_Location.setForeground(new java.awt.Color(222, 222, 222));
-        label_Location.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Location.setText("Location: ");
-        label_Location.setOpaque(true);
-        panel_Game.add(label_Location);
-        label_Location.setBounds(10, 60, 240, 40);
-
-        button_Quest.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Quest.setText("Quest");
-        button_Quest.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_QuestActionPerformed(evt);
-            }
-        });
-        panel_Game.add(button_Quest);
-        button_Quest.setBounds(10, 10, 150, 40);
-
-        button_Travel.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Travel.setText("Travel");
-        button_Travel.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_TravelActionPerformed(evt);
-            }
-        });
-        panel_Game.add(button_Travel);
-        button_Travel.setBounds(10, 320, 150, 40);
-
-        button_Inventory.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Inventory.setText("Inventory");
-        button_Inventory.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_InventoryActionPerformed(evt);
-            }
-        });
-        panel_Game.add(button_Inventory);
-        button_Inventory.setBounds(180, 320, 150, 40);
-
-        button_Status.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Status.setText("Status");
-        button_Status.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_StatusActionPerformed(evt);
-            }
-        });
-        panel_Game.add(button_Status);
-        button_Status.setBounds(360, 320, 150, 40);
-
-        panel_LocationPanel.setBackground(new java.awt.Color(60, 63, 63, 225));
-        panel_LocationPanel.setLayout(null);
-
-        button_Place1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Place1.setText("Village Elder");
-        button_Place1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_Place1ActionPerformed(evt);
-            }
-        });
-        panel_LocationPanel.add(button_Place1);
-        button_Place1.setBounds(10, 10, 220, 30);
-
-        button_Place2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Place2.setText("Travelling Merchant");
-        button_Place2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_Place2ActionPerformed(evt);
-            }
-        });
-        panel_LocationPanel.add(button_Place2);
-        button_Place2.setBounds(10, 50, 220, 30);
-
-        button_Place3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_Place3.setText("Home");
-        button_Place3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_Place3ActionPerformed(evt);
-            }
-        });
-        panel_LocationPanel.add(button_Place3);
-        button_Place3.setBounds(10, 90, 220, 30);
-
-        panel_Game.add(panel_LocationPanel);
-        panel_LocationPanel.setBounds(270, 60, 240, 240);
-        panel_Game.add(label_GameBackground);
-        label_GameBackground.setBounds(-3, 0, 530, 380);
-
-        panel_Main.add(panel_Game);
-        panel_Game.setBounds(5, 60, 520, 370);
-
-        panel_Dungeon.setBackground(new java.awt.Color(69, 69, 69));
-        panel_Dungeon.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                panel_DungeonMouseClicked(evt);
-            }
-        });
-        panel_Dungeon.setLayout(null);
-
-        label_DungeonLocation.setBackground(new java.awt.Color(65, 65, 65, 225));
-        label_DungeonLocation.setForeground(new java.awt.Color(221, 221, 222));
-        label_DungeonLocation.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_DungeonLocation.setText("Location");
-        label_DungeonLocation.setOpaque(true);
-        panel_Dungeon.add(label_DungeonLocation);
-        label_DungeonLocation.setBounds(150, 10, 220, 40);
-
-        label_EncounterLog.setBackground(new java.awt.Color(65, 65, 65, 225));
-        label_EncounterLog.setForeground(new java.awt.Color(221, 221, 222));
-        label_EncounterLog.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_EncounterLog.setText("Encounter Log");
-        label_EncounterLog.setOpaque(true);
-        panel_Dungeon.add(label_EncounterLog);
-        label_EncounterLog.setBounds(10, 60, 500, 160);
-
-        button_DungeonAttack.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_DungeonAttack.setText("Attack");
-        button_DungeonAttack.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_DungeonAttackActionPerformed(evt);
-            }
-        });
-        panel_Dungeon.add(button_DungeonAttack);
-        button_DungeonAttack.setBounds(100, 240, 150, 40);
-
-        button_DungeonFlee.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_DungeonFlee.setText("Flee");
-        button_DungeonFlee.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_DungeonFleeActionPerformed(evt);
-            }
-        });
-        panel_Dungeon.add(button_DungeonFlee);
-        button_DungeonFlee.setBounds(280, 240, 150, 40);
-
-        button_DungeonReturn.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        button_DungeonReturn.setText("Return");
-        panel_Dungeon.add(button_DungeonReturn);
-        button_DungeonReturn.setBounds(190, 300, 150, 40);
-        button_DungeonReturn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_DungeonReturnActionPerformed(evt);
-            }
-        });
-        panel_Dungeon.add(label_WildernessBackground);
-        label_WildernessBackground.setBounds(-3, 0, 530, 380);
-
-        panel_Main.add(panel_Dungeon);
-        panel_Dungeon.setBounds(5, 60, 520, 370);
 
         panel_ChooseSkill.setBackground(new java.awt.Color(69, 69, 69));
         panel_ChooseSkill.setLayout(null);
@@ -4847,9 +4857,85 @@ public class Game extends javax.swing.JFrame {
 
             } else {
 
-                // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-                // WIP
-                // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+                if (player.currentHP < 0) {
+
+                    if (bossLair != null) {
+                        bossLair.dungeonEncounters.clear();
+                    }
+                    if (wilderness != null) {
+                        wilderness.dungeonEncounters.clear();
+                    }
+                    invadingBossLair = false;
+                    returnHome("Defeated");
+
+                } else {
+
+                    panel_Combat.setVisible(false);
+
+                    if (invadingBossLair && bossLair != null && !bossLair.dungeonEncounters.isEmpty()
+                            || !invadingBossLair && wilderness != null && !wilderness.dungeonEncounters.isEmpty()) {
+
+                        String exploreTurnsString = "";
+
+                        if (invadingBossLair && bossLair != null && !bossLair.dungeonEncounters.isEmpty()) {
+
+                            bossLair.obstructed = false;
+                            button_DungeonAttack.setVisible(false);
+                            button_DungeonFlee.setVisible(false);
+                            exploreTurnsString = String.format("<br> (%s / 10 turns taken)", bossLair.exploreTurns);
+//                        exploreDungeon(currentLocation, false);
+
+                        } else if (!invadingBossLair && wilderness != null && !wilderness.dungeonEncounters.isEmpty()) {
+
+                            wilderness.obstructed = false;
+                            button_DungeonAttack.setVisible(false);
+                            button_DungeonFlee.setVisible(false);
+                            exploreTurnsString = String.format("<br> (%s / 10 turns taken)", wilderness.exploreTurns);
+//                        exploreDungeon(currentLocation, false);
+                        }
+
+                        panel_Dungeon.setVisible(true);
+                        label_EncounterLog.setText(String.format(""" 
+                                            <html>
+
+                                            <head>
+                                            <h3 align="center">
+                                            %s
+                                            </h3>
+                                            </head>
+
+                                            <body>
+                                            <p align="center">
+                                            %s %s
+                                            </p>
+                                            </body>
+
+                                            </html>
+                                            """, String.format("%s (LVL %s) Defeated", battle.battleHostile.name, battle.battleHostile.level),
+                                "Battle ended.",
+                                exploreTurnsString));
+
+                    } else {
+
+                        openGameScreen();
+
+                        if (quest.isQuestCompleted()) {
+
+                            messagePopup("Boss Defeated");
+
+                            if (invadingBossLair) {
+
+                                nextDialogueArray();
+                                panel_Storyline.setVisible(false);
+
+                            }
+
+                        }
+                        invadingBossLair = false;
+
+                    }
+
+                }
 
                 if (player.currentHP < (player.maxHP * 0.25) && player.currentHP > 0
                         && player.currentMP < (player.maxMP * 0.25) && player.currentMP > 0) {
@@ -4866,48 +4952,10 @@ public class Game extends javax.swing.JFrame {
 
                 }
 
-                if (player.currentHP < 0) {
-
-                    returnHome("Defeated");
-
-                }
-
-                if (invadingBossLair && bossLair != null && !bossLair.dungeonEncounters.isEmpty()) {
-
-                    bossLair.obstructed = false;
-                    button_DungeonAttack.setVisible(false);
-                    button_DungeonFlee.setVisible(false);
-                    exploreDungeon(currentLocation, false);
-
-                } else if (!invadingBossLair && wilderness != null && !wilderness.dungeonEncounters.isEmpty()) {
-
-                    wilderness.obstructed = false;
-                    button_DungeonAttack.setVisible(false);
-                    button_DungeonFlee.setVisible(false);
-                    exploreDungeon(currentLocation, false);
-
-                } else {
-
-                    openGameScreen();
-
-                    if (quest.isQuestCompleted()) {
-
-                        messagePopup("Boss Defeated");
-
-                        if (invadingBossLair) {
-
-                            nextDialogueArray();
-                            panel_Storyline.setVisible(false);
-
-                        }
-
-                    }
-                    invadingBossLair = false;
-
-                }
-
             }
 
+            warnPlayerHPMP();
+            
             if (player.accumulatedLVL > 0) {
 
                 messagePopup("Level increased!");
@@ -5495,6 +5543,28 @@ public class Game extends javax.swing.JFrame {
     private void button_DungeonReturnActionPerformed(java.awt.event.ActionEvent evt) {
 
         travelToLocation(currentLocation);
+        warnPlayerHPMP();
+
+    }
+
+    private void warnPlayerHPMP() {
+
+        System.out.println("TEST");
+        
+        if (player.currentHP < (player.maxHP * 0.25) && player.currentHP > 0
+                && player.currentMP < (player.maxMP * 0.25) && player.currentMP > 0) {
+
+            messagePopup("Low HP and MP");
+
+        } else if (player.currentHP < (player.maxHP * 0.25) && player.currentHP > 0) {
+
+            messagePopup("Low HP");
+
+        } else if (player.currentMP < (player.maxMP * 0.25) && player.currentMP > 0) {
+
+            messagePopup("Low MP");
+
+        }
 
     }
 
@@ -5502,20 +5572,23 @@ public class Game extends javax.swing.JFrame {
 
         panel_Combat.setVisible(false);
 
-        if (battle.attemptFlee()) {
+        if (battle.battleEnded) {
 
-            startBattle();
-            label_CombatLog.setText("Escape unsuccessful");
+            if (battle.attemptFlee()) {
 
-        } else {
+                label_CombatLog.setText("Escape unsuccessful");
+                startBattle();
+                updateCombatScreen();
 
-            wilderness.obstructed = false;
-            panel_Dungeon.setVisible(true);
+            } else {
 
-            button_DungeonAttack.setVisible(false);
-            button_DungeonFlee.setVisible(false);
+                wilderness.obstructed = false;
+                panel_Dungeon.setVisible(true);
 
-            label_EncounterLog.setText(String.format("""
+                button_DungeonAttack.setVisible(false);
+                button_DungeonFlee.setVisible(false);
+
+                label_EncounterLog.setText(String.format("""
                     <html>
 
                     <head>
@@ -5532,8 +5605,70 @@ public class Game extends javax.swing.JFrame {
 
                     </html>
                     """, "Escape Successful",
-                    "(CLICK TO CONTINUE)",
-                    String.format("<br> (%s / 20 turns taken)", wilderness.exploreTurns)));
+                        "(CLICK TO CONTINUE)",
+                        String.format("<br> (%s / 20 turns taken)", wilderness.exploreTurns)));
+
+            }
+
+        } else {
+
+            if (battle.attemptFlee()) {
+
+                panel_Combat.setVisible(true);
+
+                button_FleeCombat.setVisible(false);
+                button_UseAttack.setVisible(false);
+
+                battle.moveQueue();
+                label_CombatLog.setText(String.format("""
+                    <html>
+
+                    <head>
+                    <h3 align="center">
+                    %s
+                    </h3>
+                    </head>
+
+                    <body>
+                    <p align="center">
+                    %s %s
+                    </p>
+                    </body>
+
+                    </html>
+                    """, String.format("%s tried to escape", battle.battlePlayer.name),
+                        "Escape unsuccessful",
+                        "<br>(CLICK TO CONTINUE)"));
+
+            } else {
+
+                wilderness.obstructed = false;
+                panel_Dungeon.setVisible(true);
+
+                button_DungeonAttack.setVisible(false);
+                button_DungeonFlee.setVisible(false);
+
+                label_EncounterLog.setText(String.format("""
+                    <html>
+
+                    <head>
+                    <h3 align="center">
+                    %s
+                    </h3>
+                    </head>
+
+                    <body>
+                    <p align="center">
+                    %s %s
+                    </p>
+                    </body>
+
+                    </html>
+                    """, "Escape Successful",
+                        "(CLICK TO CONTINUE)",
+                        String.format("<br> (%s / 20 turns taken)", wilderness.exploreTurns)));
+
+            }
 
         }
     }
