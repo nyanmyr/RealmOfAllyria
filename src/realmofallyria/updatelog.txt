@@ -129,12 +129,15 @@ version 0.0.16 (prototype)
 progress (7/11/2025)
 • unsuccessful escape is now considered a combat turn
 • after a battle has ended it does not immediately takes an auto turn in the dungeon
-
-- custom font
-- low HP or MP popup
-- other locations
-- finish content
+• custom fonts
 
 version 0.1.0 (release version)
 progress (7/12/2025)
-- bug fixing
+• finished store feature
+• fixed fleeing
+• revamped UI
+• skills implemented
+• inventory now displays skills
+• choose skill feature
+• fixed prompts for exploring boss's lair
+• shop items can now be equipped

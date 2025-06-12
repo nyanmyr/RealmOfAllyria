@@ -16,6 +16,8 @@ consider:
 - shiny monsters??
 - clicking the home panel should return to the game panel automatically
 - change gender
+- damage dealt could be turned into class
+- skill could store own attack prompt (i.e. Heal could hold "%s healed themselves")
 
 lore stuff:
 named characters:
