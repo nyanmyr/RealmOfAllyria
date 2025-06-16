@@ -86,16 +86,19 @@ public class Skill {
                 this.skillCost = 20;
                 this.skillCostIncrease = 1;
                 this.skillCostModifier = 8;
+                break;
             case "Magic Shield":
                 this.selfInflict = true;
                 this.skillCost = 40;
                 this.skillCostIncrease = 1;
                 this.skillCostModifier = 18;
+                break;
             case "Revive":
                 this.selfInflict = true;
                 this.skillCost = 70;
                 this.skillCostIncrease = 2.5;
                 this.skillCostModifier = 28;
+                break;
             // </editor-fold>
 
         }

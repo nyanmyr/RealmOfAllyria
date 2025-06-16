@@ -1,8 +1,11 @@
 to do:
+- revamp popup system
 
 bug fixing:
 - defeating baron does not have coins reward
 - warning menu bug (buttons not ordered porperly) : os issue?
+- quest button should show that a quest is completed ex (Completed)
+- quest completion popup not work
 
 future:
 - update opening sequence text (mention the boss's minnions)
@@ -18,6 +21,7 @@ consider:
 - change gender
 - damage dealt could be turned into class
 - skill could store own attack prompt (i.e. Heal could hold "%s healed themselves")
+- boss lair and wilderness variable could be merged
 
 lore stuff:
 named characters:

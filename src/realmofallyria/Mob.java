@@ -263,6 +263,7 @@ public abstract class Mob {
         damageDealt[1] = skillUsed.skillMDmg * magicalDamage;
         damageDealt[7] = skillUsed.selfInflict == true ? 1 : 0;
 
+//        System.out.println(skillUsed.skillName.equals("True Strike"));
         damageDealt[8] = skillUsed.skillName.equals("True Strike") ? 1 : 0;
 
         if (damageDealt[7] == 0) {
@@ -335,8 +336,8 @@ public abstract class Mob {
                     : 0);
 
             // saves the dmg defended
-            damageTaken[3] = physicalDefense;
-            damageTaken[4] = physicalDefense;
+            damageTaken[3] = damageTaken[8] == 0 ? physicalDefense : 0;
+            damageTaken[4] = damageTaken[8] == 0 ? magicalDefense : 0;
 
             // ensures that there is no way of increasing health from attack
             damageTaken[0] = damageTaken[0] < 0 ? 0 : damageTaken[0];

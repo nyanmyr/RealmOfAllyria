@@ -1,4 +1,3 @@
-
 package realmofallyria;
 
 import java.awt.Font;
@@ -29,25 +28,32 @@ public class Game extends javax.swing.JFrame {
         "Before you begin your adventure, you must choose your affinity.",
         "Affinities determine the boost you will receive a certain attribute.",
         "Everytime you level up, you will receive an automatic addition to the attribute of your affinity.",
-        "Those who have an affinity to Sanitas have a boost in health.",
-        "Those who have an affinity to Celeritas have a boost in agility.",
-        "Those who have an affinity to Madeis have a boost in magic.",
-        "Those who have an affinity to Tutela have a boost in defense.",
-        "Those who have an affinity to Virtus have a boost in strength.",
+        "Those who have an affinity to Sanitas will receive a boost in health.",
+        "Those who have an affinity to Celeritas will receive a boost in agility.",
+        "Those who have an affinity to Madeis will receive a boost in magic.",
+        "Those who have an affinity to Tutela will receive a boost in defense.",
+        "Those who have an affinity to Virtus will receive a blessing in strength.",
         "Now choose your affinity wisely.",
         "Your affinity will be permanent."};
     String[] editAttributesMonologue = {
+        "Excellent choice.",
+        "I hope the gods will look upon you in favor.",
         "Now adjust your attributes wisely. (Click to continue)"};
     String[] chooseGearMonologue = {
         "The world out there is dangerous.",
-        "You will need something to defend yourself.",
+        "The wilderness is teeming with ravenous beasts.",
+        "You will need something to defend yourself when you traverse the lands beyond civilization.",
         "Choose any of the following weapons to your liking."};
     String[] bonusArmorMonologue = {
-        "This weapon is not much.",
-        "So I will provide you a full set of leather armor along with it."};
+        "A weapon will not be enough.",
+        "I will give you some protection.",
+        "But remember never overstep yourself.",
+        "Know you strengths and weaknesses.",
+        "So I will provide you a full set of leather armor along with it.",};
     String[] adventureBeginsMonologue = {
         "Once again, welcome to the Realm of Allyria.",
-        "Your journey begins in a quiet village in the peaceful grasslands.",
+        "Your journey begins in a peaceful village.",
+        "In this day and age, I cannot say that with confidence.",
         "Word has spread that the nefarious Demon Lord {UNDERWORLDPRINCE} of the Nether Realm has launched an invasion.",
         "Along the way they kidnapped the kingdom's own {PRINCESS}.",
         "Thus it is now your task to venture across the kingdom and enter the Nether Realm to vanquish the evil army of the Demon Lord...",
@@ -60,22 +66,12 @@ public class Game extends javax.swing.JFrame {
         "Greetings, {PLAYER}.",
         "As you know, the world is in peril as of now.",
         "The kingdom's forces are engaged in a fierce war againts the demons of the Nether Continent.",
-        "Most importantly {PRINCESS} has been captured.",
         "That is why time is of the essence, so I will teach you quickly.",
         "Your current strength will not do you any good against even the weakest kind of demon.",
         "You will need to train.",
-        "I have taught you as much as I can.",
         "In order to face strong foes you must get stronger first.",
-        "Combat out there is vastly different to a training setting.",
-        "Which is why you will have a taste of real combat soon.",
         "I captuted a slime from the grasslands.",
-        "They appear harmless with their gelatinous amorphous bodies.",
-        "But never let appearances deceive you.",
-        "These creatures have been captured still filled with tiny bones and skulls...",
-        "Sometimes that of humans...",
-        "You should always keep something in mind when you venture into the wilderness.",
-        "You may face foes far surpassing your current power.",
-        "Which makes it all the more pertinent to start your training right away.",
+        "You will face it in combat.",
         "But before you begin, you need to learn a few things.",
         "Whoever has the higher agility points will attack first.",
         "You do not know their agility points so be careful.",
@@ -86,25 +82,28 @@ public class Game extends javax.swing.JFrame {
         "Defeat the slime and complete your training.",};
     String[] tutorialDefeat = {
         "You were defeated by a mere slime?",
+        "After every battle you will receive a certain amount of XP and coins.",
+        "It may not be as much as winning a battle.",
+        "But at least you are growing stronger with every battle.",
         "Fret not, {PLAYER}."};
     String[] tutorialVictory = {
         "Good work on defeating that slime.",
+        "After every battle you will receive a certain amount of XP and coins.",
+        "For your victory you have received the complete package.",
+        "Keep it up and keep becoming stronger.",
         "You have done excellently, {PLAYER}."};
     String[] tutorialEnd = {
         "Take this as a learning experience.",
         "It goes to show you still have much potential in you.",
-        "You tried your best.",
         "Thus I shall give you my blessing to explore the world and become stronger",
         "But before you go I will patch you up to full health.",
         "You must be prepared to fight the monsters in the wilderness.",
         "When you need healing rest in your home for a moment.",
-        "Afterward you may venture into the wilderness",
         "Earn experience points and grow stronger.",
         "Acquire currency from defeating monsters.",
         "Visit the local travelling merchant if you wish to upgrade your gear.",
-        "And if you are interested, then I may have a quest for you.",
-        "I will pay fairly.",
-        "Regardless, everything after this point is up to you now.",
+        "And if you are interested, then I have a quest for you.",
+        "The fate of Allyria is now in your hands...",
         "Save {PRINCESS}.",
         "Defeat {UNDERWORLDPRINCE}.",
         "Safe travels and may the gods be with you, {PLAYER}."};
@@ -226,30 +225,30 @@ public class Game extends javax.swing.JFrame {
         // 7 for skipping tutorial
         //9 for testing shop
         // 12 for baron boss battle
-        storylineIndex = 12;
+        storylineIndex = 0;
         quest = new Quest();
 
         // -----------------------------------------------------------------------------------------------------------
         // <editor-fold desc="debugging/ QA testing stuff">
-        player = new Player();
-        characterNames.put(0, new String[]{"Meme Bashame", "", "Player", "m"});
-        player.typeAffinity = "Celeritas";
-        player.chooseAffinity(10);
-        player.name = "Meme Bashame";
-        player.typeAffinity = "Celeritas";
-        player.level = 1;
-
-        player.chooseAffinity(6);
-        player.confirmAttributeChanges();
-        Weapon debugWeapon = new Weapon("Iron Sword", 1, new Skill("Slash"), 3, 0, 0);
-        Armor debugArmor = new Armor("Leather Armor", 1, 3, 3);
-        player.equipGear(debugWeapon, debugArmor);
-
-        player.attributePoints += 1000;
-        player.totalCoins += 10000;
-        player.skill1 = new Skill("Heal");
+//        player = new Player();
+//        characterNames.put(0, new String[]{"Meme Bashame", "", "Player", "m"});
+//        player.typeAffinity = "Celeritas";
+//        player.chooseAffinity(10);
+//        player.name = "Meme Bashame";
+//        player.typeAffinity = "Celeritas";
+//        player.level = 1;
+//
+//        player.chooseAffinity(10);
+//        player.confirmAttributeChanges();
+//        Weapon debugWeapon = new Weapon("Iron Sword", 1, new Skill("Slash"), 3, 0, 0);
+//        Armor debugArmor = new Armor("Leather Armor", 1, 3, 3);
+//        player.equipGear(debugWeapon, debugArmor);
+//
+//        player.attributePoints += 1000;
+//        player.totalCoins += 10000;
+//        player.skill1 = new Skill("Heal");
 //        player.skill2 = new Skill("Fireball");
-//        player.skill3 = new Skill("Ice Shards");
+//        player.skill3 = new Skill("True Strike");
         // </editor-fold>
         // -----------------------------------------------------------------------------------------------------------
         // -----------------------------------------------------------------------------------------------------------
@@ -286,9 +285,9 @@ public class Game extends javax.swing.JFrame {
         generateNPCNames();
 
         // enable these along with putting storylineIndex to 8 to skip tutorial
-        openGameScreen();
-        travelToLocation("Village");
-        panel_Intro.setVisible(false);
+//        openGameScreen();
+//        travelToLocation("Village");
+//        panel_Intro.setVisible(false);
     }
 
     // -----------------------------------------------------------------------------------------------------------
@@ -341,6 +340,11 @@ public class Game extends javax.swing.JFrame {
         panel_Quest.setVisible(false);
         panel_Shop.setVisible(false);
         panel_ChooseSkill.setVisible(false);
+
+        button_Forest.setVisible(false);
+        button_Town.setVisible(false);
+        button_City.setVisible(false);
+        button_Dungeon.setVisible(false);
     }
 
     public String convertCoins(int givenCoins) {
@@ -372,6 +376,68 @@ public class Game extends javax.swing.JFrame {
         panel_Main = new javax.swing.JPanel();
         button_Return = new javax.swing.JButton();
         label_Header = new javax.swing.JLabel();
+        panel_Attributes = new javax.swing.JPanel();
+        panel_AttributesActions = new javax.swing.JPanel();
+        button_AttributesConfirm = new javax.swing.JButton();
+        button_AttributesReset = new javax.swing.JButton();
+        label_PlayerName = new javax.swing.JLabel();
+        label_PlayerAffinity = new javax.swing.JLabel();
+        label_Level = new javax.swing.JLabel();
+        label_AvailablePoints = new javax.swing.JLabel();
+        label_HealthPoints = new javax.swing.JLabel();
+        label_StrengthPoints = new javax.swing.JLabel();
+        label_DefensePoints = new javax.swing.JLabel();
+        label_IntelligencePoints = new javax.swing.JLabel();
+        label_AgilityPoints = new javax.swing.JLabel();
+        panel_Dashes1 = new javax.swing.JPanel();
+        label_Dash6 = new javax.swing.JLabel();
+        label_Dash7 = new javax.swing.JLabel();
+        label_Dash8 = new javax.swing.JLabel();
+        label_Dash9 = new javax.swing.JLabel();
+        label_Dash10 = new javax.swing.JLabel();
+        panel_Dashes = new javax.swing.JPanel();
+        label_Dash1 = new javax.swing.JLabel();
+        label_Dash2 = new javax.swing.JLabel();
+        label_Dash3 = new javax.swing.JLabel();
+        label_Dash4 = new javax.swing.JLabel();
+        label_Dash5 = new javax.swing.JLabel();
+        panel_GearAddition = new javax.swing.JPanel();
+        label_GearHP = new javax.swing.JLabel();
+        label_GearSP = new javax.swing.JLabel();
+        label_GearDP = new javax.swing.JLabel();
+        label_GearIP = new javax.swing.JLabel();
+        label_GearAP = new javax.swing.JLabel();
+        panel_AttributesAddition = new javax.swing.JPanel();
+        label_HPAddition = new javax.swing.JLabel();
+        label_SPAddition = new javax.swing.JLabel();
+        label_DPAddition = new javax.swing.JLabel();
+        label_IPAddition = new javax.swing.JLabel();
+        label_APAddition = new javax.swing.JLabel();
+        panel_Total = new javax.swing.JPanel();
+        label_TotalHP = new javax.swing.JLabel();
+        label_TotalSP = new javax.swing.JLabel();
+        label_TotalDP = new javax.swing.JLabel();
+        label_TotalIP = new javax.swing.JLabel();
+        label_TotalAP = new javax.swing.JLabel();
+        panel_AttributesAdditionButtons = new javax.swing.JPanel();
+        button_HPAddition = new javax.swing.JButton();
+        button_SPAddition = new javax.swing.JButton();
+        button_DPAddition = new javax.swing.JButton();
+        button_IPAddition = new javax.swing.JButton();
+        button_APAddition = new javax.swing.JButton();
+        panel_Travel = new javax.swing.JPanel();
+        button_Village = new javax.swing.JButton();
+        button_Grasslands = new javax.swing.JButton();
+        button_Town = new javax.swing.JButton();
+        button_Forest = new javax.swing.JButton();
+        button_City = new javax.swing.JButton();
+        button_Dungeon = new javax.swing.JButton();
+        label_Wilderness = new javax.swing.JLabel();
+        label_Civilization = new javax.swing.JLabel();
+        panel_Storyline = new javax.swing.JPanel();
+        label_Talker = new javax.swing.JLabel();
+        label_StorylineText = new javax.swing.JLabel();
+        button_Confirm = new javax.swing.JButton();
         panel_ChooseSkill = new javax.swing.JPanel();
         button_ChooseSkill1 = new javax.swing.JButton();
         label_ChooseSkill1 = new javax.swing.JLabel();
@@ -457,55 +523,6 @@ public class Game extends javax.swing.JFrame {
         panel_WarningMessage = new javax.swing.JPanel();
         button_CloseWarning = new javax.swing.JButton();
         label_WarningBody = new javax.swing.JLabel();
-        panel_Attributes = new javax.swing.JPanel();
-        panel_AttributesActions = new javax.swing.JPanel();
-        button_AttributesConfirm = new javax.swing.JButton();
-        button_AttributesReset = new javax.swing.JButton();
-        label_PlayerName = new javax.swing.JLabel();
-        label_PlayerAffinity = new javax.swing.JLabel();
-        label_Level = new javax.swing.JLabel();
-        label_AvailablePoints = new javax.swing.JLabel();
-        label_HealthPoints = new javax.swing.JLabel();
-        label_StrengthPoints = new javax.swing.JLabel();
-        label_DefensePoints = new javax.swing.JLabel();
-        label_IntelligencePoints = new javax.swing.JLabel();
-        label_AgilityPoints = new javax.swing.JLabel();
-        panel_Dashes1 = new javax.swing.JPanel();
-        label_Dash6 = new javax.swing.JLabel();
-        label_Dash7 = new javax.swing.JLabel();
-        label_Dash8 = new javax.swing.JLabel();
-        label_Dash9 = new javax.swing.JLabel();
-        label_Dash10 = new javax.swing.JLabel();
-        panel_Dashes = new javax.swing.JPanel();
-        label_Dash1 = new javax.swing.JLabel();
-        label_Dash2 = new javax.swing.JLabel();
-        label_Dash3 = new javax.swing.JLabel();
-        label_Dash4 = new javax.swing.JLabel();
-        label_Dash5 = new javax.swing.JLabel();
-        panel_GearAddition = new javax.swing.JPanel();
-        label_GearHP = new javax.swing.JLabel();
-        label_GearSP = new javax.swing.JLabel();
-        label_GearDP = new javax.swing.JLabel();
-        label_GearIP = new javax.swing.JLabel();
-        label_GearAP = new javax.swing.JLabel();
-        panel_AttributesAddition = new javax.swing.JPanel();
-        label_HPAddition = new javax.swing.JLabel();
-        label_SPAddition = new javax.swing.JLabel();
-        label_DPAddition = new javax.swing.JLabel();
-        label_IPAddition = new javax.swing.JLabel();
-        label_APAddition = new javax.swing.JLabel();
-        panel_Total = new javax.swing.JPanel();
-        label_TotalHP = new javax.swing.JLabel();
-        label_TotalSP = new javax.swing.JLabel();
-        label_TotalDP = new javax.swing.JLabel();
-        label_TotalIP = new javax.swing.JLabel();
-        label_TotalAP = new javax.swing.JLabel();
-        panel_AttributesAdditionButtons = new javax.swing.JPanel();
-        button_HPAddition = new javax.swing.JButton();
-        button_SPAddition = new javax.swing.JButton();
-        button_DPAddition = new javax.swing.JButton();
-        button_IPAddition = new javax.swing.JButton();
-        button_APAddition = new javax.swing.JButton();
         panel_Intro = new javax.swing.JPanel();
         label_IntroHeader = new javax.swing.JLabel();
         label_IntroBody = new javax.swing.JLabel();
@@ -521,10 +538,6 @@ public class Game extends javax.swing.JFrame {
         button_EquipBow = new javax.swing.JButton();
         button_EquipWand = new javax.swing.JButton();
         button_EquipArmor = new javax.swing.JButton();
-        panel_Storyline = new javax.swing.JPanel();
-        label_Talker = new javax.swing.JLabel();
-        label_StorylineText = new javax.swing.JLabel();
-        button_Confirm = new javax.swing.JButton();
         panel_AffinitiesMenu = new javax.swing.JPanel();
         button_Sanitas = new javax.swing.JButton();
         label_Sanitas = new javax.swing.JLabel();
@@ -543,15 +556,6 @@ public class Game extends javax.swing.JFrame {
         label_SimpleBow = new javax.swing.JLabel();
         button_CrudeWand = new javax.swing.JButton();
         label_CrudeWand = new javax.swing.JLabel();
-        panel_Travel = new javax.swing.JPanel();
-        button_Village = new javax.swing.JButton();
-        button_Grasslands = new javax.swing.JButton();
-        button_Town = new javax.swing.JButton();
-        button_Forest = new javax.swing.JButton();
-        button_City = new javax.swing.JButton();
-        button_Dungeon = new javax.swing.JButton();
-        label_Wilderness = new javax.swing.JLabel();
-        label_Civilization = new javax.swing.JLabel();
         panel_Quest = new javax.swing.JPanel();
         label_MainQuest = new javax.swing.JLabel();
         textField_NameField = new javax.swing.JTextField();
@@ -588,6 +592,503 @@ public class Game extends javax.swing.JFrame {
         panel_Main.add(label_Header);
         label_Header.setBounds(6, 6, 590, 47);
         label_Header.setFont(fontsMap.get("Body"));
+
+        panel_Attributes.setBackground(new java.awt.Color(25, 25, 33));
+        panel_Attributes.setLayout(null);
+
+        panel_AttributesActions.setOpaque(false);
+        panel_AttributesActions.setLayout(null);
+
+        button_AttributesConfirm.setBackground(new java.awt.Color(67, 67, 79));
+        button_AttributesConfirm.setFont(fontsMap.get("Body").deriveFont(14f));
+        button_AttributesConfirm.setForeground(new java.awt.Color(242, 242, 242));
+        button_AttributesConfirm.setText("<html>Confirm");
+        button_AttributesConfirm.setToolTipText("");
+        button_AttributesConfirm.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_AttributesConfirmActionPerformed(evt);
+            }
+        });
+        panel_AttributesActions.add(button_AttributesConfirm);
+        button_AttributesConfirm.setBounds(140, 0, 130, 40);
+
+        button_AttributesReset.setBackground(new java.awt.Color(67, 67, 79));
+        button_AttributesReset.setFont(fontsMap.get("Body").deriveFont(14f));
+        button_AttributesReset.setForeground(new java.awt.Color(242, 242, 242));
+        button_AttributesReset.setText("<html>Reset");
+        button_AttributesReset.setToolTipText("");
+        button_AttributesReset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_AttributesResetActionPerformed(evt);
+            }
+        });
+        panel_AttributesActions.add(button_AttributesReset);
+        button_AttributesReset.setBounds(0, 0, 130, 40);
+
+        panel_Attributes.add(panel_AttributesActions);
+        panel_AttributesActions.setBounds(300, 390, 270, 40);
+
+        label_PlayerName.setFont(fontsMap.get("Body"));
+        label_PlayerName.setForeground(new java.awt.Color(242, 242, 242));
+        label_PlayerName.setText("Adventurer");
+        panel_Attributes.add(label_PlayerName);
+        label_PlayerName.setBounds(10, 10, 390, 30);
+
+        label_PlayerAffinity.setFont(fontsMap.get("Body"));
+        label_PlayerAffinity.setForeground(new java.awt.Color(242, 242, 242));
+        label_PlayerAffinity.setText("Affinity");
+        panel_Attributes.add(label_PlayerAffinity);
+        label_PlayerAffinity.setBounds(10, 40, 390, 30);
+
+        label_Level.setFont(fontsMap.get("Body"));
+        label_Level.setForeground(new java.awt.Color(242, 242, 242));
+        label_Level.setText("LVL: 0");
+        panel_Attributes.add(label_Level);
+        label_Level.setBounds(10, 70, 390, 30);
+
+        label_AvailablePoints.setFont(fontsMap.get("Body"));
+        label_AvailablePoints.setForeground(new java.awt.Color(242, 242, 242));
+        label_AvailablePoints.setText("Available Points: 0");
+        panel_Attributes.add(label_AvailablePoints);
+        label_AvailablePoints.setBounds(10, 100, 390, 30);
+
+        label_HealthPoints.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_HealthPoints.setForeground(new java.awt.Color(242, 242, 242));
+        label_HealthPoints.setText("Health Points:");
+        panel_Attributes.add(label_HealthPoints);
+        label_HealthPoints.setBounds(10, 140, 190, 30);
+
+        label_StrengthPoints.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_StrengthPoints.setForeground(new java.awt.Color(242, 242, 242));
+        label_StrengthPoints.setText("Strength Points:");
+        panel_Attributes.add(label_StrengthPoints);
+        label_StrengthPoints.setBounds(10, 190, 190, 30);
+
+        label_DefensePoints.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_DefensePoints.setForeground(new java.awt.Color(242, 242, 242));
+        label_DefensePoints.setText("Defense Points:");
+        panel_Attributes.add(label_DefensePoints);
+        label_DefensePoints.setBounds(10, 240, 190, 30);
+
+        label_IntelligencePoints.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_IntelligencePoints.setForeground(new java.awt.Color(242, 242, 242));
+        label_IntelligencePoints.setText("Intelligence Points:");
+        panel_Attributes.add(label_IntelligencePoints);
+        label_IntelligencePoints.setBounds(10, 290, 190, 30);
+
+        label_AgilityPoints.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_AgilityPoints.setForeground(new java.awt.Color(242, 242, 242));
+        label_AgilityPoints.setText("Agility Points:");
+        panel_Attributes.add(label_AgilityPoints);
+        label_AgilityPoints.setBounds(10, 340, 190, 30);
+
+        panel_Dashes1.setOpaque(false);
+        panel_Dashes1.setLayout(null);
+
+        label_Dash6.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_Dash6.setForeground(new java.awt.Color(242, 242, 242));
+        label_Dash6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Dash6.setText("-");
+        panel_Dashes1.add(label_Dash6);
+        label_Dash6.setBounds(0, 0, 30, 30);
+
+        label_Dash7.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_Dash7.setForeground(new java.awt.Color(242, 242, 242));
+        label_Dash7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Dash7.setText("-");
+        panel_Dashes1.add(label_Dash7);
+        label_Dash7.setBounds(0, 50, 30, 30);
+
+        label_Dash8.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_Dash8.setForeground(new java.awt.Color(242, 242, 242));
+        label_Dash8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Dash8.setText("-");
+        panel_Dashes1.add(label_Dash8);
+        label_Dash8.setBounds(0, 100, 30, 30);
+
+        label_Dash9.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_Dash9.setForeground(new java.awt.Color(242, 242, 242));
+        label_Dash9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Dash9.setText("-");
+        panel_Dashes1.add(label_Dash9);
+        label_Dash9.setBounds(0, 150, 30, 30);
+
+        label_Dash10.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_Dash10.setForeground(new java.awt.Color(242, 242, 242));
+        label_Dash10.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Dash10.setText("-");
+        panel_Dashes1.add(label_Dash10);
+        label_Dash10.setBounds(0, 200, 30, 30);
+
+        panel_Attributes.add(panel_Dashes1);
+        panel_Dashes1.setBounds(390, 140, 30, 230);
+
+        panel_Dashes.setOpaque(false);
+        panel_Dashes.setLayout(null);
+
+        label_Dash1.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_Dash1.setForeground(new java.awt.Color(242, 242, 242));
+        label_Dash1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Dash1.setText("-");
+        panel_Dashes.add(label_Dash1);
+        label_Dash1.setBounds(0, 0, 30, 30);
+
+        label_Dash2.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_Dash2.setForeground(new java.awt.Color(242, 242, 242));
+        label_Dash2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Dash2.setText("-");
+        panel_Dashes.add(label_Dash2);
+        label_Dash2.setBounds(0, 50, 30, 30);
+
+        label_Dash3.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_Dash3.setForeground(new java.awt.Color(242, 242, 242));
+        label_Dash3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Dash3.setText("-");
+        panel_Dashes.add(label_Dash3);
+        label_Dash3.setBounds(0, 100, 30, 30);
+
+        label_Dash4.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_Dash4.setForeground(new java.awt.Color(242, 242, 242));
+        label_Dash4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Dash4.setText("-");
+        panel_Dashes.add(label_Dash4);
+        label_Dash4.setBounds(0, 150, 30, 30);
+
+        label_Dash5.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_Dash5.setForeground(new java.awt.Color(242, 242, 242));
+        label_Dash5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Dash5.setText("-");
+        panel_Dashes.add(label_Dash5);
+        label_Dash5.setBounds(0, 200, 30, 30);
+
+        panel_Attributes.add(panel_Dashes);
+        panel_Dashes.setBounds(280, 140, 30, 230);
+
+        panel_GearAddition.setOpaque(false);
+        panel_GearAddition.setLayout(null);
+
+        label_GearHP.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_GearHP.setForeground(new java.awt.Color(242, 242, 242));
+        label_GearHP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_GearHP.setText("(+0)");
+        panel_GearAddition.add(label_GearHP);
+        label_GearHP.setBounds(0, 0, 80, 30);
+
+        label_GearSP.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_GearSP.setForeground(new java.awt.Color(242, 242, 242));
+        label_GearSP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_GearSP.setText("(+0)");
+        panel_GearAddition.add(label_GearSP);
+        label_GearSP.setBounds(0, 50, 80, 30);
+
+        label_GearDP.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_GearDP.setForeground(new java.awt.Color(242, 242, 242));
+        label_GearDP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_GearDP.setText("(+0)");
+        panel_GearAddition.add(label_GearDP);
+        label_GearDP.setBounds(0, 100, 80, 30);
+
+        label_GearIP.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_GearIP.setForeground(new java.awt.Color(242, 242, 242));
+        label_GearIP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_GearIP.setText("(+0)");
+        panel_GearAddition.add(label_GearIP);
+        label_GearIP.setBounds(0, 150, 80, 30);
+
+        label_GearAP.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_GearAP.setForeground(new java.awt.Color(242, 242, 242));
+        label_GearAP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_GearAP.setText("(+0)");
+        panel_GearAddition.add(label_GearAP);
+        label_GearAP.setBounds(0, 200, 80, 30);
+
+        panel_Attributes.add(panel_GearAddition);
+        panel_GearAddition.setBounds(310, 140, 80, 230);
+
+        panel_AttributesAddition.setOpaque(false);
+        panel_AttributesAddition.setLayout(null);
+
+        label_HPAddition.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_HPAddition.setForeground(new java.awt.Color(242, 242, 242));
+        label_HPAddition.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_HPAddition.setText("(+0)");
+        panel_AttributesAddition.add(label_HPAddition);
+        label_HPAddition.setBounds(0, 0, 80, 30);
+
+        label_SPAddition.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_SPAddition.setForeground(new java.awt.Color(242, 242, 242));
+        label_SPAddition.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_SPAddition.setText("(+0)");
+        panel_AttributesAddition.add(label_SPAddition);
+        label_SPAddition.setBounds(0, 50, 80, 30);
+
+        label_DPAddition.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_DPAddition.setForeground(new java.awt.Color(242, 242, 242));
+        label_DPAddition.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_DPAddition.setText("(+0)");
+        panel_AttributesAddition.add(label_DPAddition);
+        label_DPAddition.setBounds(0, 100, 80, 30);
+
+        label_IPAddition.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_IPAddition.setForeground(new java.awt.Color(242, 242, 242));
+        label_IPAddition.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_IPAddition.setText("(+0)");
+        panel_AttributesAddition.add(label_IPAddition);
+        label_IPAddition.setBounds(0, 150, 80, 30);
+
+        label_APAddition.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_APAddition.setForeground(new java.awt.Color(242, 242, 242));
+        label_APAddition.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_APAddition.setText("(+0)");
+        panel_AttributesAddition.add(label_APAddition);
+        label_APAddition.setBounds(0, 200, 80, 30);
+
+        panel_Attributes.add(panel_AttributesAddition);
+        panel_AttributesAddition.setBounds(420, 140, 80, 230);
+
+        panel_Total.setOpaque(false);
+        panel_Total.setLayout(null);
+
+        label_TotalHP.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_TotalHP.setForeground(new java.awt.Color(242, 242, 242));
+        label_TotalHP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_TotalHP.setText("0");
+        panel_Total.add(label_TotalHP);
+        label_TotalHP.setBounds(0, 0, 80, 30);
+
+        label_TotalSP.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_TotalSP.setForeground(new java.awt.Color(242, 242, 242));
+        label_TotalSP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_TotalSP.setText("0");
+        panel_Total.add(label_TotalSP);
+        label_TotalSP.setBounds(0, 50, 80, 30);
+
+        label_TotalDP.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_TotalDP.setForeground(new java.awt.Color(242, 242, 242));
+        label_TotalDP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_TotalDP.setText("0");
+        panel_Total.add(label_TotalDP);
+        label_TotalDP.setBounds(0, 100, 80, 30);
+
+        label_TotalIP.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_TotalIP.setForeground(new java.awt.Color(242, 242, 242));
+        label_TotalIP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_TotalIP.setText("0");
+        panel_Total.add(label_TotalIP);
+        label_TotalIP.setBounds(0, 150, 80, 30);
+
+        label_TotalAP.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_TotalAP.setForeground(new java.awt.Color(242, 242, 242));
+        label_TotalAP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_TotalAP.setText("0");
+        panel_Total.add(label_TotalAP);
+        label_TotalAP.setBounds(0, 200, 80, 30);
+
+        panel_Attributes.add(panel_Total);
+        panel_Total.setBounds(200, 140, 80, 230);
+
+        panel_AttributesAdditionButtons.setOpaque(false);
+        panel_AttributesAdditionButtons.setLayout(null);
+
+        button_HPAddition.setBackground(new java.awt.Color(67, 67, 79));
+        button_HPAddition.setFont(fontsMap.get("Body").deriveFont(14f));
+        button_HPAddition.setForeground(new java.awt.Color(242, 242, 242));
+        button_HPAddition.setText("<html>+");
+        button_HPAddition.setToolTipText("");
+        button_HPAddition.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_HPAdditionActionPerformed(evt);
+            }
+        });
+        panel_AttributesAdditionButtons.add(button_HPAddition);
+        button_HPAddition.setBounds(0, 0, 80, 30);
+
+        button_SPAddition.setBackground(new java.awt.Color(67, 67, 79));
+        button_SPAddition.setFont(fontsMap.get("Body").deriveFont(14f));
+        button_SPAddition.setForeground(new java.awt.Color(242, 242, 242));
+        button_SPAddition.setText("<html>+");
+        button_SPAddition.setToolTipText("");
+        button_SPAddition.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_SPAdditionActionPerformed(evt);
+            }
+        });
+        panel_AttributesAdditionButtons.add(button_SPAddition);
+        button_SPAddition.setBounds(0, 50, 80, 30);
+
+        button_DPAddition.setBackground(new java.awt.Color(67, 67, 79));
+        button_DPAddition.setFont(fontsMap.get("Body").deriveFont(14f));
+        button_DPAddition.setForeground(new java.awt.Color(242, 242, 242));
+        button_DPAddition.setText("<html>+");
+        button_DPAddition.setToolTipText("");
+        button_DPAddition.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_DPAdditionActionPerformed(evt);
+            }
+        });
+        panel_AttributesAdditionButtons.add(button_DPAddition);
+        button_DPAddition.setBounds(0, 100, 80, 30);
+
+        button_IPAddition.setBackground(new java.awt.Color(67, 67, 79));
+        button_IPAddition.setFont(fontsMap.get("Body").deriveFont(14f));
+        button_IPAddition.setForeground(new java.awt.Color(242, 242, 242));
+        button_IPAddition.setText("<html>+");
+        button_IPAddition.setToolTipText("");
+        button_IPAddition.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_IPAdditionActionPerformed(evt);
+            }
+        });
+        panel_AttributesAdditionButtons.add(button_IPAddition);
+        button_IPAddition.setBounds(0, 150, 80, 30);
+
+        button_APAddition.setBackground(new java.awt.Color(67, 67, 79));
+        button_APAddition.setFont(fontsMap.get("Body").deriveFont(14f));
+        button_APAddition.setForeground(new java.awt.Color(242, 242, 242));
+        button_APAddition.setText("<html>+");
+        button_APAddition.setToolTipText("");
+        button_APAddition.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_APAdditionAdditionActionPerformed(evt);
+            }
+        });
+        panel_AttributesAdditionButtons.add(button_APAddition);
+        button_APAddition.setBounds(0, 200, 80, 30);
+
+        panel_Attributes.add(panel_AttributesAdditionButtons);
+        panel_AttributesAdditionButtons.setBounds(500, 140, 80, 230);
+
+        panel_Main.add(panel_Attributes);
+        panel_Attributes.setBounds(5, 60, 590, 440);
+
+        panel_Travel.setBackground(new java.awt.Color(25, 25, 33));
+        panel_Travel.setLayout(null);
+
+        button_Village.setBackground(new java.awt.Color(67, 67, 79));
+        button_Village.setFont(fontsMap.get("Header").deriveFont(24f));
+        button_Village.setForeground(new java.awt.Color(242, 242, 242));
+        button_Village.setText("Village");
+        button_Village.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_VillageActionPerformed(evt);
+            }
+        });
+        panel_Travel.add(button_Village);
+        button_Village.setBounds(30, 120, 240, 90);
+
+        button_Grasslands.setBackground(new java.awt.Color(67, 67, 79));
+        button_Grasslands.setFont(fontsMap.get("Header").deriveFont(24f));
+        button_Grasslands.setForeground(new java.awt.Color(242, 242, 242));
+        button_Grasslands.setText("Grasslands");
+        button_Grasslands.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_GrasslandsActionPerformed(evt);
+            }
+        });
+        panel_Travel.add(button_Grasslands);
+        button_Grasslands.setBounds(310, 120, 240, 90);
+
+        button_Town.setBackground(new java.awt.Color(67, 67, 79));
+        button_Town.setFont(fontsMap.get("Header").deriveFont(24f));
+        button_Town.setForeground(new java.awt.Color(242, 242, 242));
+        button_Town.setText("Fortress");
+        button_Town.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_TownActionPerformed(evt);
+            }
+        });
+        panel_Travel.add(button_Town);
+        button_Town.setBounds(30, 220, 240, 90);
+
+        button_Forest.setBackground(new java.awt.Color(67, 67, 79));
+        button_Forest.setFont(fontsMap.get("Header").deriveFont(24f));
+        button_Forest.setForeground(new java.awt.Color(242, 242, 242));
+        button_Forest.setText("Forest");
+        button_Forest.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_ForestActionPerformed(evt);
+            }
+        });
+        panel_Travel.add(button_Forest);
+        button_Forest.setBounds(310, 220, 240, 90);
+
+        button_City.setBackground(new java.awt.Color(67, 67, 79));
+        button_City.setFont(fontsMap.get("Header").deriveFont(24f));
+        button_City.setForeground(new java.awt.Color(242, 242, 242));
+        button_City.setText("Capital City");
+        button_City.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_CityActionPerformed(evt);
+            }
+        });
+        panel_Travel.add(button_City);
+        button_City.setBounds(30, 320, 240, 90);
+
+        button_Dungeon.setBackground(new java.awt.Color(67, 67, 79));
+        button_Dungeon.setFont(fontsMap.get("Header").deriveFont(24f));
+        button_Dungeon.setForeground(new java.awt.Color(242, 242, 242));
+        button_Dungeon.setText("Dungeon");
+        button_Dungeon.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_DungeonActionPerformed(evt);
+            }
+        });
+        panel_Travel.add(button_Dungeon);
+        button_Dungeon.setBounds(310, 320, 240, 90);
+
+        label_Wilderness.setFont(fontsMap.get("Header").deriveFont(32f));
+        label_Wilderness.setForeground(new java.awt.Color(242, 242, 242));
+        label_Wilderness.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Wilderness.setText("Wilderness");
+        panel_Travel.add(label_Wilderness);
+        label_Wilderness.setBounds(310, 50, 240, 60);
+
+        label_Civilization.setFont(fontsMap.get("Header").deriveFont(32f));
+        label_Civilization.setForeground(new java.awt.Color(242, 242, 242));
+        label_Civilization.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Civilization.setText("Civilization");
+        panel_Travel.add(label_Civilization);
+        label_Civilization.setBounds(30, 50, 240, 60);
+
+        panel_Main.add(panel_Travel);
+        panel_Travel.setBounds(5, 60, 590, 440);
+
+        panel_Storyline.setBackground(new java.awt.Color(25, 25, 33));
+        panel_Storyline.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                panel_StorylineMouseClicked(evt);
+            }
+        });
+        panel_Storyline.setLayout(null);
+
+        label_Talker.setFont(fontsMap.get("Body"));
+        label_Talker.setForeground(new java.awt.Color(242, 242, 242));
+        label_Talker.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_Talker.setText("Talker");
+        panel_Storyline.add(label_Talker);
+        label_Talker.setBounds(20, 50, 550, 110);
+
+        label_StorylineText.setFont(fontsMap.get("Body").deriveFont(14f));
+        label_StorylineText.setForeground(new java.awt.Color(242, 242, 242));
+        label_StorylineText.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        label_StorylineText.setText("[CLICK TO START]");
+        panel_Storyline.add(label_StorylineText);
+        label_StorylineText.setBounds(20, 160, 550, 220);
+
+        button_Confirm.setBackground(new java.awt.Color(67, 67, 79));
+        button_Confirm.setFont(fontsMap.get("Body").deriveFont(14f));
+        button_Confirm.setForeground(new java.awt.Color(242, 242, 242));
+        button_Confirm.setText("Confirm");
+        button_Confirm.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_ConfirmActionPerformed(evt);
+            }
+        });
+        panel_Storyline.add(button_Confirm);
+        button_Confirm.setBounds(190, 390, 200, 40);
+
+        panel_Main.add(panel_Storyline);
+        panel_Storyline.setBounds(5, 60, 590, 440);
 
         panel_ChooseSkill.setBackground(new java.awt.Color(25, 25, 33));
         panel_ChooseSkill.setLayout(null);
@@ -1294,374 +1795,6 @@ public class Game extends javax.swing.JFrame {
         panel_Main.add(panel_Warning);
         panel_Warning.setBounds(70, 110, 460, 350);
 
-        panel_Attributes.setBackground(new java.awt.Color(25, 25, 33));
-        panel_Attributes.setLayout(null);
-
-        panel_AttributesActions.setOpaque(false);
-        panel_AttributesActions.setLayout(null);
-
-        button_AttributesConfirm.setBackground(new java.awt.Color(67, 67, 79));
-        button_AttributesConfirm.setFont(fontsMap.get("Body").deriveFont(14f));
-        button_AttributesConfirm.setForeground(new java.awt.Color(242, 242, 242));
-        button_AttributesConfirm.setText("<html>Confirm");
-        button_AttributesConfirm.setToolTipText("");
-        button_AttributesConfirm.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_AttributesConfirmActionPerformed(evt);
-            }
-        });
-        panel_AttributesActions.add(button_AttributesConfirm);
-        button_AttributesConfirm.setBounds(140, 0, 130, 40);
-
-        button_AttributesReset.setBackground(new java.awt.Color(67, 67, 79));
-        button_AttributesReset.setFont(fontsMap.get("Body").deriveFont(14f));
-        button_AttributesReset.setForeground(new java.awt.Color(242, 242, 242));
-        button_AttributesReset.setText("<html>Reset");
-        button_AttributesReset.setToolTipText("");
-        button_AttributesReset.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_AttributesResetActionPerformed(evt);
-            }
-        });
-        panel_AttributesActions.add(button_AttributesReset);
-        button_AttributesReset.setBounds(0, 0, 130, 40);
-
-        panel_Attributes.add(panel_AttributesActions);
-        panel_AttributesActions.setBounds(300, 390, 270, 40);
-
-        label_PlayerName.setFont(fontsMap.get("Body"));
-        label_PlayerName.setForeground(new java.awt.Color(242, 242, 242));
-        label_PlayerName.setText("Adventurer");
-        panel_Attributes.add(label_PlayerName);
-        label_PlayerName.setBounds(10, 10, 390, 30);
-
-        label_PlayerAffinity.setFont(fontsMap.get("Body"));
-        label_PlayerAffinity.setForeground(new java.awt.Color(242, 242, 242));
-        label_PlayerAffinity.setText("Affinity");
-        panel_Attributes.add(label_PlayerAffinity);
-        label_PlayerAffinity.setBounds(10, 40, 390, 30);
-
-        label_Level.setFont(fontsMap.get("Body"));
-        label_Level.setForeground(new java.awt.Color(242, 242, 242));
-        label_Level.setText("LVL: 0");
-        panel_Attributes.add(label_Level);
-        label_Level.setBounds(10, 70, 390, 30);
-
-        label_AvailablePoints.setFont(fontsMap.get("Body"));
-        label_AvailablePoints.setForeground(new java.awt.Color(242, 242, 242));
-        label_AvailablePoints.setText("Available Points: 0");
-        panel_Attributes.add(label_AvailablePoints);
-        label_AvailablePoints.setBounds(10, 100, 390, 30);
-
-        label_HealthPoints.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_HealthPoints.setForeground(new java.awt.Color(242, 242, 242));
-        label_HealthPoints.setText("Health Points:");
-        panel_Attributes.add(label_HealthPoints);
-        label_HealthPoints.setBounds(10, 140, 190, 30);
-
-        label_StrengthPoints.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_StrengthPoints.setForeground(new java.awt.Color(242, 242, 242));
-        label_StrengthPoints.setText("Strength Points:");
-        panel_Attributes.add(label_StrengthPoints);
-        label_StrengthPoints.setBounds(10, 190, 190, 30);
-
-        label_DefensePoints.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_DefensePoints.setForeground(new java.awt.Color(242, 242, 242));
-        label_DefensePoints.setText("Defense Points:");
-        panel_Attributes.add(label_DefensePoints);
-        label_DefensePoints.setBounds(10, 240, 190, 30);
-
-        label_IntelligencePoints.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_IntelligencePoints.setForeground(new java.awt.Color(242, 242, 242));
-        label_IntelligencePoints.setText("Intelligence Points:");
-        panel_Attributes.add(label_IntelligencePoints);
-        label_IntelligencePoints.setBounds(10, 290, 190, 30);
-
-        label_AgilityPoints.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_AgilityPoints.setForeground(new java.awt.Color(242, 242, 242));
-        label_AgilityPoints.setText("Agility Points:");
-        panel_Attributes.add(label_AgilityPoints);
-        label_AgilityPoints.setBounds(10, 340, 190, 30);
-
-        panel_Dashes1.setOpaque(false);
-        panel_Dashes1.setLayout(null);
-
-        label_Dash6.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_Dash6.setForeground(new java.awt.Color(242, 242, 242));
-        label_Dash6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Dash6.setText("-");
-        panel_Dashes1.add(label_Dash6);
-        label_Dash6.setBounds(0, 0, 30, 30);
-
-        label_Dash7.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_Dash7.setForeground(new java.awt.Color(242, 242, 242));
-        label_Dash7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Dash7.setText("-");
-        panel_Dashes1.add(label_Dash7);
-        label_Dash7.setBounds(0, 50, 30, 30);
-
-        label_Dash8.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_Dash8.setForeground(new java.awt.Color(242, 242, 242));
-        label_Dash8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Dash8.setText("-");
-        panel_Dashes1.add(label_Dash8);
-        label_Dash8.setBounds(0, 100, 30, 30);
-
-        label_Dash9.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_Dash9.setForeground(new java.awt.Color(242, 242, 242));
-        label_Dash9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Dash9.setText("-");
-        panel_Dashes1.add(label_Dash9);
-        label_Dash9.setBounds(0, 150, 30, 30);
-
-        label_Dash10.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_Dash10.setForeground(new java.awt.Color(242, 242, 242));
-        label_Dash10.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Dash10.setText("-");
-        panel_Dashes1.add(label_Dash10);
-        label_Dash10.setBounds(0, 200, 30, 30);
-
-        panel_Attributes.add(panel_Dashes1);
-        panel_Dashes1.setBounds(390, 140, 30, 230);
-
-        panel_Dashes.setOpaque(false);
-        panel_Dashes.setLayout(null);
-
-        label_Dash1.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_Dash1.setForeground(new java.awt.Color(242, 242, 242));
-        label_Dash1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Dash1.setText("-");
-        panel_Dashes.add(label_Dash1);
-        label_Dash1.setBounds(0, 0, 30, 30);
-
-        label_Dash2.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_Dash2.setForeground(new java.awt.Color(242, 242, 242));
-        label_Dash2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Dash2.setText("-");
-        panel_Dashes.add(label_Dash2);
-        label_Dash2.setBounds(0, 50, 30, 30);
-
-        label_Dash3.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_Dash3.setForeground(new java.awt.Color(242, 242, 242));
-        label_Dash3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Dash3.setText("-");
-        panel_Dashes.add(label_Dash3);
-        label_Dash3.setBounds(0, 100, 30, 30);
-
-        label_Dash4.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_Dash4.setForeground(new java.awt.Color(242, 242, 242));
-        label_Dash4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Dash4.setText("-");
-        panel_Dashes.add(label_Dash4);
-        label_Dash4.setBounds(0, 150, 30, 30);
-
-        label_Dash5.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_Dash5.setForeground(new java.awt.Color(242, 242, 242));
-        label_Dash5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Dash5.setText("-");
-        panel_Dashes.add(label_Dash5);
-        label_Dash5.setBounds(0, 200, 30, 30);
-
-        panel_Attributes.add(panel_Dashes);
-        panel_Dashes.setBounds(280, 140, 30, 230);
-
-        panel_GearAddition.setOpaque(false);
-        panel_GearAddition.setLayout(null);
-
-        label_GearHP.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_GearHP.setForeground(new java.awt.Color(242, 242, 242));
-        label_GearHP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_GearHP.setText("(+0)");
-        panel_GearAddition.add(label_GearHP);
-        label_GearHP.setBounds(0, 0, 80, 30);
-
-        label_GearSP.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_GearSP.setForeground(new java.awt.Color(242, 242, 242));
-        label_GearSP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_GearSP.setText("(+0)");
-        panel_GearAddition.add(label_GearSP);
-        label_GearSP.setBounds(0, 50, 80, 30);
-
-        label_GearDP.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_GearDP.setForeground(new java.awt.Color(242, 242, 242));
-        label_GearDP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_GearDP.setText("(+0)");
-        panel_GearAddition.add(label_GearDP);
-        label_GearDP.setBounds(0, 100, 80, 30);
-
-        label_GearIP.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_GearIP.setForeground(new java.awt.Color(242, 242, 242));
-        label_GearIP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_GearIP.setText("(+0)");
-        panel_GearAddition.add(label_GearIP);
-        label_GearIP.setBounds(0, 150, 80, 30);
-
-        label_GearAP.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_GearAP.setForeground(new java.awt.Color(242, 242, 242));
-        label_GearAP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_GearAP.setText("(+0)");
-        panel_GearAddition.add(label_GearAP);
-        label_GearAP.setBounds(0, 200, 80, 30);
-
-        panel_Attributes.add(panel_GearAddition);
-        panel_GearAddition.setBounds(310, 140, 80, 230);
-
-        panel_AttributesAddition.setOpaque(false);
-        panel_AttributesAddition.setLayout(null);
-
-        label_HPAddition.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_HPAddition.setForeground(new java.awt.Color(242, 242, 242));
-        label_HPAddition.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_HPAddition.setText("(+0)");
-        panel_AttributesAddition.add(label_HPAddition);
-        label_HPAddition.setBounds(0, 0, 80, 30);
-
-        label_SPAddition.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_SPAddition.setForeground(new java.awt.Color(242, 242, 242));
-        label_SPAddition.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_SPAddition.setText("(+0)");
-        panel_AttributesAddition.add(label_SPAddition);
-        label_SPAddition.setBounds(0, 50, 80, 30);
-
-        label_DPAddition.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_DPAddition.setForeground(new java.awt.Color(242, 242, 242));
-        label_DPAddition.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_DPAddition.setText("(+0)");
-        panel_AttributesAddition.add(label_DPAddition);
-        label_DPAddition.setBounds(0, 100, 80, 30);
-
-        label_IPAddition.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_IPAddition.setForeground(new java.awt.Color(242, 242, 242));
-        label_IPAddition.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_IPAddition.setText("(+0)");
-        panel_AttributesAddition.add(label_IPAddition);
-        label_IPAddition.setBounds(0, 150, 80, 30);
-
-        label_APAddition.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_APAddition.setForeground(new java.awt.Color(242, 242, 242));
-        label_APAddition.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_APAddition.setText("(+0)");
-        panel_AttributesAddition.add(label_APAddition);
-        label_APAddition.setBounds(0, 200, 80, 30);
-
-        panel_Attributes.add(panel_AttributesAddition);
-        panel_AttributesAddition.setBounds(420, 140, 80, 230);
-
-        panel_Total.setOpaque(false);
-        panel_Total.setLayout(null);
-
-        label_TotalHP.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_TotalHP.setForeground(new java.awt.Color(242, 242, 242));
-        label_TotalHP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_TotalHP.setText("0");
-        panel_Total.add(label_TotalHP);
-        label_TotalHP.setBounds(0, 0, 80, 30);
-
-        label_TotalSP.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_TotalSP.setForeground(new java.awt.Color(242, 242, 242));
-        label_TotalSP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_TotalSP.setText("0");
-        panel_Total.add(label_TotalSP);
-        label_TotalSP.setBounds(0, 50, 80, 30);
-
-        label_TotalDP.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_TotalDP.setForeground(new java.awt.Color(242, 242, 242));
-        label_TotalDP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_TotalDP.setText("0");
-        panel_Total.add(label_TotalDP);
-        label_TotalDP.setBounds(0, 100, 80, 30);
-
-        label_TotalIP.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_TotalIP.setForeground(new java.awt.Color(242, 242, 242));
-        label_TotalIP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_TotalIP.setText("0");
-        panel_Total.add(label_TotalIP);
-        label_TotalIP.setBounds(0, 150, 80, 30);
-
-        label_TotalAP.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_TotalAP.setForeground(new java.awt.Color(242, 242, 242));
-        label_TotalAP.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_TotalAP.setText("0");
-        panel_Total.add(label_TotalAP);
-        label_TotalAP.setBounds(0, 200, 80, 30);
-
-        panel_Attributes.add(panel_Total);
-        panel_Total.setBounds(200, 140, 80, 230);
-
-        panel_AttributesAdditionButtons.setOpaque(false);
-        panel_AttributesAdditionButtons.setLayout(null);
-
-        button_HPAddition.setBackground(new java.awt.Color(67, 67, 79));
-        button_HPAddition.setFont(fontsMap.get("Body").deriveFont(14f));
-        button_HPAddition.setForeground(new java.awt.Color(242, 242, 242));
-        button_HPAddition.setText("<html>+");
-        button_HPAddition.setToolTipText("");
-        button_HPAddition.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_HPAdditionActionPerformed(evt);
-            }
-        });
-        panel_AttributesAdditionButtons.add(button_HPAddition);
-        button_HPAddition.setBounds(0, 0, 80, 30);
-
-        button_SPAddition.setBackground(new java.awt.Color(67, 67, 79));
-        button_SPAddition.setFont(fontsMap.get("Body").deriveFont(14f));
-        button_SPAddition.setForeground(new java.awt.Color(242, 242, 242));
-        button_SPAddition.setText("<html>+");
-        button_SPAddition.setToolTipText("");
-        button_SPAddition.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_SPAdditionActionPerformed(evt);
-            }
-        });
-        panel_AttributesAdditionButtons.add(button_SPAddition);
-        button_SPAddition.setBounds(0, 50, 80, 30);
-
-        button_DPAddition.setBackground(new java.awt.Color(67, 67, 79));
-        button_DPAddition.setFont(fontsMap.get("Body").deriveFont(14f));
-        button_DPAddition.setForeground(new java.awt.Color(242, 242, 242));
-        button_DPAddition.setText("<html>+");
-        button_DPAddition.setToolTipText("");
-        button_DPAddition.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_DPAdditionActionPerformed(evt);
-            }
-        });
-        panel_AttributesAdditionButtons.add(button_DPAddition);
-        button_DPAddition.setBounds(0, 100, 80, 30);
-
-        button_IPAddition.setBackground(new java.awt.Color(67, 67, 79));
-        button_IPAddition.setFont(fontsMap.get("Body").deriveFont(14f));
-        button_IPAddition.setForeground(new java.awt.Color(242, 242, 242));
-        button_IPAddition.setText("<html>+");
-        button_IPAddition.setToolTipText("");
-        button_IPAddition.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_IPAdditionActionPerformed(evt);
-            }
-        });
-        panel_AttributesAdditionButtons.add(button_IPAddition);
-        button_IPAddition.setBounds(0, 150, 80, 30);
-
-        button_APAddition.setBackground(new java.awt.Color(67, 67, 79));
-        button_APAddition.setFont(fontsMap.get("Body").deriveFont(14f));
-        button_APAddition.setForeground(new java.awt.Color(242, 242, 242));
-        button_APAddition.setText("<html>+");
-        button_APAddition.setToolTipText("");
-        button_APAddition.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_APAdditionAdditionActionPerformed(evt);
-            }
-        });
-        panel_AttributesAdditionButtons.add(button_APAddition);
-        button_APAddition.setBounds(0, 200, 80, 30);
-
-        panel_Attributes.add(panel_AttributesAdditionButtons);
-        panel_AttributesAdditionButtons.setBounds(500, 140, 80, 230);
-
-        panel_Main.add(panel_Attributes);
-        panel_Attributes.setBounds(5, 60, 590, 440);
-
         panel_Intro.setBackground(new java.awt.Color(25, 25, 33));
         panel_Intro.setLayout(null);
 
@@ -1812,43 +1945,6 @@ public class Game extends javax.swing.JFrame {
 
         panel_Main.add(panel_Shop);
         panel_Shop.setBounds(5, 60, 590, 440);
-
-        panel_Storyline.setBackground(new java.awt.Color(25, 25, 33));
-        panel_Storyline.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                panel_StorylineMouseClicked(evt);
-            }
-        });
-        panel_Storyline.setLayout(null);
-
-        label_Talker.setFont(fontsMap.get("Body"));
-        label_Talker.setForeground(new java.awt.Color(242, 242, 242));
-        label_Talker.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Talker.setText("Talker");
-        panel_Storyline.add(label_Talker);
-        label_Talker.setBounds(20, 50, 550, 110);
-
-        label_StorylineText.setFont(fontsMap.get("Body").deriveFont(14f));
-        label_StorylineText.setForeground(new java.awt.Color(242, 242, 242));
-        label_StorylineText.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_StorylineText.setText("[CLICK TO START]");
-        panel_Storyline.add(label_StorylineText);
-        label_StorylineText.setBounds(20, 160, 550, 220);
-
-        button_Confirm.setBackground(new java.awt.Color(67, 67, 79));
-        button_Confirm.setFont(fontsMap.get("Body").deriveFont(14f));
-        button_Confirm.setForeground(new java.awt.Color(242, 242, 242));
-        button_Confirm.setText("Confirm");
-        button_Confirm.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_ConfirmActionPerformed(evt);
-            }
-        });
-        panel_Storyline.add(button_Confirm);
-        button_Confirm.setBounds(210, 390, 160, 40);
-
-        panel_Main.add(panel_Storyline);
-        panel_Storyline.setBounds(5, 60, 590, 440);
 
         panel_AffinitiesMenu.setBackground(new java.awt.Color(25, 25, 33));
         panel_AffinitiesMenu.setLayout(null);
@@ -2029,98 +2125,6 @@ public class Game extends javax.swing.JFrame {
         panel_Main.add(panel_StartingGear);
         panel_StartingGear.setBounds(5, 60, 590, 440);
 
-        panel_Travel.setBackground(new java.awt.Color(25, 25, 33));
-        panel_Travel.setLayout(null);
-
-        button_Village.setBackground(new java.awt.Color(67, 67, 79));
-        button_Village.setFont(fontsMap.get("Header").deriveFont(24f));
-        button_Village.setForeground(new java.awt.Color(242, 242, 242));
-        button_Village.setText("Village");
-        button_Village.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_VillageActionPerformed(evt);
-            }
-        });
-        panel_Travel.add(button_Village);
-        button_Village.setBounds(30, 120, 240, 90);
-
-        button_Grasslands.setBackground(new java.awt.Color(67, 67, 79));
-        button_Grasslands.setFont(fontsMap.get("Header").deriveFont(24f));
-        button_Grasslands.setForeground(new java.awt.Color(242, 242, 242));
-        button_Grasslands.setText("Grasslands");
-        button_Grasslands.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_GrasslandsActionPerformed(evt);
-            }
-        });
-        panel_Travel.add(button_Grasslands);
-        button_Grasslands.setBounds(310, 120, 240, 90);
-
-        button_Town.setBackground(new java.awt.Color(67, 67, 79));
-        button_Town.setFont(fontsMap.get("Header").deriveFont(24f));
-        button_Town.setForeground(new java.awt.Color(242, 242, 242));
-        button_Town.setText("Fortress");
-        button_Town.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_TownActionPerformed(evt);
-            }
-        });
-        panel_Travel.add(button_Town);
-        button_Town.setBounds(30, 220, 240, 90);
-
-        button_Forest.setBackground(new java.awt.Color(67, 67, 79));
-        button_Forest.setFont(fontsMap.get("Header").deriveFont(24f));
-        button_Forest.setForeground(new java.awt.Color(242, 242, 242));
-        button_Forest.setText("Forest");
-        button_Forest.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_ForestActionPerformed(evt);
-            }
-        });
-        panel_Travel.add(button_Forest);
-        button_Forest.setBounds(310, 220, 240, 90);
-
-        button_City.setBackground(new java.awt.Color(67, 67, 79));
-        button_City.setFont(fontsMap.get("Header").deriveFont(24f));
-        button_City.setForeground(new java.awt.Color(242, 242, 242));
-        button_City.setText("Capital City");
-        button_City.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_CityActionPerformed(evt);
-            }
-        });
-        panel_Travel.add(button_City);
-        button_City.setBounds(30, 320, 240, 90);
-
-        button_Dungeon.setBackground(new java.awt.Color(67, 67, 79));
-        button_Dungeon.setFont(fontsMap.get("Header").deriveFont(24f));
-        button_Dungeon.setForeground(new java.awt.Color(242, 242, 242));
-        button_Dungeon.setText("Dungeon");
-        button_Dungeon.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_DungeonActionPerformed(evt);
-            }
-        });
-        panel_Travel.add(button_Dungeon);
-        button_Dungeon.setBounds(310, 320, 240, 90);
-
-        label_Wilderness.setFont(fontsMap.get("Header").deriveFont(32f));
-        label_Wilderness.setForeground(new java.awt.Color(242, 242, 242));
-        label_Wilderness.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Wilderness.setText("Wilderness");
-        panel_Travel.add(label_Wilderness);
-        label_Wilderness.setBounds(310, 50, 240, 60);
-
-        label_Civilization.setFont(fontsMap.get("Header").deriveFont(32f));
-        label_Civilization.setForeground(new java.awt.Color(242, 242, 242));
-        label_Civilization.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_Civilization.setText("Civilization");
-        panel_Travel.add(label_Civilization);
-        label_Civilization.setBounds(30, 50, 240, 60);
-
-        panel_Main.add(panel_Travel);
-        panel_Travel.setBounds(5, 60, 590, 440);
-
         panel_Quest.setBackground(new java.awt.Color(25, 25, 33));
         panel_Quest.setLayout(null);
 
@@ -2238,19 +2242,24 @@ public class Game extends javax.swing.JFrame {
 
         label_StorylineText.setText(formatText(loadedStorylineText[textIndex]));
 
-        if (storylineIndex == 0 && textIndex >= loadedStorylineText.length - 1) {
+        if (textIndex >= loadedStorylineText.length - 1) {
 
-            // entering name sequence
-            textField_NameField.setVisible(true);
-            panel_Main.setComponentZOrder(textField_NameField, 0);
-            button_Confirm.setVisible(true);
+            if (storylineIndex == 0) {
 
-            // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-            // after testing purposes revert 1 back to (loadedStorylineText.length - 1)
-            // <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        } else if (textIndex >= 0) {
+                // entering name sequence
+                textField_NameField.setVisible(true);
+                panel_Main.setComponentZOrder(textField_NameField, 0);
+
+            }
 
             // entering affinity sequence
+            button_Confirm.setText("(CONTINUE)");
+            button_Confirm.setVisible(true);
+
+        } else if (storylineIndex != 0 && textIndex >= 0) {
+
+            // entering affinity sequence
+            button_Confirm.setText("(SKIP DIALOGUE)");
             button_Confirm.setVisible(true);
 
         }
@@ -2803,7 +2812,7 @@ public class Game extends javax.swing.JFrame {
             panel_AttributesActions.setVisible(false);
         }
 
-        if (storylineIndex == 2 && textIndex == 0) {
+        if (storylineIndex == 2) {
 
             panel_Attributes.setVisible(false);
 
@@ -2816,7 +2825,6 @@ public class Game extends javax.swing.JFrame {
 
         resetAttributeChanges();
         openAttributesMenu();
-
 
     }//GEN-LAST:event_button_AttributesResetActionPerformed
 
@@ -2960,7 +2968,8 @@ public class Game extends javax.swing.JFrame {
         label_TotalMDmg.setText(String.valueOf(player.magicalDamage));
         label_TotalCC.setText(String.valueOf(player.critChance));
 
-        label_BasicAttack.setText(player.basicAttackSkill.skillName);
+        label_BasicAttack.setText(player.basicAttackSkill != null ? String.format("<html><p align=\"center\">%s</p></html>",
+                generateSkillStatsStr(player.basicAttackSkill)) : "(NONE)");
         label_Skill1.setText(player.skill1 != null ? String.format("<html><p align=\"center\">%s</p></html>",
                 generateSkillStatsStr(player.skill1)) : "(NONE)");
         label_Skill2.setText(player.skill2 != null ? String.format("<html><p align=\"center\">%s</p></html>",
@@ -3005,7 +3014,8 @@ public class Game extends javax.swing.JFrame {
         String skillStats = "";
 
         skillStats += String.format("<font size=\"5\">%s</font>", givenSkill.skillName);
-        skillStats += String.format("<br>cost %s MP<br>(cost increase %s MP)", givenSkill.skillCost, givenSkill.skillCostIncrease);
+        skillStats += givenSkill.skillCost > 0
+                ? String.format("<br>cost %s MP<br>(cost increase %s MP)", givenSkill.skillCost, givenSkill.skillCostIncrease) : "";
         skillStats += givenSkill.skillPDmg > 0 ? String.format("<br>Physical Damage: %s", givenSkill.skillPDmg) : "";
         skillStats += givenSkill.skillMDmg > 0 ? String.format("<br>Magical Damage: %s", givenSkill.skillMDmg) : "";
         skillStats += givenSkill.selfInflict ? "<br>(Self-inflicted)" : "";
@@ -3289,6 +3299,8 @@ public class Game extends javax.swing.JFrame {
         label_GameBackground.setIcon(ii);
         currentLocation = locationTravelledTo;
 
+        button_Quest.setText(quest.isQuestCompleted() ? "Quest(!)" : "Quest");
+
         label_Location.setText(String.format("Location: %s", locationTravelledTo));
         openGameScreen();
         warnPlayerHPMP();
@@ -3370,7 +3382,7 @@ public class Game extends javax.swing.JFrame {
 
                 player.level = 1;
                 player.chooseAffinity(10);
-                player.attributePoints += 100;
+                player.totalCoins += 1000000;
 
                 // puts the battlePlayer name in the characterNames hashmap
                 characterNames.put(0, new String[]{textField_NameField.getText(), "", "Player", "m"});
@@ -3410,7 +3422,7 @@ public class Game extends javax.swing.JFrame {
 
                     {
 
-                        put(String.format("Talk to %s in the village.",
+                        put(String.format("Talk to %s in the village (found in the village).",
                                 getCharacterFullName(2, true)),
                                 new Integer[]{0, 1});
 
@@ -3428,6 +3440,10 @@ public class Game extends javax.swing.JFrame {
                         new Armor("Slime Armor", 1, 0, 2),
                         true);
                 battle.escapeChance = 0;
+                player.strengthPoints += 200;
+                player.agilityPoints += 200;
+                player.confirmAttributeChanges();
+
             }
             case 7 ->
                 nextDialogueArray();
@@ -3446,7 +3462,7 @@ public class Game extends javax.swing.JFrame {
 
                     {
 
-                        put(String.format("Talk to %s about your new quest.",
+                        put(String.format("Talk to %s about your new quest (found in the village).",
                                 getCharacterFullName(2, true)),
                                 new Integer[]{0, 1});
 
@@ -3473,7 +3489,7 @@ public class Game extends javax.swing.JFrame {
 
                     }
 
-                }, "Kill slimes from the grasslands.",
+                }, "Kill (found in the grasslands).",
                         quest.generateReward(new int[]{2}, new int[]{3})[0], quest.generateReward(new int[]{2}, new int[]{3})[1]);
             }
             case 10 -> {
@@ -3493,7 +3509,7 @@ public class Game extends javax.swing.JFrame {
 
                     }
 
-                }, "Kill goblins from the grasslands.",
+                }, "Kill goblins (found in the grasslands)",
                         quest.generateReward(new int[]{4}, new int[]{2})[0], quest.generateReward(new int[]{6}, new int[]{2})[1]);
             }
             case 11 -> {
@@ -3513,7 +3529,7 @@ public class Game extends javax.swing.JFrame {
 
                     }
 
-                }, "Kill the lone wolf from the grasslands.",
+                }, "Kill a lone wolf (found in the grasslands).",
                         quest.generateReward(new int[]{6}, new int[]{1})[0], quest.generateReward(new int[]{6}, new int[]{1})[1]);
             }
             case 12 -> {
@@ -3533,7 +3549,7 @@ public class Game extends javax.swing.JFrame {
 
                     }
 
-                }, String.format("Kill %s", getCharacterFullName(7, true)),
+                }, String.format("Kill %s (found in the grasslands)", getCharacterFullName(7, true)),
                         quest.generateReward(new int[]{10}, new int[]{1})[0], quest.generateReward(new int[]{10}, new int[]{1})[1]);
             }
             case 13 -> // baron monologue sequence
@@ -3809,7 +3825,7 @@ public class Game extends javax.swing.JFrame {
             if (player.accumulatedLVL > 0) {
 
                 messagePopup("Level increased!");
-                
+
             }
 
             battle = null;
@@ -4027,7 +4043,7 @@ public class Game extends javax.swing.JFrame {
 
         } else if (player.currentMP < (player.maxMP * 0.25) && player.currentMP > 0) {
 
-            System.out.println("TEST3");
+//            System.out.println("TEST3");
             messagePopup("Low MP");
 
         }
@@ -4073,6 +4089,8 @@ public class Game extends javax.swing.JFrame {
             button_Return.setVisible(true);
 
         }
+
+        travelToLocation(currentLocation);
 
     }//GEN-LAST:event_button_CloseWarningMouseClicked
     // </editor-fold>
@@ -4237,7 +4255,7 @@ public class Game extends javax.swing.JFrame {
                                             </html>
                                             """, String.format("Encountered %s (LVL %s)", battle.battleHostile.name, battle.battleHostile.level),
                                 "Flee or attack.",
-                                String.format("<br> (%s / 10 turns taken)", bossLair.exploreTurns)));
+                                String.format("<br>(%s / %s turns taken)", bossLair.exploreTurns, bossLair.exploreTurns + bossLair.dungeonEncounters.size())));
 
                         button_DungeonAttack.setVisible(true);
                         button_DungeonFlee.setVisible(true);
@@ -4309,7 +4327,7 @@ public class Game extends javax.swing.JFrame {
                                             """, String.format("Encountered %s (LVL %s)", battle.battleHostile.name, battle.battleHostile.level),
                                 "You have encountered the lair's boss.",
                                 "<br>(CLICK TO CONTINUE)",
-                                String.format("<br> (%s / 10 turns taken)", bossLair.exploreTurns)));
+                                String.format("<br>(%s / %s turns taken)", bossLair.exploreTurns, bossLair.exploreTurns + bossLair.dungeonEncounters.size())));
 
                         button_DungeonAttack.setVisible(false);
                         button_DungeonFlee.setVisible(false);
@@ -4353,7 +4371,7 @@ public class Game extends javax.swing.JFrame {
                                             </html>
                                             """, String.format("Encountered %s (LVL %s)", battle.battleHostile.name, battle.battleHostile.level),
                                 "Flee or attack.",
-                                String.format("<br> (%s / 20 turns taken)", wilderness.exploreTurns)));
+                                String.format("<br>(%s / %s turns taken)", wilderness.exploreTurns, wilderness.exploreTurns + wilderness.dungeonEncounters.size())));
 
                         button_DungeonAttack.setVisible(true);
                         button_DungeonFlee.setVisible(true);
@@ -4392,7 +4410,7 @@ public class Game extends javax.swing.JFrame {
                                             </html>
                                             """, wilderness.scenicViewPrompts[newScenicViewIndex],
                                 "(CLICK TO CONTINUE)",
-                                String.format("<br> (%s / 20 turns taken)", wilderness.exploreTurns)));
+                                String.format("<br>(%s / %s turns taken)", wilderness.exploreTurns, wilderness.exploreTurns + wilderness.dungeonEncounters.size())));
                     }
 
                 }
@@ -4457,6 +4475,8 @@ public class Game extends javax.swing.JFrame {
 
             } else {
 
+                panel_Combat.setVisible(false);
+                battle.battleEnd(false);
                 handleSuccessfulEscape();
 
             }
@@ -4490,7 +4510,14 @@ public class Game extends javax.swing.JFrame {
 
     private void handleSuccessfulEscape() {
 
-        wilderness.obstructed = false;
+        if (wilderness != null) {
+            wilderness.obstructed = false;
+        }
+
+        if (bossLair != null) {
+            bossLair.obstructed = false;
+        }
+
         panel_Dungeon.setVisible(true);
 
         button_DungeonAttack.setVisible(false);
@@ -4499,10 +4526,13 @@ public class Game extends javax.swing.JFrame {
         label_EncounterLog.setText(String.format("""
         <html>
         <head><h2 align="center">%s</h2></head>
-        <body><p align="center">%s</p></body>
+        <body><p align="center">%s %s</p></body>
         </html>
         """, "Escape Successful",
-                "(CLICK TO CONTINUE)"));
+                "(CLICK TO CONTINUE)",
+                String.format("<br>(%s / %s turns taken)", wilderness != null && wilderness.exploreTurns > 0 ? wilderness.exploreTurns : bossLair.exploreTurns,
+                        wilderness != null ? wilderness.exploreTurns + wilderness.dungeonEncounters.size() : bossLair.exploreTurns + bossLair.dungeonEncounters.size())
+        ));
 
     }
 
@@ -4912,8 +4942,8 @@ public class Game extends javax.swing.JFrame {
     }
 
     // </editor-fold>    
-    // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
+    // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------
     // <editor-fold desc="html stuff (making labels)">
     /*

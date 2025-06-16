@@ -1,4 +1,3 @@
-
 package realmofallyria;
 
 import java.util.LinkedList;
@@ -213,16 +212,17 @@ public class Battle {
             if (battlePlayer.currentHP < 0) {
                 defeatedMob = battlePlayer.name;
                 winningMob = battleHostile.name;
-                battleXPGain = 0;
-                battleCoinGain = 0;
+                battleXPGain = battleXPGain * 0.1;
+                battleCoinGain = 0 * 0.1;
             } else {
                 defeatedMob = battleHostile.name;
                 winningMob = battlePlayer.name;
-                battleGoldCoins = (int) battleCoinGain / 2500;
-                int battleRemainingAfterGold = (int) battleCoinGain % 2500;
-                battleSilverCoins = battleRemainingAfterGold / 50;
-                battleCopperCoins = battleRemainingAfterGold % 50;
             }
+
+            battleGoldCoins = (int) battleCoinGain / 2500;
+            int battleRemainingAfterGold = (int) battleCoinGain % 2500;
+            battleSilverCoins = battleRemainingAfterGold / 50;
+            battleCopperCoins = battleRemainingAfterGold % 50;
 
             battleEndString = String.format("""
                                                 <html>
