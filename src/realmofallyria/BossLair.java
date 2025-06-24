@@ -23,9 +23,6 @@ public class BossLair extends Dungeon {
         // if battlePlayer level - wilderness level * 20 < 0 then it returns 0
         // else if the battlePlayer level - wilderness level * 20 > 0 then it returns 100
         // finally it gives right result if it does not meet the previous requirements
-        difficultyDiceRollModifier = (playerLevel - (dungeonLevel * 10)) * 20 < 0 ? 0
-                : (playerLevel - (dungeonLevel * 10)) * 20 > 100 ? 100
-                        : (playerLevel - (dungeonLevel * 10)) * 20;
 //        System.out.println("difficultyDiceRollModifier: " + difficultyDiceRollModifier);
 
         for (int i = 0; i < 9; i++) {
@@ -50,7 +47,8 @@ public class BossLair extends Dungeon {
 
     }
 
-    public void generateMinionMob() {
+    @Override
+    public void generateDungeonMob() {
 
         int generatedMobLVL = 7 + dungeonRandomizer.nextInt(2);
         int generatedAffinity = dungeonRandomizer.nextInt(2);
@@ -72,24 +70,6 @@ public class BossLair extends Dungeon {
 //        System.out.printf("Affinity: %s\n", wildernessMob.typeAffinity);
 //        System.out.printf("Armor: %s (LVL %s)\n", wildernessMob.equippedArmor, wildernessMob.equippedArmorLVL);
 //        System.out.printf("Weapon: %s (LVL %s)\n", wildernessMob.equippedWeapon, wildernessMob.equippedWeaponLVL);
-    }
-
-    public void generateBossMob() {
-
-        int bossMobLVL = 12;
-        int generatedAffinity = dungeonRandomizer.nextInt(2);
-        int generatedArmorLVL = dungeonRandomizer.nextInt(1, 4);
-        int generatedWeaponLVL = dungeonRandomizer.nextInt(1, 4);
-
-        obstructed = true;
-
-        dungeonMobName = dungeonMonsterNames[1];
-        dungeonMobAffinity = dungeonMonsterAffinities[1][generatedAffinity];
-        dungeonMobLVL = (bossMobLVL + (dungeonLevel * 10));
-        dungeonMobWeapon = new Weapon(dungeonMonsterEquipment[1][1], generatedWeaponLVL, new Skill(dungeonMonsterBasicAttack[1]),
-                0, 0, 0);
-        dungeonMobArmor = new Armor(dungeonMonsterEquipment[1][0], generatedArmorLVL, 0, 0);
-
     }
 
 }

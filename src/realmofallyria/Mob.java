@@ -254,105 +254,102 @@ public abstract class Mob {
     // -----------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------
     // <editor-fold desc="combat mechanics stuff">
-    public double[] useSkill(Skill skillUsed) {
+    public Skill useSkill(Skill skillUsed) {
 
-        // index 0 is for pdmg, and 1 is for mdmg
-        double[] damageDealt = new double[9];
+        if (skillUsed.effects.containsKey("SelfInflicted")) {
 
-        damageDealt[0] = skillUsed.skillPDmg * physicalDamage;
-        damageDealt[1] = skillUsed.skillMDmg * magicalDamage;
-        damageDealt[7] = skillUsed.selfInflict == true ? 1 : 0;
-
-//        System.out.println(skillUsed.skillName.equals("True Strike"));
-        damageDealt[8] = skillUsed.skillName.equals("True Strike") ? 1 : 0;
-
-        if (damageDealt[7] == 0) {
-
-            // randomizes the damage dealt, for variation
-            if (damageDealt[0] > 0) {
-                damageDealt[0] += mobRandomizer.nextDouble((physicalDamage * 0.25) * -1, (physicalDamage * 0.25));
-            }
-            if (damageDealt[1] > 0) {
-                damageDealt[1] += mobRandomizer.nextDouble((magicalDamage * 0.25) * -1, (magicalDamage * 0.25));
-            }
-
-            // third index indicates if the hit is a crit (0 for false, 1 for true)
-            damageDealt[2] = 0;
-
-            if (critChance > mobRandomizer.nextDouble(1, 101)) {
-                damageDealt[0] *= 2;
-                damageDealt[1] *= 2;
-                damageDealt[2] = 1;
-            }
+            currentHP += (maxHP * skillUsed.effects.get("HealSelf"));
+            skillUsed.effects.put("HPHealed", (maxHP * skillUsed.effects.get("HealSelf")));
 
         } else {
 
-            damageDealt[0] = (maxHP * 0.25);
+            if (critChance > mobRandomizer.nextDouble(1, 101)) {
 
-            currentHP = currentHP + damageDealt[0] > maxHP ? maxHP : currentHP + damageDealt[0];
+                skillUsed.effects.put("CriticalHit", 2.0);
 
-            // returns a blank dmg array which determines the attack as harmless or self-inglicted
-            return damageDealt;
+            }
+
+            // damageDealt[0] += mobRandomizer.nextDouble((physicalDamage * 0.25) * -1, (physicalDamage * 0.25));
+            if (skillUsed.effects.containsKey("PhysicalDamageMultiplier")) {
+                skillUsed.effects.put("PhysicalDamage", skillUsed.effects.containsKey("CriticalHit")
+                        ? (skillUsed.effects.get("PhysicalDamageMultiplier") * physicalDamage) * skillUsed.effects.get("CriticalHit")
+                        : (skillUsed.effects.get("PhysicalDamageMultiplier") * physicalDamage)
+                        + mobRandomizer.nextDouble((physicalDamage * 0.25) * -1, (physicalDamage * 0.25))
+                );
+
+                if (skillUsed.effects.get("PhysicalDamage") <= 0) {
+                    skillUsed.effects.remove("PhysicalDamage");
+                    skillUsed.effects.put("Missed", 1.0);
+                }
+            }
+            if (skillUsed.effects.containsKey("MagicalDamageMultiplier")) {
+                skillUsed.effects.put("MagicalDamage", skillUsed.effects.containsKey("CriticalHit")
+                        ? (skillUsed.effects.get("MagicalDamageMultiplier") * physicalDamage) * skillUsed.effects.get("CriticalHit")
+                        : (skillUsed.effects.get("MagicalDamageMultiplier") * physicalDamage)
+                        + mobRandomizer.nextDouble((magicalDamage * 0.25) * -1, (magicalDamage * 0.25))
+                );
+
+                if (skillUsed.effects.get("MagicalDamage") <= 0) {
+                    skillUsed.effects.remove("MagicalDamage");
+                    skillUsed.effects.put("Missed", 1.0);
+                }
+            }
 
         }
 
-        currentMP = currentMP - skillUsed.skillCost < 0 ? 0 : currentMP - skillUsed.skillCost;
+        currentMP = currentMP - skillUsed.skillBaseCost < 0 ? 0 : currentMP - skillUsed.skillBaseCost;
 
-        return damageDealt;
+        return skillUsed;
 
     }
 
-    public double[] defend(double[] damageTaken) {
-
-        // <editor-fold desc="damageTaken indexes legend">
-        // if all values are 0, it means the user did not have enough MP to use this skill
-        // [0] - physical damage (from attacker)
-        // [1] - magical damage (from attacker)
-        // [2] - determines if hit is critical (1 for crit, 0 for not)
-        // [3] - physical defense (from defender)
-        // [4] - magical defense (from defender)
-        // [5] - physical damage (from attacker): without defense reductions
-        // [6] - magical damage (from attacker): without defense reductions
-        // [7] - determines if attack is self-inflicted or harmless to the defender (1 for true, 0 for false)
-        // [8] - determines if the attack ignores defense points (1 for true, 0 for false)
-        // </editor-fold>
-        // saves the total damaged suffered
-        damageTaken[5] = damageTaken[0];
-        damageTaken[6] = damageTaken[1];
+    public Skill defend(Skill attackingSkill) {
 
         // checks if the damage was self inflicted by the attacker, hence no damage will be defended/ registered
-        if (damageTaken[7] == 0) {
-            // calculates actual dmg taken, taking into account physical defense
-            // if statement checks if the skill used is self inflicted or not
-            damageTaken[0] = (damageTaken[0] > 0
-                    ? (damageTaken[0] - physicalDefense < 0
-                            ? (damageTaken[0] * 0.1) : damageTaken[0] * 0.9
-                            - (damageTaken[8] == 0 ? physicalDefense : 0))
-                    : 0);
-            damageTaken[1] = (damageTaken[1] > 0
-                    ? (damageTaken[1] - magicalDefense < 0
-                            ? (damageTaken[1] * 0.1) : damageTaken[1] * 0.9
-                            - (damageTaken[8] == 0 ? physicalDefense : 0))
-                    : 0);
+        if (!attackingSkill.effects.containsKey("SelfInflicted")
+                && !attackingSkill.effects.containsKey("Missed")) {
 
-            // saves the dmg defended
-            damageTaken[3] = damageTaken[8] == 0 ? physicalDefense : 0;
-            damageTaken[4] = damageTaken[8] == 0 ? magicalDefense : 0;
+            if (attackingSkill.effects.containsKey("PhysicalDamage")) {
 
-            // ensures that there is no way of increasing health from attack
-            damageTaken[0] = damageTaken[0] < 0 ? 0 : damageTaken[0];
-            damageTaken[1] = damageTaken[1] < 0 ? 0 : damageTaken[1];
+                attackingSkill.effects.put("TotalPhysicalDamage", attackingSkill.effects.get("PhysicalDamage") - physicalDefense <= 0
+                        ? attackingSkill.effects.get("PhysicalDamage") * 0.1
+                        : attackingSkill.effects.get("PhysicalDamage") - physicalDefense);
 
-//        System.out.println();
-//        System.out.println("PDmg: " + damageTaken[5]);
-//        System.out.println("PDmg Defended: " + damageTaken[3]);
-//        System.out.println("PDmg Total: " + damageTaken[0]);
-            // reduces the health by the damage suffered
-            currentHP -= damageTaken[0];
-            currentHP -= damageTaken[1];
+                if (attackingSkill.effects.containsKey("IgnoreDefense")) {
+
+                    attackingSkill.effects.put("TotalPhysicalDamage", attackingSkill.effects.get("PhysicalDamage"));
+
+                } else {
+
+                    attackingSkill.effects.put("PhysicalDamageDefended", physicalDefense);
+
+                }
+
+                currentHP -= attackingSkill.effects.get("TotalPhysicalDamage");
+
+            }
+            if (attackingSkill.effects.containsKey("MagicalDamage")) {
+
+                attackingSkill.effects.put("TotalMagicalDamage", attackingSkill.effects.get("MagicalDamage") - magicalDefense <= 0
+                        ? attackingSkill.effects.get("MagicalDamage") * 0.1
+                        : attackingSkill.effects.get("MagicalDamage") - magicalDefense);
+
+                if (attackingSkill.effects.containsKey("IgnoreDefense")) {
+
+                    attackingSkill.effects.put("TotalMagicalDamage", attackingSkill.effects.get("MagicalDamage"));
+
+                } else {
+
+                    attackingSkill.effects.put("MagicalDamageDefended", magicalDefense);
+
+                }
+
+                currentHP -= attackingSkill.effects.get("TotalMagicalDamage");
+            }
+
         }
 
-        return damageTaken;
+        return attackingSkill;
 
     }
 
@@ -495,7 +492,7 @@ public abstract class Mob {
     public void equipSkill(Skill givenSkill, int skillIncreaseModifier, boolean allocateSkill) {
 
         // scales the skill cost
-        givenSkill.skillCost += intelligencePoints > skillIncreaseModifier ? givenSkill.skillCostIncrease : 0;
+        givenSkill.skillBaseCost += intelligencePoints > skillIncreaseModifier ? givenSkill.skillCostIncrease : 0;
 
         // chooses where the skill will be alloted
         if (allocateSkill) {

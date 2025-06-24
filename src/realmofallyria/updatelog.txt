@@ -141,3 +141,60 @@ progress (7/12/2025)
 • choose skill feature
 • fixed prompts for exploring boss's lair
 • shop items can now be equipped
+• defeat now gains minimal XP and coins
+
+version 0.1.1 (release version)
+progress (7/16/2025)
+• popup feature is now a seperate window
+• quest button now updates after closing storyline
+• level up popup now appears.
+• removed monster spawning scaled by player lvl feature: buggy
+• warningsMap: stores the warnings made
+• brink of death popup now appears one time
+• removed return in home panel (now click to return)
+• wilderness & bossLair variable now merged to dungeon
+• escaping during battle fixed
+• reworked attributes panel: buttons disappear at 0 attributes left
+
+version 0.1.2 (release version)
+progress (7/17/2025)
+• revamped skill class: now has tags for damage, selfinflicted, etc.
+• fixed successful escape bug: not displaying dungeon panel before
+• warnings now don't duplicate
+• started work on text loading
+• debug mode
+
+version 0.1.3 (release version)
+progress (7/19/2025)
+• loadingText class: text now loads!
+• revamped format text
+
+version 0.1.4 (release version)
+progress (7/23/2025)
+• added more text loading to everything
+• revamped character stats in game panel
+• loading text speeds enum
+• synchronized text loading
+• dialogue update
+
+version 0.1.5 (release version)
+progress (7/24/2025)
+• dialogue overhaul
+• prince names
+• skill picker now moved to intro
+• rescue picker
+• text loading: skills, quest, inventory, status, home
+• travelling merchant and home now hidden before completing tutorial
+• travel before tutorial completion now forbidden
+• choose skill panel revamped
+• added skill panel loading
+
+version 0.1.6 (release version)
+progress (7/25/2025)
+- status text loading
+- revamp shop: separate panels for buy and equip
+- level 2
+- upgrade or get new skill
+- skill levels
+- skill descriptions
+- skill panel show level && description

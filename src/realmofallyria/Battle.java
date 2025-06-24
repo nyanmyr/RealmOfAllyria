@@ -1,3 +1,4 @@
+
 package realmofallyria;
 
 import java.util.LinkedList;
@@ -18,8 +19,6 @@ public class Battle {
 
     double battleCoinTurnIncrease;
     double battleCoinGain;
-
-    double[] battleDamageTaken;
 
     int totalTurns;
 
@@ -63,77 +62,11 @@ public class Battle {
 
         battleXPGain += battleXPTurnIncrease;
         battleCoinGain += battleCoinTurnIncrease;
-        battleDamageTaken = defendingMob.defend(attackingMob.useSkill(battleSkillUsed));
-
-        String skilluseString = "";
-
-        switch (battleSkillUsed.skillName) {
-
-            // <editor-fold desc="hostile attacks">
-            case "Tackle" -> {
-                skilluseString = "%s tackled %s";
-            }
-            case "Punch" -> {
-                skilluseString = "%s punched %s";
-            }
-            case "Slash" -> {
-                skilluseString = "%s slashed %s";
-            }
-            case "Shoot" -> {
-                skilluseString = "%s hit %s";
-            }
-            case "Magic Missile" -> {
-                skilluseString = "%s fired a magic missile at %s";
-            }
-            case "Bite" -> {
-                skilluseString = "%s bit %s";
-            }
-            case "Club" -> {
-                skilluseString = "%s bonked %s";
-            }
-            case "Fireball" -> {
-                skilluseString = "%s fired a fireball at %s";
-            }
-            case "True Strike" -> {
-                skilluseString = "%s struck %s truthfully";
-            }
-            case "Ice Shards" -> {
-                skilluseString = "%s fired shards of ice at %s";
-            }
-            // </editor-fold>
-            // <editor-fold desc="non-hostile attacks">
-            case "Heal" -> {
-                skilluseString = "%s used heal.";
-            }
-            // </editor-fold>
-
-        }
+        Skill battleTurnSkill = defendingMob.defend(attackingMob.useSkill(battleSkillUsed));
 
         String attackString;
 
-        if (battleSkillUsed.selfInflict) {
-            attackString = String.format(""" 
-                                            <html>
-
-                                            <head>
-                                            <h3 align="center">
-                                            %s
-                                            </h3>
-                                            </head>
-
-                                            <body>
-                                            <p align="center">
-                                            %s %s
-                                            </p>
-                                            </body>
-
-                                            </html>
-                                            """, String.format(skilluseString, attackingMob.name, defendingMob.name),
-                    String.format("<br> HP restored (+%.2f HP)", battleDamageTaken[0]),
-                    battleSkillUsed.skillCost > 0 ? String.format("<br> (-%.2f MP)", battleSkillUsed.skillCost) : ""
-            );
-        } else {
-            attackString = String.format(""" 
+        attackString = String.format(""" 
                                             <html>
 
                                             <head>
@@ -149,15 +82,21 @@ public class Battle {
                                             </body>
 
                                             </html>
-                                            """, String.format(skilluseString, attackingMob.name, defendingMob.name),
-                    (battleDamageTaken[0] > 0 ? String.format("<br> PDmg inflicted (-%.2f HP)", battleDamageTaken[0]) : battleDamageTaken[5] > 0 ? "<br> Attacked completely blocked!" : ""),
-                    (battleDamageTaken[0] > 0 ? String.format("<br> PDmg defended (%.2f HP)", battleDamageTaken[3]) : ""),
-                    (battleDamageTaken[1] > 0 ? String.format("<br> MDmg inflicted (-%.2f MP)", battleDamageTaken[1]) : battleDamageTaken[6] > 0 ? "<br> Attacked completely resisted!" : ""),
-                    (battleDamageTaken[1] > 0 ? String.format("<br> MDmg defended (%.2f MP)", battleDamageTaken[4]) : ""),
-                    (battleDamageTaken[2] > 0 ? String.format("<br> CRITICAL HIT! (2x inflicted dmg)") : ""),
-                    battleSkillUsed.skillCost > 0 ? String.format("<br> (-%.2f MP)", battleSkillUsed.skillCost) : ""
-            );
-        }
+                                            """, String.format(battleSkillUsed.skillPrompt, attackingMob.name, defendingMob.name),
+                battleTurnSkill.effects.containsKey("TotalPhysicalDamage") ? String.format("<br>PDmg inflicted (-%.2f HP)%s",
+                battleTurnSkill.effects.get("TotalPhysicalDamage"),
+                battleTurnSkill.effects.containsKey("IgnoreDefense") ? "<br>PDef IGNORED!" : String.format("<br>PDmg defended (%.2f HP)", battleTurnSkill.effects.get("PhysicalDamageDefended"))) : "",
+                
+                battleTurnSkill.effects.containsKey("TotalMagicalDamage") ? String.format("<br>MDmg inflicted (-%.2f HP)%s",
+                battleTurnSkill.effects.get("TotalMagicalDamage"),
+                battleTurnSkill.effects.containsKey("IgnoreDefense") ? "<br>MDef IGNORED!" : String.format("<br>MDmg defended (%.2f HP)", battleTurnSkill.effects.get("MagicalDamageDefended"))) : "",
+                
+                battleTurnSkill.skillBaseCost > 0 ? String.format("<br>used %s MP", battleTurnSkill.skillBaseCost) : "",
+                
+                battleTurnSkill.effects.containsKey("HealSelf") ? String.format("<br>HP RESTORED (+%.2f HP)", battleTurnSkill.effects.get("HPHealed")) : "",
+                battleTurnSkill.effects.containsKey("CriticalHit") ? String.format("<br>CRITICAL HIT! (2x inflicted dmg)") : "",
+                battleTurnSkill.effects.containsKey("Missed") ? String.format("<br>ATTACK MISSED!") : ""
+        );
 
 //        System.out.println(attackString);
 //        System.out.println("NEXT TURN:" + turns.peek());
@@ -184,17 +123,8 @@ public class Battle {
 
         int fleeRoll = battleRandomizer.nextInt(1, 101);
 
-        if (fleeRoll < escapeChance) {
-
-//            System.out.println("Escape Success");
-            return false;
-
-        } else {
-
-//            System.out.println("Escape Failure");
-            return true;
-
-        }
+        // success if roll is under or equal to escapeChance
+        return fleeRoll <= escapeChance;
 
     }
 
@@ -212,8 +142,8 @@ public class Battle {
             if (battlePlayer.currentHP < 0) {
                 defeatedMob = battlePlayer.name;
                 winningMob = battleHostile.name;
-                battleXPGain = battleXPGain * 0.1;
-                battleCoinGain = 0 * 0.1;
+                battleXPGain = battleXPGain * 0.05;
+                battleCoinGain = 0 * 0.05;
             } else {
                 defeatedMob = battleHostile.name;
                 winningMob = battlePlayer.name;

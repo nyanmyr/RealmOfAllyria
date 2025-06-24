@@ -25,8 +25,6 @@ public class Player extends Mob {
 
         totalCoins += coinsGained;
 
-        accumulatedLVL = 0;
-
         while (xpGained > 0) {
             double xpToLevelUp = xpNeeded - xp;
 
@@ -100,10 +98,6 @@ public class Player extends Mob {
 
         fullHeal();
 
-        accumulatedLVL = 0;
-
-        System.out.println("TEST");
-        
     }
 
 }

@@ -1,27 +1,22 @@
+problems with code:
+- too much coupling! random stuff depend on each other, creating unnecessary errors
+
 to do:
-- revamp popup system
 
 bug fixing:
-- defeating baron does not have coins reward
-- warning menu bug (buttons not ordered porperly) : os issue?
-- quest button should show that a quest is completed ex (Completed)
-- quest completion popup not work
 
 future:
-- update opening sequence text (mention the boss's minnions)
-- remove all tool tips using null
 
 consider:
+- update opening sequence text (mention the boss's minnions)
+- remove all tool tips using null
 - hardcore or normal difficulty
 - add save/ load feature
-- rework ui
 - tips screen between travelling
 - shiny monsters??
-- clicking the home panel should return to the game panel automatically
-- change gender
-- damage dealt could be turned into class
-- skill could store own attack prompt (i.e. Heal could hold "%s healed themselves")
-- boss lair and wilderness variable could be merged
+
+groups of interest:
+Gods of Allyria (The Pantheon)
 
 lore stuff:
 named characters:
@@ -30,12 +25,16 @@ named characters:
 settlements (named characters):
 • village: village elder
 • town: lord/ lady
+• city: governor/ governess
+• fortress: commander
 • capital: king/ queen
 
 wilderness (and boss lair):
-• grasslands (encampment): Lesser Demon Lord/ Lady
-• forest (camp): Arch Demon Lord/ Lady
-• dungeon (castle): Demon Lord/ Lady
+• grasslands (encampment): Lower Demon
+• forest (occupied village): Herald
+• dungeon (captured castle): Arch Demon
+• scorched plains (acropolis): Harbinger
+• gates of hell (palace): Demon Lord "Infernal One", "Ruler of the Naetaleth"
 
 monsters:
 grasslands:
@@ -56,3 +55,16 @@ crude wand -> novice wand -> advanced wand
 leather armor -> steel armor -> paladin armor
 
 • defeating the boss does not mean you can no longer attack the lair.
+
+<body>
+<p align="center">
+(CLICK TO CONTINUE)
+</p>
+</body>
+</html>
+     */
+
+ /*
+<html><body><p align="center">A warrior's proven weapon. It deals great amounts of physical damage consistently, perfect for the common brawler.<br> (Blades increase strength points and physical damage)</p></body></html>
+<html><body><p align="center">A mage's handy weapon. It deals magical damage, though a mage's true potential lies in their magical abilities.<br> (Wands/ staves increase intelligence points, magical damage, and magical defence)</p></body></html>
+<html><body><p align="center">A ranger's reliable weapon. It deals less physical damage but improves the chances of a critical hit.<br> (Bows increase agility points and crit chances)</p></body></html>

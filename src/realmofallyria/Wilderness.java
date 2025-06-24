@@ -23,9 +23,6 @@ public class Wilderness extends Dungeon {
         // if battlePlayer level - wilderness level * 20 < 0 then it returns 0
         // else if the battlePlayer level - wilderness level * 20 > 0 then it returns 100
         // finally it gives right result if it does not meet the previous requirements
-        difficultyDiceRollModifier = (playerLevel - (dungeonLevel * 10)) * 20 < 0 ? 0
-                : (playerLevel - (dungeonLevel * 10)) * 20 > 100 ? 100
-                        : (playerLevel - (dungeonLevel * 10)) * 20;
 //        System.out.println("difficultyDiceRollModifier: " + difficultyDiceRollModifier);
 
         for (int i = 0; i < 20; i++) {
@@ -47,15 +44,15 @@ public class Wilderness extends Dungeon {
         exploreTurns = 0;
 
     }
-
-    public void generateWildernessMob() {
-
+    
+    @Override
+    public void generateDungeonMob() {
+        
         // 1 2 3
         // 0 1 2
-        int mobTypeDiceRoll = dungeonRandomizer.nextInt(1, 201);
+        int mobTypeDiceRoll = dungeonRandomizer.nextInt(1, 101);
 //        System.out.println("randomizeChosenMob: " + mobTypeDiceRoll);
-        int totalDiceRoll = mobTypeDiceRoll + difficultyDiceRollModifier;
-        int chosenMob = totalDiceRoll > 190 ? 2 : totalDiceRoll > 150 ? 1 : 0;
+        int chosenMob = mobTypeDiceRoll > 90 ? 2 : mobTypeDiceRoll > 50 ? 1 : 0;
         int generatedMobLVL = (chosenMob == 0 ? 1 : chosenMob == 1 ? 2 : 3) * 2 - dungeonRandomizer.nextInt(2);
         int generatedAffinity = dungeonRandomizer.nextInt(2);
         int generatedArmorLVL = dungeonRandomizer.nextInt(1, 4);

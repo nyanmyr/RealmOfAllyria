@@ -17,9 +17,6 @@ public abstract class Dungeon {
     int exploreTurns;
     boolean obstructed = false;
 
-    // determines a chance increase to encountering stronger mobs
-    int difficultyDiceRollModifier;
-
     String dungeonMobName = "";
     String dungeonMobAffinity = "";
     int dungeonMobLVL = 0;
@@ -50,6 +47,26 @@ public abstract class Dungeon {
         dungeonEncounters.poll();
         exploreTurns++;
         return exploreResult;
+
+    }
+
+    public abstract void generateDungeonMob();
+
+    public void generateBossMob() {
+
+        int bossMobLVL = 12;
+        int generatedAffinity = dungeonRandomizer.nextInt(2);
+        int generatedArmorLVL = dungeonRandomizer.nextInt(1, 4);
+        int generatedWeaponLVL = dungeonRandomizer.nextInt(1, 4);
+
+        obstructed = true;
+
+        dungeonMobName = dungeonMonsterNames[1];
+        dungeonMobAffinity = dungeonMonsterAffinities[1][generatedAffinity];
+        dungeonMobLVL = (bossMobLVL + (dungeonLevel * 10));
+        dungeonMobWeapon = new Weapon(dungeonMonsterEquipment[1][1], generatedWeaponLVL, new Skill(dungeonMonsterBasicAttack[1]),
+                0, 0, 0);
+        dungeonMobArmor = new Armor(dungeonMonsterEquipment[1][0], generatedArmorLVL, 0, 0);
 
     }
 
