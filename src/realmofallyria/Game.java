@@ -330,32 +330,32 @@ public class Game extends javax.swing.JFrame {
         // 7 for skipping tutorial
         //9 for testing shop
         // 12 for baron boss battle
-        storylineIndex = 12;
+        storylineIndex = 0;
         quest = new Quest();
 
         // -----------------------------------------------------------------------------------------------------------
         // <editor-fold desc="debugging/ QA testing stuff">
-        player = new Player();
-        characterNames.put(0, new String[]{"Meme Bashame", "", "Player", "m"});
-        player.typeAffinity = "Celeritas";
-        player.chooseAffinity(10);
-        player.name = "Meme Bashame";
-        player.typeAffinity = "Celeritas";
-        player.level = 1;
-
-        player.chooseAffinity(10);
-        player.confirmAttributeChanges();
-        Weapon debugWeapon = new Weapon("Simple Bow", 1, new Skill("Shoot"), 3, 0, 3);
-        Armor debugArmor = new Armor("Leather Armor", 1, 3, 3);
-        player.equipGear(debugWeapon, debugArmor);
-
-//        player.attributePoints += 1000;
-        player.totalCoins += 10000;
-        player.currentHP = 1;
-
-        player.skill1 = new Skill("Heal");
-        player.skill2 = new Skill("Fireball");
-        player.skill3 = new Skill("True Strike");
+//        player = new Player();
+//        characterNames.put(0, new String[]{"Meme Bashame", "", "Player", "m"});
+//        player.typeAffinity = "Celeritas";
+//        player.chooseAffinity(10);
+//        player.name = "Meme Bashame";
+//        player.typeAffinity = "Celeritas";
+//        player.level = 1;
+//
+//        player.chooseAffinity(10);
+//        player.confirmAttributeChanges();
+//        Weapon debugWeapon = new Weapon("Simple Bow", 1, new Skill("Shoot"), 3, 0, 3);
+//        Armor debugArmor = new Armor("Leather Armor", 1, 3, 3);
+//        player.equipGear(debugWeapon, debugArmor);
+//
+////        player.attributePoints += 1000;
+//        player.totalCoins += 10000;
+//        player.currentHP = 1;
+//
+//        player.skill1 = new Skill("Heal");
+//        player.skill2 = new Skill("Fireball");
+//        player.skill3 = new Skill("True Strike");
         // </editor-fold>
         // -----------------------------------------------------------------------------------------------------------
         // -----------------------------------------------------------------------------------------------------------
@@ -395,10 +395,10 @@ public class Game extends javax.swing.JFrame {
         hideScreens();
 
         // enable these along with putting storylineIndex to 8 to skip tutorial
-        openGameScreen();
-        travelToLocation("Village");
-        panel_Intro.setVisible(false);
-        generateNPCNames(PrincessPrince.PRINCESS);
+//        openGameScreen();
+//        travelToLocation("Village");
+//        panel_Intro.setVisible(false);
+//        generateNPCNames(PrincessPrince.PRINCESS);
     }
 
     // -----------------------------------------------------------------------------------------------------------
